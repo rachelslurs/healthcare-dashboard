@@ -891,7 +891,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           <Button type='button' onClick={handleCancel} outline>
             Cancel
           </Button>
-          <Button type='submit' color='blue' disabled={isSubmitting}>
+          <Button type='submit' color='violet' disabled={isSubmitting}>
             {isSubmitting ? 'Saving...' : isEdit ? 'Update Patient' : 'Create Patient'}
           </Button>
         </div>

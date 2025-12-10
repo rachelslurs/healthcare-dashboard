@@ -65,7 +65,7 @@ export function DropdownItem({
     // Text styles
     'text-left text-base/6 text-neutral-950 sm:text-sm/6 forced-colors:text-[CanvasText]',
     // Focus
-    'data-focus:bg-violet-500 data-focus:text-violet-foreground',
+    'data-focus:bg-brand data-focus:text-ascertain-foreground',
     // Disabled state
     'data-disabled:opacity-50',
     // Forced colors mode
@@ -74,7 +74,7 @@ export function DropdownItem({
     'col-span-full grid grid-cols-[auto_1fr_1.5rem_0.5rem_auto] items-center supports-[grid-template-columns:subgrid]:grid-cols-subgrid',
     // Icons
     '*:data-[slot=icon]:col-start-1 *:data-[slot=icon]:row-start-1 *:data-[slot=icon]:mr-2.5 *:data-[slot=icon]:-ml-0.5 *:data-[slot=icon]:size-5 sm:*:data-[slot=icon]:mr-2 sm:*:data-[slot=icon]:size-4',
-    '*:data-[slot=icon]:text-neutral-500 data-focus:*:data-[slot=icon]:text-violet-foreground',
+    '*:data-[slot=icon]:text-ascertain-foreground data-focus:*:data-[slot=icon]:text-ascertain-foreground',
     // Avatar
     '*:data-[slot=avatar]:mr-2.5 *:data-[slot=avatar]:-ml-1 *:data-[slot=avatar]:size-6 sm:*:data-[slot=avatar]:mr-2 sm:*:data-[slot=avatar]:size-5'
   )
@@ -130,7 +130,7 @@ export function DropdownDivider({
       {...props}
       className={clsx(
         className,
-        'col-span-full mx-3.5 my-1 h-px border-0 bg-neutral-950/5 sm:mx-3 forced-colors:bg-[CanvasText]'
+        'col-span-full mx-3.5 my-1 h-px border-0 bg-ascertain-foreground/5 sm:mx-3 forced-colors:bg-[CanvasText]'
       )}
     />
   )

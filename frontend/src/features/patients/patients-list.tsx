@@ -4,6 +4,7 @@ import type { PatientListItem } from './types'
 import { getPatients } from './api'
 import usePaginatedData from '@/hooks/usePaginatedData'
 import useSortedData from '@/hooks/useSortedData'
+import { Badge } from '@/components/ui/badge'
 
 // Format date for display
 const formatDate = (dateString: string | undefined): string => {
@@ -19,6 +20,27 @@ const formatDate = (dateString: string | undefined): string => {
 const formatAge = (age: number | undefined): string => {
   if (age === undefined || age === null) return '—'
   return `${age}`
+}
+
+// Get badge color based on status
+const getStatusColor = (status: 'active' | 'inactive' | 'archived'): 'green' | 'orange' | 'zinc' => {
+  switch (status) {
+    case 'active':
+      return 'green'
+    case 'inactive':
+      return 'orange'
+    case 'archived':
+      return 'zinc'
+    default:
+      return 'zinc'
+  }
+}
+
+// Format status as a badge
+const formatStatus = (status: 'active' | 'inactive' | 'archived') => {
+  const color = getStatusColor(status)
+  const capitalizedStatus = status.charAt(0).toUpperCase() + status.slice(1)
+  return <Badge color={color}>{capitalizedStatus}</Badge>
 }
 
 export default function PatientsList() {
@@ -47,7 +69,7 @@ export default function PatientsList() {
     },
     {
       header: 'Status',
-      accessor: 'status',
+      accessor: (row) => formatStatus(row.status),
       sortable: false,
     },
     {

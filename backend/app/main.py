@@ -305,7 +305,7 @@ def delete_patient(patient_id: int, db: Session = Depends(get_db)):
     db.delete(patient)
     db.commit()
     
-    return Response(status_code=204)
+    return
 
 
 @app.get("/api/activities", response_model=PaginatedActivitiesResponse)

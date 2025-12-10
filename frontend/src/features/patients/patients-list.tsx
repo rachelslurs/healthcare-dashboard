@@ -70,7 +70,8 @@ export default function PatientsList() {
     {
       header: 'Status',
       accessor: (row) => formatStatus(row.status),
-      sortable: false,
+      sortable: true,
+      sortKey: 'status',
     },
     {
       header: 'Last Visit',
@@ -85,7 +86,7 @@ export default function PatientsList() {
       return getPatients({ 
         page, 
         pageSize, 
-        sortBy: sortBy as 'lastName' | 'lastVisit' | undefined, 
+        sortBy: sortBy as 'lastName' | 'lastVisit' | 'status' | undefined, 
         sortOrder 
       })
     },

@@ -79,6 +79,49 @@ export async function getPatient(id: string): Promise<Patient> {
 }
 
 /**
+ * Create a new patient
+ */
+export async function createPatient(patientData: Omit<Patient, 'id' | 'createdAt' | 'updatedAt' | 'age'>): Promise<Patient> {
+  const response = await fetch(`${API_BASE_URL}/api/patients`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(patientData),
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}))
+    throw new Error(errorData.detail || `Failed to create patient: ${response.statusText}`)
+  }
+
+  return await response.json()
+}
+
+/**
+ * Update an existing patient
+ */
+export async function updatePatient(id: string, patientData: Partial<Omit<Patient, 'id' | 'createdAt' | 'updatedAt' | 'age'>>): Promise<Patient> {
+  const response = await fetch(`${API_BASE_URL}/api/patients/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(patientData),
+  })
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error(`Patient with ID ${id} not found`)
+    }
+    const errorData = await response.json().catch(() => ({}))
+    throw new Error(errorData.detail || `Failed to update patient: ${response.statusText}`)
+  }
+
+  return await response.json()
+}
+
+/**
  * Delete a patient by ID
  */
 export async function deletePatient(id: string): Promise<void> {

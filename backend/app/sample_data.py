@@ -43,11 +43,8 @@ def generate_sample_patients(count: int = 20):
             "Hall", "Rivera", "Campbell", "Mitchell", "Carter", "Roberts"
         ]
         
-        # Sample patient statuses (separate from medical status)
+        # Sample patient statuses
         patient_statuses = ["active", "inactive", "archived"]
-        
-        # Sample medical statuses (in medical_info)
-        medical_statuses = ["active", "inactive", "critical"]
         
         # Sample blood types
         blood_types = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
@@ -118,12 +115,6 @@ def generate_sample_patients(count: int = 20):
                 weights=[70, 20, 10]  # 70% active, 20% inactive, 10% archived
             )[0]
             
-            # Random medical status (separate from patient status)
-            medical_status = random.choices(
-                medical_statuses,
-                weights=[60, 30, 10]  # 60% active, 30% inactive, 10% critical
-            )[0]
-            
             # Generate address (using snake_case)
             city, state = random.choice(cities_states)
             street_number = random.randint(100, 9999)
@@ -182,8 +173,7 @@ def generate_sample_patients(count: int = 20):
                 "current_medications": medications,
                 "conditions": patient_conditions,
                 "blood_type": random.choice(blood_types),
-                "last_visit": last_visit,
-                "status": medical_status  # Medical status (separate from patient status)
+                "last_visit": last_visit
             }
             
             # Generate insurance info (using snake_case)

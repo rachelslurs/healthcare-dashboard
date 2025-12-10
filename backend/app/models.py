@@ -16,7 +16,7 @@ class Patient(Base):
     date_of_birth = Column(String, nullable=False)  # ISO format string
     phone = Column(String(20), nullable=False)
     email = Column(String(255), nullable=False)
-    status = Column(String(20), nullable=False, default="active", index=True)  # Patient status (separate from medical_info.status)
+    status = Column(String(20), nullable=False, default="active", index=True)  # Patient status
     
     # JSON columns for complex nested data
     address = Column(JSON, nullable=True)

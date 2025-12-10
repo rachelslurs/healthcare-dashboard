@@ -50,7 +50,6 @@ const defaultFormData: {
     conditions: string[]
     bloodType: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-' | undefined
     lastVisit: string
-    status: 'active' | 'inactive' | 'critical'
   }
   insurance: {
     provider: string
@@ -77,7 +76,6 @@ const defaultFormData: {
     conditions: [],
     bloodType: undefined,
     lastVisit: '',
-    status: 'active',
   },
   insurance: {
     provider: '',
@@ -106,7 +104,6 @@ type FormData = {
     conditions: string[]
     bloodType: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-' | undefined
     lastVisit: string
-    status: 'active' | 'inactive' | 'critical'
   }
   insurance: {
     provider: string
@@ -792,44 +789,25 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
               </div>
             </Field>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <Field>
-                <Label>Blood Type</Label>
-                <Select
-                  value={formData.medicalInfo.bloodType || ''}
-                  onChange={(e) =>
-                    handleNestedChange('medicalInfo', 'bloodType', e.target.value || undefined)
-                  }
-                >
-                  <option value="">Not specified</option>
-                  <option value="A+">A+</option>
-                  <option value="A-">A-</option>
-                  <option value="B+">B+</option>
-                  <option value="B-">B-</option>
-                  <option value="AB+">AB+</option>
-                  <option value="AB-">AB-</option>
-                  <option value="O+">O+</option>
-                  <option value="O-">O-</option>
-                </Select>
-              </Field>
-
-              <Field>
-                <Label>
-                  Medical Status <span className="text-red-500">*</span>
-                </Label>
-                <Select
-                  value={formData.medicalInfo.status}
-                  onChange={(e) =>
-                    handleNestedChange('medicalInfo', 'status', e.target.value as Patient['medicalInfo']['status'])
-                  }
-                  required
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="critical">Critical</option>
-                </Select>
-              </Field>
-            </div>
+            <Field>
+              <Label>Blood Type</Label>
+              <Select
+                value={formData.medicalInfo.bloodType || ''}
+                onChange={(e) =>
+                  handleNestedChange('medicalInfo', 'bloodType', e.target.value || undefined)
+                }
+              >
+                <option value="">Not specified</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+              </Select>
+            </Field>
 
             <Field>
               <Label>Last Visit</Label>

@@ -54,7 +54,7 @@ export interface Patient {
   dateOfBirth: string;
   email: string;
   phone: string;
-  status: 'active' | 'inactive' | 'archived';  // Patient status (separate from medicalInfo.status)
+  status: 'active' | 'inactive' | 'archived';  // Patient status
   address?: Address;
   emergencyContact?: EmergencyContact;
   medicalInfo: {
@@ -63,7 +63,6 @@ export interface Patient {
     conditions: string[];
     bloodType?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
     lastVisit: string;
-    status: 'active' | 'inactive' | 'critical';  // Medical status
   };
   insurance: InsuranceInfo;
   documents: Document[];

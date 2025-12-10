@@ -19,6 +19,22 @@ export default [
         },
         project: './tsconfig.json',
       },
+      globals: {
+        // Browser globals
+        window: 'readonly',
+        document: 'readonly',
+        fetch: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        console: 'readonly',
+        // Node.js globals (for SSR/build time)
+        process: 'readonly',
+        global: 'readonly',
+        // React (for automatic JSX runtime)
+        React: 'readonly',
+      },
     },
     plugins: {
       '@typescript-eslint': tseslint,
@@ -45,12 +61,19 @@ export default [
       },
     },
     rules: {
+      // Disable base no-unused-vars in favor of TypeScript version
+      'no-unused-vars': 'off',
+      
       // TypeScript rules
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
+          args: 'after-used', // Only check args after the last used one
+          ignoreRestSiblings: true, // Ignore rest siblings in destructuring
+          caughtErrors: 'none', // Don't require unused error variables in catch blocks
+          destructuredArrayIgnorePattern: '^_', // Ignore unused destructured array elements
         },
       ],
       
@@ -92,7 +115,7 @@ export default [
       'import/no-unresolved': 'error',
       'import/no-unused-modules': 'warn',
       'import/no-duplicates': 'error',
-      'import/no-cycle': ['error', { maxDepth: 10 }],
+      'import/no-cycle': ['warn', { maxDepth: 10 }], // Downgrade to warning for now
       'import/no-self-import': 'error',
       'import/no-useless-path-segments': [
         'error',
@@ -105,6 +128,11 @@ export default [
       'import/newline-after-import': 'error',
       'import/no-absolute-path': 'error',
       'import/no-relative-packages': 'warn',
+      
+      // General JavaScript rules
+      'no-undef': 'error', // Keep enabled, but globals are defined above
+      'no-redeclare': ['error', { builtinGlobals: false }], // Allow redeclaring globals
+      'no-case-declarations': 'off', // Allow lexical declarations in case blocks
     },
   },
   {

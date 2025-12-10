@@ -8,23 +8,7 @@ import { getPatient, createPatient, updatePatient, uploadPatientPhoto } from './
 import { toast } from '@/lib/toast'
 import { patientFormSchema, type PatientFormData } from './patient-form-schema'
 import { API_BASE_URL } from '@/lib/constants'
-
-// Convert ISO date string to YYYY-MM-DD format for date input
-const formatDateForInput = (dateString: string | undefined): string => {
-  if (!dateString) return ''
-  try {
-    const date = new Date(dateString)
-    // Check if date is valid
-    if (isNaN(date.getTime())) return ''
-    // Return YYYY-MM-DD format
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    return `${year}-${month}-${day}`
-  } catch {
-    return ''
-  }
-}
+import { formatDateForInput } from '@/lib/date-utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'

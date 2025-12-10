@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
-import { format } from 'date-fns'
 import { getPatient, deletePatient } from './api'
 import type { Patient } from './types'
 import { toast } from '@/lib/toast'
@@ -10,16 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogTitle, DialogDescription, DialogBody, DialogActions } from '@/components/ui/dialog'
 import { API_BASE_URL } from '@/lib/constants'
-
-// Format date for display
-const formatDate = (dateString: string | undefined): string => {
-  if (!dateString) return '—'
-  try {
-    return format(new Date(dateString), 'MMM d, yyyy')
-  } catch {
-    return dateString
-  }
-}
+import { formatDate } from '@/lib/date-utils'
 
 // Get badge color based on status
 const getStatusColor = (status: 'active' | 'inactive' | 'archived'): 'green' | 'orange' | 'zinc' => {

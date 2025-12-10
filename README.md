@@ -57,6 +57,7 @@ The database is automatically seeded with 20 sample patients on first run. Can b
 - **Optimized Form Rendering**: Using `useWatch` from React Hook Form instead of `watch()` to subscribe only to specific fields, reducing re-renders
 - **Component Extraction**: Large components extracted into separate files for better code splitting and maintainability
 - **Stable References**: Column definitions and render functions memoized in list components to prevent table re-renders on every state change
+- **Debounced Search Input**: Search queries debounced with 300ms delay to reduce API calls while typing (URL updates immediately for shareable/bookmarkable links, but API requests only fire after user stops typing)
 
 ### Route Structure
 - **File-Based Routing**: TanStack Router with file-based route generation

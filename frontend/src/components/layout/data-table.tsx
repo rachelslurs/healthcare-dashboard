@@ -69,8 +69,6 @@ export default function DataTable<T extends object>({
 }: DataTableProps<T>) {
   const hasData = !!(data && data.items.length > 0)
   const showOverlay = isFetching && hasData
-  // Calculate minimum table height to prevent jumping (skeleton rows + header + padding)
-  const minTableHeight = `${skeletonRows * 48 + 60}px` // Approximate: 48px per row + 60px for header/padding
 
   return (
     <div className={clsx('relative rounded-lg border border-neutral-950/10 bg-white shadow-sm', className)}>

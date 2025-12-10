@@ -69,6 +69,7 @@ The database is automatically seeded with 20 sample patients on first run. Can b
 ### Error Handling Strategy
 
 ### Known Issues/To Dos
+- **Medication Management**: The patient form currently does not include UI for managing current medications. 
 
 ### Component Architecture
 - **Separation of Concerns**:

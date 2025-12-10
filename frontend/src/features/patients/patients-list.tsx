@@ -133,7 +133,7 @@ export default function PatientsList() {
 
   // Render clickable rows that navigate to patient detail
   // Memoized with useCallback to prevent unnecessary re-renders of table rows
-  const renderRow = useCallback((row: PatientListItem, index: number) => {
+  const renderRow = useCallback((row: PatientListItem, _index: number) => {
     const patientName = `${row.firstName || ''} ${row.lastName || ''}`.trim() || 'Patient'
     return (
       <TableRow

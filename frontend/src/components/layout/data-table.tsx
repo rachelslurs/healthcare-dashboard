@@ -69,13 +69,15 @@ export default function DataTable<T extends object>({
 }: DataTableProps<T>) {
   const hasData = !!(data && data.items.length > 0)
   const showOverlay = isFetching && hasData
+  // Calculate minimum table height to prevent jumping (skeleton rows + header + padding)
+  const minTableHeight = `${skeletonRows * 48 + 60}px` // Approximate: 48px per row + 60px for header/padding
 
   return (
     <div className={clsx('relative rounded-lg border border-neutral-950/10 bg-white shadow-sm', className)}>
       <LoadingOverlay isVisible={showOverlay} />
       
       {error ? (
-        <div className='flex flex-col items-center justify-center gap-4 p-12'>
+        <div className='flex flex-col items-center justify-center gap-4 p-12 min-h-[400px]'>
           <p className='text-sm text-neutral-600'>
             {error.message || 'An error occurred while loading data'}
           </p>
@@ -85,76 +87,87 @@ export default function DataTable<T extends object>({
             </Button>
           )}
         </div>
-      ) : isLoading && !hasData ? (
-        <div className='overflow-x-auto'>
-          <Table striped={true} dense={true}>
-            <TableHead>
-              <TableHeaderRow
-                columns={columns}
-                onSort={onSort}
-                currentSortBy={currentSortBy}
-                currentSortOrder={currentSortOrder}
-              />
-            </TableHead>
-            <TableBody>
-              <TableSkeleton rows={skeletonRows} columns={columns.length} />
-            </TableBody>
-          </Table>
-        </div>
-      ) : !hasData ? (
-        <div className='flex items-center justify-center p-12'>
-          <p className='text-sm text-neutral-500'>
-            {emptyMessage}
-          </p>
-        </div>
       ) : (
         <>
           <div className='overflow-x-auto'>
-            <Table>
-            <TableHead>
-              <TableHeaderRow
-                columns={columns}
-                onSort={onSort}
-                currentSortBy={currentSortBy}
-                currentSortOrder={currentSortOrder}
-              />
-            </TableHead>
+            <Table striped={!isLoading || hasData} dense={true}>
+              <TableHead>
+                <TableHeaderRow
+                  columns={columns}
+                  onSort={onSort}
+                  currentSortBy={currentSortBy}
+                  currentSortOrder={currentSortOrder}
+                />
+              </TableHead>
               <TableBody>
-                {renderRow
-                  ? data.items.map((row, index) => renderRow(row, index))
-                  : data.items.map((row, rowIndex) => (
-                      <TableRow key={rowIndex}>
-                        {columns.map((column, colIndex) => {
-                          let content: React.ReactNode
-                          if (column.accessor) {
-                            if (typeof column.accessor === 'function') {
-                              content = column.accessor(row)
-                            } else {
-                              // Type assertion: column.accessor is keyof T, so row[column.accessor] should be compatible
-                              // Convert to ReactNode - values from Record<string, unknown> need explicit conversion
-                              const value = row[column.accessor]
-                              content = (value as React.ReactNode) ?? String(value)
-                            }
-                          } else {
-                            content = null
-                          }
-                          return (
-                            <TableCell
-                              key={colIndex}
-                              className={column.className}
-                              style={column.width ? { width: column.width } : undefined}
-                            >
-                              {content}
+                {isLoading && !hasData ? (
+                  <TableSkeleton rows={skeletonRows} columns={columns.length} />
+                ) : !hasData ? (
+                  <TableRow>
+                    <TableCell colSpan={columns.length} className='text-center py-12'>
+                      <p className='text-sm text-neutral-500'>
+                        {emptyMessage}
+                      </p>
+                    </TableCell>
+                  </TableRow>
+                ) : (() => {
+                  const pageSize = data.page_size || skeletonRows
+                  const items = data.items || []
+                  const emptyRowsCount = Math.max(0, pageSize - items.length)
+                  
+                  return (
+                    <>
+                      {renderRow ? (
+                        items.map((row, index) => renderRow(row, index))
+                      ) : (
+                        items.map((row, rowIndex) => (
+                          <TableRow key={rowIndex}>
+                            {columns.map((column, colIndex) => {
+                              let content: React.ReactNode
+                              if (column.accessor) {
+                                if (typeof column.accessor === 'function') {
+                                  content = column.accessor(row)
+                                } else {
+                                  // Type assertion: column.accessor is keyof T, so row[column.accessor] should be compatible
+                                  // Convert to ReactNode - values from Record<string, unknown> need explicit conversion
+                                  const value = row[column.accessor]
+                                  content = (value as React.ReactNode) ?? String(value)
+                                }
+                              } else {
+                                content = null
+                              }
+                              return (
+                                <TableCell
+                                  key={colIndex}
+                                  className={column.className}
+                                  style={column.width ? { width: column.width } : undefined}
+                                >
+                                  {content}
+                                </TableCell>
+                              )
+                            })}
+                          </TableRow>
+                        ))
+                      )}
+                      {/* Render empty rows to maintain consistent table height */}
+                      {Array.from({ length: emptyRowsCount }).map((_, emptyIndex) => (
+                        <TableRow key={`empty-${emptyIndex}`} className='opacity-0 pointer-events-none'>
+                          {columns.map((_, colIndex) => (
+                            <TableCell key={colIndex} className={columns[colIndex]?.className}>
+                              &nbsp;
                             </TableCell>
-                          )
-                        })}
-                      </TableRow>
-                    ))}
+                          ))}
+                        </TableRow>
+                      ))}
+                    </>
+                  )
+                })()}
               </TableBody>
             </Table>
           </div>
-          {data && (
-            <div className='border-t border-neutral-950/10 px-6 py-4'>
+          {/* Always render pagination container to prevent layout shift */}
+          <div className='border-t border-neutral-950/10 px-6 py-4 min-h-[72px] flex items-center justify-center'>
+            {data && data.total_pages > 0 ? (
               <PaginationControls
                 page={data.page}
                 totalPages={data.total_pages}
@@ -164,8 +177,10 @@ export default function DataTable<T extends object>({
                 onPageChange={onPageChange}
                 showShowingText={showShowingText}
               />
-            </div>
-          )}
+            ) : (
+              <div className='h-10' /> // Reserve space when no pagination
+            )}
+          </div>
         </>
       )}
     </div>

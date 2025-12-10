@@ -25,14 +25,14 @@ function MobileSidebar({ open, close, children }: React.PropsWithChildren<{ open
     <Headless.Dialog open={open} onClose={close} className="lg:hidden">
       <Headless.DialogBackdrop
         transition
-        className="fixed inset-0 bg-black/30 transition data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
+        className="fixed inset-0 bg-black/20 transition data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
       />
       <Headless.DialogPanel
         transition
         className="fixed inset-y-0 w-full max-w-80 p-2 transition duration-300 ease-in-out data-closed:-translate-x-full"
       >
-        <div className="flex h-full flex-col rounded-xl bg-ascertain-white shadow-md ring-1 ring-neutral-800/10">
-          <div className="-mb-3 px-4 pt-3">
+        <div className="flex h-full flex-col rounded-lg bg-ascertain-background shadow-xs overflow-hidden">
+          <div className="px-4 pt-3">
             <Headless.CloseButton as={NavbarItem} aria-label="Close navigation">
               <CloseMenuIcon />
             </Headless.CloseButton>
@@ -52,16 +52,14 @@ export function SidebarLayout({
   let [showSidebar, setShowSidebar] = useState(false)
 
   return (
-    <div className="relative isolate flex min-h-svh w-full bg-ascertain-background max-lg:flex-col">
+    <div className="relative isolate flex min-h-svh w-full bg-ascertain-background max-lg:flex-col lg:bg-ascertain-background">
       {/* Sidebar on desktop */}
-      <div className="fixed inset-y-0 left-0 w-64 max-lg:hidden border-r border-neutral-800/10">{sidebar}</div>
-      
-      {/* Desktop navbar header with frosted glass effect */}
-      <header className="fixed top-0 right-0 left-64 z-10 hidden lg:block">
-        <div className="bg-ascertain-white/80 backdrop-blur-sm border-b border-neutral-800/10 px-4 py-2.5">
+      <header className="fixed top-0 right-0 z-10 hidden lg:block px-4 py-2.5">
+        <div className="bg-ascertain-white backdrop-blur-sm border-b border-neutral-800/10 rounded-t-xl px-4 py-2.5">
           {navbar}
         </div>
       </header>
+      <div className="fixed inset-y-0 left-0 w-64 hidden lg:block">{sidebar}</div>
 
       {/* Sidebar on mobile */}
       <MobileSidebar open={showSidebar} close={() => setShowSidebar(false)}>
@@ -79,8 +77,8 @@ export function SidebarLayout({
       </header>
 
       {/* Content */}
-      <main className="flex flex-1 flex-col pb-2 lg:min-w-0 lg:pt-14 lg:pr-2 lg:pl-64">
-        <div className="grow p-6 lg:rounded-xl lg:bg-ascertain-white lg:p-10 lg:shadow-md">
+      <main className="flex flex-1 flex-col pb-2 lg:min-w-0 lg:pt-2 lg:pr-2 lg:pl-64">
+        <div className="grow p-6 lg:rounded-lg lg:bg-ascertain-white lg:p-10 lg:shadow-xs lg:ring-1 lg:ring-zinc-950/5 dark:lg:bg-zinc-900 dark:lg:ring-white/10">
           <div className="mx-auto max-w-6xl">{children}</div>
         </div>
       </main>

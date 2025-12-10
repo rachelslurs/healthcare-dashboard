@@ -1,1 +1,229 @@
 @import 'tailwindcss';
+
+/* Ascertain Brand Fonts - Performance Optimized (Regular + Medium only) */
+@font-face {
+  font-family: "Neue Montreal";
+  src: url("https://cdn.prod.website-files.com/68dd4d10a3ceb8ade9103b41/68dd4d10a3ceb8ade9103b49_PPNeueMontreal-Regular.otf")
+    format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Neue Montreal";
+  src: url("https://cdn.prod.website-files.com/68dd4d10a3ceb8ade9103b41/68dd4d10a3ceb8ade9103b4a_PPNeueMontreal-Medium.otf")
+    format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rhetorik Serif";
+  src: url("https://cdn.prod.website-files.com/68dd4d10a3ceb8ade9103b41/68de235a6b8aa7717210022c_RhetorikSerif-Regular.otf")
+    format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rhetorik Serif";
+  src: url("https://cdn.prod.website-files.com/68dd4d10a3ceb8ade9103b41/68de235a09e9b6e1b431c689_RhetorikSerif-Medium.otf")
+    format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  /* Colors - Static */
+  --color-brand: #002bba;
+  --color-brand-foreground: #ffffff;
+  
+  --color-gray: #9b9b9b;
+  --color-violet: #d4c1ff;
+  
+  --color-neutral-600: #5e5a56;
+  --color-neutral-800: #3b3a38;
+  --color-neutral-900: #302f2e;
+  --color-neutral-925: #242322;
+  
+  /* Colors - CSS Variable Based (HSL) */
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-current-background: hsl(var(--current-background));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  
+  /* Border Radius */
+  --radius: 0.5rem;
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+  
+  /* Font Family */
+  --font-family-sans: "Neue Montreal", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-family-serif: "Rhetorik Serif", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  
+  /* Font Sizes */
+  --font-size-xs: 14px;
+  --font-size-sm: 16px;
+  --font-size-base: 18px;
+  --font-size-lg: 36px;
+  --font-size-xl: 48px;
+  --font-size-2xl: 64px;
+  
+  /* Spacing */
+  --spacing-0\.5: 0.25rem;
+  --spacing-1: 0.5rem;
+  --spacing-4: 1rem;
+  --spacing-8: 2rem;
+  --spacing-12: 3rem;
+  --spacing-16: 4rem;
+  --spacing-20: 5rem;
+  --spacing-24: 6rem;
+  --spacing-28: 7rem;
+  
+  /* Max Width */
+  --max-width-xs: 15rem;
+  --max-width-sm: 20rem;
+  --max-width-md: 25rem;
+  --max-width-lg: 30rem;
+  --max-width-xl: 35rem;
+  --max-width-2xl: 40rem;
+  --max-width-3xl: 45rem;
+  --max-width-4xl: 50rem;
+  --max-width-5xl: 55rem;
+  --max-width-6xl: 60rem;
+  --max-width-7xl: 65rem;
+  
+  /* Box Shadow */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  
+  /* Container */
+  --container-padding: 2rem;
+  --breakpoint-2xl: 1400px;
+  
+  /* Animations */
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+}
+
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+@layer utilities {
+  /* Custom utility for ring-offset-reset (replaces v3 plugin) */
+  .ring-offset-reset {
+    --current-background: var(--tw-ring-color);
+  }
+}
+
+@layer base {
+  /* Default font family - sans-serif (Neue Montreal) for body text */
+  * {
+    font-family: var(--font-family-sans);
+  }
+
+  /* Serif (Rhetorik Serif) for all headings and titles */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-family-serif);
+  }
+
+  :root {
+    /* Ascertain Brand Colors - Light Mode (HSL format) */
+    --background: 30 20% 96%; /* #f6f4f1 - Warm off-white */
+    --foreground: 0 0% 7%; /* #121212 - Dark grey-black */
+    --card: 0 0% 100%; /* Pure white for cards */
+    --card-foreground: 0 0% 7%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 7%;
+    --primary: 223 100% 36%; /* #002bba - Brand blue */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 30 20% 96%;
+    --secondary-foreground: 0 0% 7%;
+    --muted: 30 20% 96%;
+    --muted-foreground: 30 8% 35%; /* #5e5a56 - Neutral-600 */
+    --accent: 260 100% 88%; /* #d4c1ff - Violet primary */
+    --accent-foreground: 0 0% 7%;
+    --success: 142 71% 45%; /* Soft green */
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%; /* Warm amber */
+    --warning-foreground: 0 0% 7%;
+    --destructive: 0 72% 51%; /* Muted red */
+    --destructive-foreground: 0 0% 100%;
+    --border: 30 10% 90%; /* #e5e5e5 - Very light grey */
+    --input: 30 10% 90%;
+    --ring: 223 100% 36%; /* Brand blue for focus rings */
+    --current-background: var(--background);
+  }
+
+  .dark {
+    --background: 224 71.4% 9.1%;
+    --foreground: 210 20% 98%;
+    --card: 224 71.4% 4.1%;
+    --card-foreground: 210 20% 98%;
+    --popover: 224 71.4% 4.1%;
+    --popover-foreground: 210 20% 98%;
+    --primary: 210 20% 98%;
+    --primary-foreground: 220.9 39.3% 11%;
+    --secondary: 215 27.9% 16.9%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 215 27.9% 16.9%;
+    --muted-foreground: 217.9 10.6% 64.9%;
+    --accent: 215 27.9% 16.9%;
+    --accent-foreground: 210 20% 98%;
+    --success: 0 55% 49%;
+    --success-foreground: 0 20% 96%;
+    --warning: 50 64% 49%;
+    --warning-foreground: 50 20% 96%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 215 27.9% 16.9%;
+    --input: 215 27.9% 16.9%;
+    --ring: 216 12.2% 83.9%;
+  }
+}

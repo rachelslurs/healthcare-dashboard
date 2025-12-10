@@ -58,15 +58,13 @@ export default function usePaginatedData<T>({
     return { sortBy, sortOrder }
   }
 
-  // Fetch data whenever location.search changes
-  // This will automatically trigger when:
+  // Fetch data whenever location changes
+  // useLocation triggers re-renders when:
   // - TanStack Router navigates (pushState/replaceState)
   // - Browser back/forward navigation (popstate)
   // - Any other URL change
-  // Serialize search params to string for reliable dependency comparison
-  const searchString = typeof location.search === 'string' 
-    ? location.search 
-    : new URLSearchParams(location.search as any).toString()
+  // Extract search string for dependency tracking
+  const searchString = typeof window !== 'undefined' ? window.location.search : ''
   
   useEffect(() => {
     const fetchData = async () => {

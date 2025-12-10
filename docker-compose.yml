@@ -30,6 +30,9 @@ services:
       - "5173:5173"
     volumes:
       - ./frontend:/app
+      # Named volume for node_modules preserves build-time dependencies
+      # This prevents the source mount from overriding node_modules and
+      # avoids unnecessary reinstalls on container start
       - /app/node_modules
     environment:
       - VITE_API_URL=http://localhost:8000
@@ -42,6 +45,11 @@ services:
     develop:
       watch:
         # Rebuild when dependencies change
+        # Watch package-lock.json as it's the authoritative source for exact versions
+        # This catches updates from npm install, security patches, and dependency updates
+        - action: rebuild
+          path: ./frontend/package-lock.json
+        # Also watch package.json in case new dependencies are added without lock file update
         - action: rebuild
           path: ./frontend/package.json
 

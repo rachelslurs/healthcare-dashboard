@@ -13,25 +13,12 @@ import { Button } from '@/components/ui/button'
 import { Input, InputGroup } from '@/components/ui/input'
 import { TableRow, TableCell } from '@/components/ui/table'
 import { formatDate } from '@/lib/date-utils'
+import { getStatusColor } from '@/lib/badge-utils'
 
 // Format age for display - moved outside component for performance
 const formatAge = (age: number | undefined): string => {
   if (age === undefined || age === null) return '—'
   return `${age}`
-}
-
-// Get badge color based on status - moved outside component for performance
-const getStatusColor = (status: 'active' | 'inactive' | 'archived'): 'green' | 'orange' | 'zinc' => {
-  switch (status) {
-    case 'active':
-      return 'green'
-    case 'inactive':
-      return 'orange'
-    case 'archived':
-      return 'zinc'
-    default:
-      return 'zinc'
-  }
 }
 
 // Format status as a badge - memoized component for performance

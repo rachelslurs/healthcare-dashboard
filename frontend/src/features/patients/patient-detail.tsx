@@ -10,20 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogTitle, DialogDescription, DialogBody, DialogActions } from '@/components/ui/dialog'
 import { API_BASE_URL } from '@/lib/constants'
 import { formatDate } from '@/lib/date-utils'
-
-// Get badge color based on status
-const getStatusColor = (status: 'active' | 'inactive' | 'archived'): 'green' | 'orange' | 'zinc' => {
-  switch (status) {
-    case 'active':
-      return 'green'
-    case 'inactive':
-      return 'orange'
-    case 'archived':
-      return 'zinc'
-    default:
-      return 'zinc'
-  }
-}
+import { getStatusColor } from '@/lib/badge-utils'
 
 
 export default function PatientDetail() {

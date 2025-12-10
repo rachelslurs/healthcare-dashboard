@@ -4,7 +4,7 @@ import { baseRoute } from '../_base'
 import PatientsList from '@/features/patients/patients-list'
 import QueryErrorDisplay from '@/components/errors/query-error-display'
 
-const patientsSearchSchema = z.object({
+const patientsRouteSearchSchema = z.object({
   page: z.number().optional().default(1),
   search: z.string().optional(),
   sortBy: z.string().optional(),
@@ -14,7 +14,7 @@ const patientsSearchSchema = z.object({
 export const patientsIndexRoute = createRoute({
   getParentRoute: () => baseRoute,
   path: '/patients',
-  validateSearch: patientsSearchSchema,
+  validateSearch: patientsRouteSearchSchema,
   component: PatientsList,
   errorComponent: ({ error, reset }) => (
     <QueryErrorDisplay error={error} reset={reset} title="Failed to load patients" />

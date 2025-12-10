@@ -50,6 +50,14 @@ The database is automatically seeded with 20 sample patients on first run. Can b
 - **Responsive Design**: Mobile-first approach with Tailwind CSS breakpoints
 - **Custom Typography**: Brand fonts (Neue Montreal for body, Rhetorik Serif for headings) loaded with `font-display: swap` for performance
 
+### Performance Optimizations
+- **React Component Memoization**: Sub-components wrapped with `React.memo` to prevent unnecessary re-renders (e.g., `PaginationControls`, `TableHeaderRow`, `LoadingOverlay`, `TableSkeleton`)
+- **Callback Memoization**: Event handlers memoized with `useCallback` to maintain stable references and prevent child re-renders
+- **Value Memoization**: Computed values memoized with `useMemo` (e.g., pagination page numbers, photo URLs, column definitions)
+- **Optimized Form Rendering**: Using `useWatch` from React Hook Form instead of `watch()` to subscribe only to specific fields, reducing re-renders
+- **Component Extraction**: Large components extracted into separate files for better code splitting and maintainability
+- **Stable References**: Column definitions and render functions memoized in list components to prevent table re-renders on every state change
+
 ### Route Structure
 - **File-Based Routing**: TanStack Router with file-based route generation
 - **Layout Nesting**: Base layout (`_base.tsx`) wraps all routes with MainLayout (Header + Sidebar)

@@ -3,7 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import { useForm, Controller, type SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import type { Patient, Address, EmergencyContact, Medication, InsuranceInfo } from './types'
+import type { Patient } from './types'
 import { getPatient, createPatient, updatePatient, uploadPatientPhoto } from './api'
 import { toast } from '@/lib/toast'
 import { patientFormSchema, type PatientFormData } from './patient-form-schema'
@@ -29,7 +29,6 @@ const formatDateForInput = (dateString: string | undefined): string => {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
 import { Fieldset, Legend, FieldGroup, Field, Label, Description, ErrorMessage } from '@/components/ui/fieldset'
 
 interface PatientFormProps {
@@ -147,7 +146,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
               copay: data.insurance.copay,
               deductible: data.insurance.deductible ?? undefined,
             },
-            documents: data.documents,
+            documents: data.documents || [],
           })
           setCurrentPhotoUrl(data.photoUrl)
         } catch (err) {
@@ -195,7 +194,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           copay: patient.insurance.copay,
           deductible: patient.insurance.deductible ?? undefined,
         },
-        documents: patient.documents,
+        documents: patient.documents || [],
       })
       setCurrentPhotoUrl(patient.photoUrl)
       setIsLoading(false)
@@ -384,7 +383,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">{isEdit ? 'Edit Patient' : 'New Patient'}</h1>
 
-      <form onSubmit={formHandleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         {/* Basic Information */}
         <Fieldset>
           <Legend>Basic Information</Legend>

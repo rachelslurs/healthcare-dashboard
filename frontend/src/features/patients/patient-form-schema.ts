@@ -30,7 +30,7 @@ const addressSchema = z.object({
   city: z.string(),
   state: z.string(),
   zipCode: z.string(),
-  country: z.string().default('USA'),
+  country: z.string(),
 })
 
 // Emergency contact schema - always present in form, but fields can be empty
@@ -80,7 +80,7 @@ export const patientFormSchema = z.object({
   emergencyContact: emergencyContactSchema,
   medicalInfo: medicalInfoSchema,
   insurance: insuranceSchema,
-  documents: z.array(documentSchema).default([]),
+  documents: z.array(documentSchema),
 }).refine(
   (data) => {
     // If any emergency contact field is filled, name, relationship, and phone must all be filled
@@ -124,4 +124,4 @@ export const patientFormSchema = z.object({
   }
 )
 
-export type PatientFormData = z.infer<typeof patientFormSchema>
+export type PatientFormData = z.output<typeof patientFormSchema>

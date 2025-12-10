@@ -29,10 +29,12 @@ const emergencyContactSchema = z.object({
   name: z.string().nullable(),
   relationship: z.string().nullable(),
   phone: z.string().nullable(),
-  email: z.preprocess(
-    (val) => (val === '' || val === null ? undefined : val),
-    z.string().email('Invalid email address').optional()
-  ),
+  email: z.union([
+    z.string().email('Invalid email address'),
+    z.literal(''),
+    z.null(),
+    z.undefined(),
+  ]).optional(),
 })
 
 // Medical info schema

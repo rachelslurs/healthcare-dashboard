@@ -2,7 +2,7 @@
 
 import clsx from 'clsx'
 import type React from 'react'
-import { useMemo } from 'react'
+import { useMemo, memo, useCallback } from 'react'
 import { Button } from '../ui/button'
 import {
   Pagination,
@@ -54,7 +54,7 @@ interface PaginationControlsProps {
   showShowingText?: boolean
 }
 
-function PaginationControls({
+const PaginationControls = memo(function PaginationControls({
   page,
   totalPages,
   pageSize,
@@ -65,6 +65,18 @@ function PaginationControls({
 }: PaginationControlsProps) {
   const start = (page - 1) * pageSize + 1
   const end = Math.min(page * pageSize, total)
+
+  const handlePrevious = useCallback(() => {
+    if (page > 1) onPageChange(page - 1)
+  }, [page, onPageChange])
+
+  const handleNext = useCallback(() => {
+    if (page < totalPages) onPageChange(page + 1)
+  }, [page, totalPages, onPageChange])
+
+  const handlePageClick = useCallback((pageNum: number) => {
+    onPageChange(pageNum)
+  }, [onPageChange])
 
   if (totalPages <= 1 && !showShowingText) {
     return null
@@ -102,13 +114,17 @@ function PaginationControls({
     return pages
   }, [page, totalPages])
 
+  const showingText = useMemo(() => {
+    return showShowingText ? formatShowingText(page, pageSize, total, itemLabel) : null
+  }, [showShowingText, page, pageSize, total, itemLabel])
+
   return (
     <div className="flex flex-col gap-2">
       {totalPages > 1 && (
         <div className="flex items-center justify-center">
           <div className="flex items-center gap-x-2 w-full max-w-md">
             <PaginationPrevious
-              onClick={page > 1 ? () => onPageChange(page - 1) : undefined}
+              onClick={page > 1 ? handlePrevious : undefined}
               disabled={page <= 1}
             />
             <div className="flex-1 flex justify-center">
@@ -120,7 +136,7 @@ function PaginationControls({
                   return (
                     <PaginationPage
                       key={pageNum}
-                      onClick={() => onPageChange(pageNum)}
+                      onClick={() => handlePageClick(pageNum)}
                       current={pageNum === page}
                     >
                       {pageNum}
@@ -130,26 +146,26 @@ function PaginationControls({
               </PaginationList>
             </div>
             <PaginationNext
-              onClick={page < totalPages ? () => onPageChange(page + 1) : undefined}
+              onClick={page < totalPages ? handleNext : undefined}
               disabled={page >= totalPages}
             />
           </div>
         </div>
       )}
-      {showShowingText && (
+      {showingText && (
         <div className="flex justify-center text-sm text-neutral-500">
-          {formatShowingText(page, pageSize, total, itemLabel)}
+          {showingText}
         </div>
       )}
     </div>
   )
-}
+})
 
 interface LoadingOverlayProps {
   isVisible: boolean
 }
 
-function LoadingOverlay({ isVisible }: LoadingOverlayProps) {
+const LoadingOverlay = memo(function LoadingOverlay({ isVisible }: LoadingOverlayProps) {
   if (!isVisible) return null
 
   return (
@@ -159,14 +175,14 @@ function LoadingOverlay({ isVisible }: LoadingOverlayProps) {
       </div>
     </div>
   )
-}
+})
 
 interface TableSkeletonProps {
   rows?: number
   columns: number
 }
 
-function TableSkeleton({ rows = 5, columns }: TableSkeletonProps) {
+const TableSkeleton = memo(function TableSkeleton({ rows = 5, columns }: TableSkeletonProps) {
   return (
     <>
       {Array.from({ length: rows }).map((_, rowIndex) => (
@@ -180,7 +196,7 @@ function TableSkeleton({ rows = 5, columns }: TableSkeletonProps) {
       ))}
     </>
   )
-}
+})
 
 interface TableHeaderRowProps<T> {
   columns: ColumnDefinition<T>[]
@@ -189,12 +205,16 @@ interface TableHeaderRowProps<T> {
   currentSortOrder?: 'asc' | 'desc'
 }
 
-function TableHeaderRow<T>({
+const TableHeaderRow = memo(function TableHeaderRow<T>({
   columns,
   onSort,
   currentSortBy,
   currentSortOrder,
 }: TableHeaderRowProps<T>) {
+  const handleSortClick = useCallback((sortKey: string) => {
+    onSort?.(sortKey)
+  }, [onSort])
+
   return (
     <TableRow>
       {columns.map((column, index) => {
@@ -211,7 +231,7 @@ function TableHeaderRow<T>({
               column.sortable && 'cursor-pointer hover:bg-neutral-50 select-none'
             )}
             style={column.width ? { width: column.width } : undefined}
-            onClick={() => column.sortable && column.sortKey && onSort?.(column.sortKey)}
+            onClick={() => column.sortable && column.sortKey && handleSortClick(column.sortKey)}
           >
             <div className="flex items-center gap-2">
               <span>{column.header}</span>
@@ -224,7 +244,7 @@ function TableHeaderRow<T>({
       })}
     </TableRow>
   )
-}
+}) as <T>(props: TableHeaderRowProps<T>) => React.ReactElement
 
 interface DataTableProps<T> {
   columns: ColumnDefinition<T>[]

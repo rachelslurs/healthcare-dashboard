@@ -1,6 +1,6 @@
 import { format } from 'date-fns'
 import type React from 'react'
-import { useMemo, useCallback } from 'react'
+import { useMemo, useCallback, memo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Input, InputGroup } from '@/components/ui/input'
 import { TableRow, TableCell } from '@/components/ui/table'
 
-// Format date for display
+// Format date for display - moved outside component for performance
 const formatDate = (dateString: string | undefined): string => {
   if (!dateString) return '—'
   try {
@@ -24,13 +24,13 @@ const formatDate = (dateString: string | undefined): string => {
   }
 }
 
-// Format age for display
+// Format age for display - moved outside component for performance
 const formatAge = (age: number | undefined): string => {
   if (age === undefined || age === null) return '—'
   return `${age}`
 }
 
-// Get badge color based on status
+// Get badge color based on status - moved outside component for performance
 const getStatusColor = (status: 'active' | 'inactive' | 'archived'): 'green' | 'orange' | 'zinc' => {
   switch (status) {
     case 'active':
@@ -44,11 +44,16 @@ const getStatusColor = (status: 'active' | 'inactive' | 'archived'): 'green' | '
   }
 }
 
-// Format status as a badge
-const formatStatus = (status: 'active' | 'inactive' | 'archived') => {
+// Format status as a badge - memoized component for performance
+const StatusBadge = memo(({ status }: { status: 'active' | 'inactive' | 'archived' }) => {
   const color = getStatusColor(status)
   const capitalizedStatus = status.charAt(0).toUpperCase() + status.slice(1)
   return <Badge color={color}>{capitalizedStatus}</Badge>
+})
+
+// Format status as a badge - wrapper function
+const formatStatus = (status: 'active' | 'inactive' | 'archived') => {
+  return <StatusBadge status={status} />
 }
 
 export default function PatientsList() {

@@ -58,6 +58,7 @@ The database is automatically seeded with 20 sample patients on first run. Can b
 - **Component Extraction**: Large components extracted into separate files for better code splitting and maintainability
 - **Stable References**: Column definitions and render functions memoized in list components to prevent table re-renders on every state change
 - **Debounced Search Input**: Search queries debounced with 300ms delay to reduce API calls while typing (URL updates immediately for shareable/bookmarkable links, but API requests only fire after user stops typing)
+- **Pagination for Large Datasets**: Server-side pagination (10 items per page) prevents rendering performance issues with large datasets. For infinite scrolling, consider using [TanStack Virtual](https://tanstack.com/virtual) for efficient virtualization of large lists
 
 ### Route Structure
 - **File-Based Routing**: TanStack Router with file-based route generation

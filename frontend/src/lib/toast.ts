@@ -51,11 +51,12 @@ const listeners: Listener[] = []
 // Timeout map for tracking removal delays
 const timeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
-// ID generator (simple counter that wraps)
+// ID generator using timestamp + counter for uniqueness
+// Timestamp ensures uniqueness across page refreshes, counter handles same-millisecond cases
 let toastIdCounter = 0
 const generateId = (): string => {
-  toastIdCounter = (toastIdCounter + 1) % Number.MAX_SAFE_INTEGER
-  return `toast-${toastIdCounter}`
+  toastIdCounter += 1
+  return `toast-${Date.now()}-${toastIdCounter}`
 }
 
 // Reducer function

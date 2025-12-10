@@ -1,11 +1,11 @@
-from fastapi import FastAPI, Depends, Query
+from fastapi import FastAPI, Depends, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime, date
 from app.database import get_db, init_db
 from app.models import Patient
-from app.schemas import PatientListResponse, PaginatedPatientsResponse
+from app.schemas import PatientListResponse, PaginatedPatientsResponse, PatientResponse
 
 app = FastAPI()
 
@@ -40,6 +40,28 @@ def calculate_age(date_of_birth: date) -> int:
     if (today.month, today.day) < (date_of_birth.month, date_of_birth.day):
         age -= 1
     return age
+
+
+def patient_to_response(patient: Patient) -> PatientResponse:
+    """Convert Patient model to PatientResponse schema."""
+    age = calculate_age(patient.date_of_birth) if patient.date_of_birth else None
+    return PatientResponse(
+        id=patient.id,
+        first_name=patient.first_name,
+        last_name=patient.last_name,
+        date_of_birth=patient.date_of_birth,
+        phone=patient.phone,
+        email=patient.email,
+        status=patient.status,
+        medical_history=patient.medical_history or {},
+        insurance_info=patient.insurance_info or {},
+        emergency_contacts=patient.emergency_contacts or [],
+        photo_url=patient.photo_url,
+        created_at=patient.created_at,
+        updated_at=patient.updated_at,
+        last_visit=patient.last_visit,
+        age=age
+    )
 
 
 @app.get("/api/patients", response_model=PaginatedPatientsResponse)
@@ -81,3 +103,14 @@ def get_patients(
         page_size=page_size,
         total_pages=total_pages
     )
+
+
+@app.get("/api/patients/{patient_id}", response_model=PatientResponse)
+def get_patient(patient_id: int, db: Session = Depends(get_db)):
+    """Get a single patient by ID."""
+    patient = db.query(Patient).filter(Patient.id == patient_id).first()
+    
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
+    
+    return patient_to_response(patient)

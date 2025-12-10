@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import type { PaginatedData } from '@/components/layout/data-table'
 
 interface UsePaginatedDataOptions<T> {
@@ -31,7 +31,8 @@ export default function usePaginatedData<T>({
     fetchFnRef.current = fetchFn
   }, [fetchFn])
 
-  const fetchData = async () => {
+  // Memoize fetchData with useCallback to ensure stable reference and proper dependency tracking
+  const fetchData = useCallback(async () => {
     setIsLoading(true)
     setIsFetching(true)
     setError(null)
@@ -45,11 +46,11 @@ export default function usePaginatedData<T>({
       setIsLoading(false)
       setIsFetching(false)
     }
-  }
+  }, [page, pageSize, sortBy, sortOrder])
   
   useEffect(() => {
     fetchData()
-  }, [page, pageSize, sortBy, sortOrder]) // Re-run when page, pageSize, or sort params change
+  }, [fetchData]) // Re-run when fetchData changes (which happens when page, pageSize, sortBy, or sortOrder changes)
 
   const goToPage = (newPage: number) => {
     setPage(newPage)

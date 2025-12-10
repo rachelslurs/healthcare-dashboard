@@ -6,11 +6,17 @@ echo "🚀 Starting Frontend Development Server"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
+# NOTE: Dependencies are installed during Docker build, so this check is primarily
+# for edge cases where the volume mount overrides node_modules or when the
+# container is started without a proper build. The /app/node_modules volume
+# should preserve build-time dependencies, but this provides a safety net.
+
 NEED_INSTALL=false
 
-# Check if node_modules exists and has content
+# Quick check: if node_modules doesn't exist or is empty, we need to install
 if [ ! -d "node_modules" ] || [ -z "$(ls -A node_modules 2>/dev/null)" ]; then
   echo "📦 node_modules directory is empty or missing"
+  echo "   (This can happen if the volume mount overrides the build-time installation)"
   NEED_INSTALL=true
 elif [ -f "package-lock.json" ]; then
   # If package-lock.json exists, check if node_modules is out of sync
@@ -18,11 +24,12 @@ elif [ -f "package-lock.json" ]; then
   # This marker is created by npm when dependencies are installed from a lock file
   if [ ! -f "node_modules/.package-lock.json" ]; then
     echo "⚠️  node_modules appears out of sync with package-lock.json"
+    echo "   (This can happen if package-lock.json was updated outside the container)"
     NEED_INSTALL=true
   else
-    # Verify that package.json dependencies are actually installed
-    # Check for a few critical dependencies that should always be present
-    # This is a lightweight check - if these core deps are missing, others likely are too
+    # Lightweight check: verify critical dependencies exist
+    # This is fast and catches most cases where dependencies are missing
+    # We skip the slower npm ls check to avoid slowing down container startup
     CRITICAL_DEPS="react react-dom"
     for dep in $CRITICAL_DEPS; do
       if [ ! -f "node_modules/$dep/package.json" ]; then
@@ -31,18 +38,10 @@ elif [ -f "package-lock.json" ]; then
         break
       fi
     done
-    
-    # If critical deps are present, do a quick validation with npm
-    # This catches cases where dependencies are partially installed or corrupted
-    if [ "$NEED_INSTALL" = false ] && ! npm ls --depth=0 --silent >/dev/null 2>&1; then
-      echo "⚠️  Dependency tree validation failed - reinstalling dependencies"
-      NEED_INSTALL=true
-    fi
   fi
 else
   # No lock file - check for critical runtime dependencies
   # This is a fallback for when package-lock.json doesn't exist
-  # Check a broader set of dependencies to ensure the install is complete
   CRITICAL_DEPS="react react-dom vite @tanstack/react-router"
   for dep in $CRITICAL_DEPS; do
     if [ ! -f "node_modules/$dep/package.json" ]; then
@@ -55,6 +54,7 @@ fi
 
 if [ "$NEED_INSTALL" = true ]; then
   echo "📥 Installing dependencies..."
+  echo "   (This may take a moment - dependencies are typically installed during build)"
   echo ""
   
   # Use npm ci if package-lock.json exists - it respects the lock file exactly
@@ -74,7 +74,7 @@ if [ "$NEED_INSTALL" = true ]; then
   echo "✅ Dependencies installed successfully!"
   echo ""
 else
-  echo "✅ Dependencies are up to date"
+  echo "✅ Dependencies are up to date (using build-time installation)"
   echo ""
 fi
 

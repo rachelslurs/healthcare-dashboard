@@ -127,9 +127,14 @@ export default function DataTable<T extends object>({
                                   content = column.accessor(row)
                                 } else {
                                   // Type assertion: column.accessor is keyof T, so row[column.accessor] should be compatible
-                                  // Convert to ReactNode - values from Record<string, unknown> need explicit conversion
+                                  // Convert to ReactNode - handle null/undefined properly to avoid displaying "null"/"undefined"
                                   const value = row[column.accessor]
-                                  content = (value as React.ReactNode) ?? String(value)
+                                  if (value == null) {
+                                    content = null
+                                  } else {
+                                    // For non-null values, try ReactNode first, then convert to string if needed
+                                    content = (value as React.ReactNode) ?? String(value)
+                                  }
                                 }
                               } else {
                                 content = null

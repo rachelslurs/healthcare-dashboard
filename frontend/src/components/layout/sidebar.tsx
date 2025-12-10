@@ -42,12 +42,21 @@ export default function Sidebar() {
 
   return (
     <SidebarComponent>
-      <SidebarHeader>
-        <img
-          src='/ascertain.png'
-          alt='Ascertain'
-          className='h-6 w-auto max-w-full object-contain'
-        />
+      <SidebarHeader className='border-none'>
+        <SidebarItem href='/'>
+          <img
+            src='/brandmark.png'
+            alt=''
+            className='h-4 w-auto object-contain'
+            aria-hidden='true'
+            data-slot='icon'
+          />
+          <img
+            src='/brand.png'
+            alt='Ascertain'
+            className='h-4 w-auto object-contain'
+          />
+        </SidebarItem>
       </SidebarHeader>
       <SidebarBody>
         <SidebarSection>
@@ -61,14 +70,14 @@ export default function Sidebar() {
           </SidebarItem>
         </SidebarSection>
       </SidebarBody>
-      <SidebarFooter>
+      <SidebarFooter className='border-none'>
         <SidebarSection>
           <Dropdown>
             <DropdownButton as={SidebarItem}>
               <span className='flex min-w-0 items-center gap-3'>
                 <span className='min-w-0'>
-                  <span className='block truncate text-sm/5 font-medium text-ascertain-foreground'>Rachel</span>
-                  <span className='block truncate text-xs/5 font-normal text-neutral-600'>
+                  <span className='block truncate text-sm/5 font-medium '>Rachel</span>
+                  <span className='block truncate text-xs/5 font-normal'>
                     rachel@example.com
                   </span>
                 </span>

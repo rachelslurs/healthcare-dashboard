@@ -157,14 +157,14 @@ export default function PatientDetail() {
                     }}
                   />
                   <div
-                    className='w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold shadow-sm hidden'
+                    className='w-24 h-24 rounded-full bg-gradient-to-b from-gray-200 via-purple-100 to-purple-200 flex items-center justify-center text-purple-900 text-2xl font-medium font-serif tracking-wide shadow-sm hidden'
                   >
                     {getInitials(patient.firstName, patient.lastName)}
                   </div>
                 </>
               ) : (
                 <div
-                  className='w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold shadow-sm'
+                  className='w-24 h-24 rounded-full bg-gradient-to-b from-gray-200 via-purple-100 to-purple-200 flex items-center justify-center text-purple-900 text-2xl font-medium font-serif tracking-wide shadow-sm'
                 >
                   {getInitials(patient.firstName, patient.lastName)}
                 </div>
@@ -294,7 +294,7 @@ export default function PatientDetail() {
                   {patient.medicalInfo.conditions.map((condition, index) => (
                     <span
                       key={index}
-                      className='inline-flex items-center px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm'
+                      className='inline-flex items-center px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm'
                     >
                       {condition}
                     </span>

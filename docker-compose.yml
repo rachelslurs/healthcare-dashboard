@@ -19,20 +19,39 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
+    develop:
+      watch:
+        # Rebuild when dependencies change
+        - action: rebuild
+          path: ./backend/requirements.txt
   frontend:
     build: ./frontend
     ports:
       - "5173:5173"
     volumes:
       - ./frontend:/app
+      # Named volume for node_modules preserves build-time dependencies
+      # This prevents the source mount from overriding node_modules and
+      # avoids unnecessary reinstalls on container start
       - /app/node_modules
     environment:
       - VITE_API_URL=http://localhost:8000
     depends_on:
       backend:
         condition: service_healthy
+    # Entrypoint script will handle dependency installation and show feedback
     command: npm run dev -- --host
     restart: unless-stopped
+    develop:
+      watch:
+        # Rebuild when dependencies change
+        # Watch package-lock.json as it's the authoritative source for exact versions
+        # This catches updates from npm install, security patches, and dependency updates
+        - action: rebuild
+          path: ./frontend/package-lock.json
+        # Also watch package.json in case new dependencies are added without lock file update
+        - action: rebuild
+          path: ./frontend/package.json
 
 volumes:
   backend-data:

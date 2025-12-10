@@ -6,6 +6,7 @@
   - [Launch Application](#launch-application)
   - [Environment Variables](#environment-variables)
   - [Seed Data](#seed-data)
+- [Project Structure](#project-structure)
 - [Architecture Decisions](#architecture-decisions)
   - [UX/Performance Patterns](#uxperformance-patterns)
   - [Performance Optimizations](#performance-optimizations)
@@ -41,8 +42,15 @@ The easiest way to run the entire application:
 
 1. **Start all services:**
    ```bash
-   docker-compose up
+   docker compose up
    ```
+   
+   **With watch mode (recommended for development):**
+   ```bash
+   docker compose up --watch
+   ```
+   - Automatically rebuilds containers when dependencies change
+   - Provides clear feedback during startup (dependency installation, migrations, etc.)
 
 2. **Access the application:**
    - Frontend: http://localhost:5173
@@ -51,13 +59,40 @@ The easiest way to run the entire application:
 
 3. **Stop the application:**
    ```bash
-   docker-compose down
+   docker compose down
    ```
 
 4. **View logs:**
    ```bash
-   docker-compose logs -f
+   docker compose logs -f
    ```
+
+**Startup Feedback:**
+Both services use entrypoint scripts that provide clear, formatted feedback during startup:
+- **Frontend**: Shows dependency installation status and Vite server startup
+- **Backend**: Shows dependency checks, database migrations, and Uvicorn server startup
+
+**Docker Compose Watch Mode:**
+The project is configured with Docker Compose's watch feature for improved development workflow:
+
+- **Automatic Rebuilds**: Containers automatically rebuild when dependencies change:
+  - **Frontend**: Rebuilds when `package.json` or `package-lock.json` changes (new dependencies added/removed, version updates, or lock file updates)
+  - **Backend**: Rebuilds when `requirements.txt` changes (new Python packages added/removed)
+  
+- **Hot Reload**: Both services support hot reload during development:
+  - **Frontend**: Vite HMR (Hot Module Replacement) automatically updates the browser when you save files
+  - **Backend**: Uvicorn's `--reload` flag automatically restarts the server when Python files change
+  
+- **Dependency Management**:
+  - **Frontend**: The entrypoint script automatically installs missing dependencies on container start, ensuring `node_modules` is always up to date
+  - **Backend**: Dependencies are installed during the Docker build, but the entrypoint verifies they're available
+  
+- **Usage**: Simply run `docker compose up --watch` and the watch system handles the rest. When you add a new dependency:
+  1. Update `package.json` or `package-lock.json` (frontend) or `requirements.txt` (backend)
+  2. Save the file
+  3. Watch mode detects the change and automatically rebuilds the container
+  4. The entrypoint script ensures dependencies are installed
+  5. Your changes are ready to use!
 
 #### Environment Variables
 
@@ -73,6 +108,40 @@ The easiest way to run the entire application:
 
 The database is automatically seeded with 20 sample patients on first run. Can be overridden using env variable SEED_PATIENT_COUNT.
 
+## Project Structure
+
+```
+healthcare-dashboard/
+├── frontend/
+│   ├── src/
+│   │   ├── features/        # Feature-based components
+│   │   │   ├── activities/
+│   │   │   └── patients/
+│   │   ├── routes/          # Route configuration files (thin wrappers)
+│   │   ├── components/      # Shared UI components
+│   │   ├── hooks/           # Custom React hooks
+│   │   ├── lib/             # Utility functions and helpers
+│   │   └── assets/          # Static assets
+│   ├── package.json
+│   ├── tsconfig.json        # TypeScript config with @ alias
+│   ├── vite.config.ts      # Vite config with @ alias
+│   ├── Dockerfile
+│   └── docker-entrypoint.sh # Entrypoint script for dependency management
+├── backend/
+│   ├── app/
+│   │   ├── main.py          # FastAPI application and endpoints
+│   │   ├── database.py      # Database configuration and session management
+│   │   ├── models.py        # SQLAlchemy models
+│   │   ├── schemas.py       # Pydantic schemas for validation
+│   │   ├── migrations.py    # Database migration scripts
+│   │   └── sample_data.py   # Sample data generation
+│   ├── requirements.txt
+│   ├── Dockerfile
+│   ├── docker-entrypoint.sh # Entrypoint script for migrations and startup
+│   └── run_migration.sh     # Helper script for manual migrations
+├── docker-compose.yml       # Docker Compose configuration with watch mode
+└── README.md
+```
 
 ## Architecture Decisions
 
@@ -452,83 +521,41 @@ setValue('medicalInfo.allergies', [...allergies, newAllergy], {
 - `UPLOAD_DIR`: File upload directory (default: `./uploads`)
 
 **Database Management:**
-- Migrations run automatically on startup
-- Manual migration: `docker-compose exec backend python -m app.migrations` or `./backend/run_migration.sh`
+- **Automatic Migrations**: Database migrations run automatically:
+  - **In Docker**: Migrations run via the `docker-entrypoint.sh` script before the server starts. You'll see clear feedback in the terminal:
+    ```
+    🗄️  Running Database Migrations
+    🔄 Running migrations...
+    ✅ Database migrations completed successfully!
+    ```
+  - **Outside Docker**: If running the application directly (e.g., `uvicorn app.main:app --reload`), migrations run automatically in the `startup_event()` as a fallback. The entrypoint script sets `MIGRATIONS_RUN_BY_ENTRYPOINT=1` to prevent duplicate runs.
+- **Manual Migration**: If needed, you can run migrations manually:
+  - `docker compose exec backend python -m app.migrations`
+  - Or use the helper script: `./backend/run_migration.sh`
+  - Or directly: `python -m app.migrations`
+- **Migration Behavior**: Migrations are idempotent and safe to run multiple times. They check the current database state before making changes.
 
 **Reset/Delete Database:**
 To regenerate sample data or start fresh:
 - **Local development**: Delete `backend/healthcare.db`
-- **Docker**: Run `docker-compose down -v` (removes volumes: database + uploads)
+- **Docker**: Run `docker compose down -v` (removes volumes: database + uploads)
   - Or manually delete: `docker volume rm healthcare-dash_backend-data`
 - **Note**: Sample data only generates when the database is empty. After deleting, restart the backend to regenerate sample data (if `SEED_PATIENT_COUNT > 0`)
 
-**Project Structure:**
-```
-backend/
-├── app/
-│   ├── [main.py](https://github.com/rachelslurs/healthcare-dashboard/blob/main/backend/app/main.py)          # FastAPI application and endpoints
-│   ├── [database.py](https://github.com/rachelslurs/healthcare-dashboard/blob/main/backend/app/database.py)      # Database configuration and session management
-│   ├── [models.py](https://github.com/rachelslurs/healthcare-dashboard/blob/main/backend/app/models.py)        # SQLAlchemy models
-│   └── [schemas.py](https://github.com/rachelslurs/healthcare-dashboard/blob/main/backend/app/schemas.py)       # Pydantic schemas for validation
-├── requirements.txt
-├── Dockerfile
-└── README.md
-```
-
 </details>
-
-#### Project Structure
-```
-frontend/
-├── src/
-│   ├── features/        # Feature-based components
-│   │   ├── activity/
-│   │   │   └── activity-page.tsx
-│   │   └── patients/
-│   │       ├── patients-list.tsx
-│   │       ├── patient-detail.tsx
-│   │       └── patient-form.tsx
-│   ├── routes/          # Route configuration files (thin wrappers)
-│   │   ├── [__root.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/__root.tsx)    # Root layout
-│   │   ├── [_base.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/_base.tsx)    # Base layout wrapper
-│   │   ├── _base/
-│   │   │   ├── [index.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/_base/index.tsx)
-│   │   │   └── [$.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/_base/$.tsx)
-│   │   └── patients/
-│   │       ├── [index.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/patients/index.tsx)
-│   │       ├── [new.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/patients/new.tsx)
-│   │       └── $patientId/
-│   │           ├── [layout.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/patients/$patientId/layout.tsx)
-│   │           ├── [index.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/patients/$patientId/index.tsx)
-│   │           └── [edit.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/patients/$patientId/edit.tsx)
-│   ├── [router.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/router.tsx)       # Manual route tree configuration
-│   ├── components/      # Shared UI components
-│   ├── types/           # TypeScript type definitions
-│   └── assets/          # Static assets
-├── package.json
-├── tsconfig.json        # TypeScript config with @ alias
-├── vite.config.ts       # Vite config with @ alias
-└── README.md
-```
-
-#### Development Practices
-- Type hints for all functions
-- Pydantic schemas for request/response validation
-- SQLAlchemy ORM for database operations
-- Error handling with appropriate HTTP status codes
 
 ## Test Plan
 
 ### 1. Developer Experience & Architecture
 
 #### ✅ Code Quality
-- [ ] Run `docker-compose exec frontend npm run lint` → **Zero** linting errors (ESLint).
-- [ ] Run type check: `docker-compose exec frontend npx tsc --noEmit` → **Zero** TypeScript errors.
-- [ ] Run `docker-compose exec frontend npm run build` → Build completes without warnings.
+- [ ] Run `docker compose exec frontend npm run lint` → **Zero** linting errors (ESLint).
+- [ ] Run type check: `docker compose exec frontend npx tsc --noEmit` → **Zero** TypeScript errors.
+- [ ] Run `docker compose exec frontend npm run build` → Build completes without warnings.
 - [ ] Folder structure clearly separates `features`, `components`, and `hooks`.
 
 #### ✅ Docker & Setup
-- [ ] `docker-compose up` starts both Frontend (Vite) and Backend (FastAPI/Python).
+- [ ] `docker compose up` starts both Frontend (Vite) and Backend (FastAPI/Python).
 - [ ] Frontend accessible at `http://localhost:5173`.
 - [ ] Backend accessible at `http://localhost:8000`.
 - [ ] `README.md` contains clear start instructions.

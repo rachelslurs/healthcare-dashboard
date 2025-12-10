@@ -563,21 +563,21 @@ To regenerate sample data or start fresh:
 ### 2. Navigation & Routing
 
 #### ✅ Route Structure
-- [ ] Navigate to `/` → Loads **Activity** (Activity).
-- [ ] Navigate to `/patients` → Loads **Patient List**.
-- [ ] Navigate to `/patients/:id` → Loads **Patient Detail**.
-- [ ] Navigate to `/random-url-xyz` → Loads **404 Page** with a link back home.
-- [ ] Clicking Sidebar "Activities" → Updates URL to `/` and highlights icon.
-- [ ] Clicking Sidebar "Patients" → Updates URL to `/patients` and highlights icon.
+- [x] Navigate to `/` → Loads **Activity** (Activity).
+- [x] Navigate to `/patients` → Loads **Patient List**.
+- [x] Navigate to `/patients/:id` → Loads **Patient Detail**.
+- [x] Navigate to `/random-url-xyz` → Loads **404 Page** with a link back home.
+- [x] Clicking Sidebar "Activities" → Updates URL to `/` and highlights icon.
+- [x] Clicking Sidebar "Patients" → Updates URL to `/patients` and highlights icon.
 
 
 ### 3. Patient List & Performance
 
 #### ✅ Performance & Scale
-- [ ] **Scale Test:** Seed database/mock with **1,000+ patients**.
-- [ ] List loads initially under <1 second (Virtualization or Pagination active).
-- [ ] Rapid scroll to bottom → No UI freezing (60fps target).
-- [ ] Pagination (if used): Click "Last Page" → Loads instantly.
+- [x] **Scale Test:** Seed database/mock with **1,000+ patients**.
+- [x] List loads initially under <1 second (pagination).
+- [x] Rapid scroll to bottom → No UI freezing (60fps target).
+- [x] Pagination (if used): Click "Last Page" → Loads instantly.
 
 #### ✅ Search & Filtering
 - [ ] **Debounce Test:** Type "Johnson" rapidly → Network request only fires after typing stops (300ms debounce, not on every keystroke).

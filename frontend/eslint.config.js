@@ -77,6 +77,17 @@ export default [
       // Override React recommended: disable rules not needed with TypeScript
       'react/react-in-jsx-scope': 'off', // Not needed in React 17+
       'react/prop-types': 'off', // Using TypeScript for prop validation
+      'react/no-unescaped-entities': [
+        'error',
+        {
+          forbid: [
+            { char: '>', alternatives: ['&gt;'] },
+            { char: '"', alternatives: ['&quot;', '&ldquo;', '&#34;'] },
+            { char: '}', alternatives: ['&#125;'] },
+          ],
+          // Allow apostrophes and other common punctuation
+        },
+      ],
       
       // Quote preferences: prefer single quotes (warn, not error)
       quotes: [

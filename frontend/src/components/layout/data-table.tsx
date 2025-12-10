@@ -20,18 +20,6 @@ export interface PaginatedData<T> {
   total_pages: number
 }
 
-// Helper function to format the "Showing" text
-export function formatShowingText(
-  page: number,
-  pageSize: number,
-  total: number,
-  itemLabel: string
-): string {
-  const start = (page - 1) * pageSize + 1
-  const end = Math.min(page * pageSize, total)
-  return `Showing ${start} to ${end} of ${total} ${itemLabel}`
-}
-
 export interface ColumnDefinition<T> {
   header: string
   accessor?: keyof T | ((row: T) => React.ReactNode)
@@ -61,7 +49,7 @@ interface DataTableProps<T> {
   showShowingText?: boolean
 }
 
-export default function DataTable<T extends Record<string, any>>({
+export default function DataTable<T extends Record<string, unknown>>({
   columns,
   data,
   isLoading,
@@ -142,7 +130,10 @@ export default function DataTable<T extends Record<string, any>>({
                             if (typeof column.accessor === 'function') {
                               content = column.accessor(row)
                             } else {
-                              content = row[column.accessor]
+                              // Type assertion: column.accessor is keyof T, so row[column.accessor] should be compatible
+                              // Convert to ReactNode - values from Record<string, unknown> need explicit conversion
+                              const value = row[column.accessor]
+                              content = (value as React.ReactNode) ?? String(value)
                             }
                           } else {
                             content = null

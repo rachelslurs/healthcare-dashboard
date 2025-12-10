@@ -44,7 +44,8 @@ export default function QueryErrorDisplay({
     
     // Handle HTTP errors
     if ('status' in error) {
-      const status = (error as any).status
+      const httpError = error as Error & { status: number }
+      const status = httpError.status
       if (status === 404) {
         return 'The requested resource was not found.'
       }

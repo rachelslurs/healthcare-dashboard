@@ -8,7 +8,17 @@ import {
   PaginationPrevious,
 } from '../ui/pagination'
 
-import { formatShowingText } from './data-table'
+// Helper function to format the "Showing" text
+function formatShowingText(
+  page: number,
+  pageSize: number,
+  total: number,
+  itemLabel: string
+): string {
+  const start = (page - 1) * pageSize + 1
+  const end = Math.min(page * pageSize, total)
+  return `Showing ${start} to ${end} of ${total} ${itemLabel}`
+}
 
 interface PaginationControlsProps {
   page: number

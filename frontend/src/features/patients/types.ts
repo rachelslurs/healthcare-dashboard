@@ -61,7 +61,7 @@ export interface Patient {
     allergies: string[];
     currentMedications: Medication[];
     conditions: string[];
-    bloodType?: 'A+' | 'A-' | 'B+' | 'AB+' | 'AB-' | 'O+' | 'O-';
+    bloodType?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
     lastVisit: string;
     status: 'active' | 'inactive' | 'critical';  // Medical status
   };

@@ -15,38 +15,94 @@ interface PatientFormProps {
 }
 
 // Default form values
-const defaultFormData = {
+const defaultFormData: {
+  firstName: string
+  lastName: string
+  dateOfBirth: string
+  email: string
+  phone: string
+  status: 'active' | 'inactive' | 'archived'
+  address: Address | undefined
+  emergencyContact: EmergencyContact | undefined
+  medicalInfo: {
+    allergies: string[]
+    currentMedications: Medication[]
+    conditions: string[]
+    bloodType: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-' | undefined
+    lastVisit: string
+    status: 'active' | 'inactive' | 'critical'
+  }
+  insurance: {
+    provider: string
+    policyNumber: string
+    groupNumber: string
+    effectiveDate: string | undefined
+    expirationDate: string
+    copay: number
+    deductible: number | undefined
+  }
+  documents: Patient['documents']
+} = {
   firstName: '',
   lastName: '',
   dateOfBirth: '',
   email: '',
   phone: '',
-  status: 'active' as const,
-  address: undefined as Address | undefined,
-  emergencyContact: undefined as EmergencyContact | undefined,
+  status: 'active',
+  address: undefined,
+  emergencyContact: undefined,
   medicalInfo: {
-    allergies: [] as string[],
-    currentMedications: [] as Medication[],
-    conditions: [] as string[],
-    bloodType: undefined as 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-' | undefined,
+    allergies: [],
+    currentMedications: [],
+    conditions: [],
+    bloodType: undefined,
     lastVisit: '',
-    status: 'active' as const,
+    status: 'active',
   },
   insurance: {
     provider: '',
     policyNumber: '',
     groupNumber: '',
-    effectiveDate: undefined as string | undefined,
+    effectiveDate: undefined,
     expirationDate: '',
     copay: 0,
-    deductible: undefined as number | undefined,
+    deductible: undefined,
   },
-  documents: [] as Patient['documents'],
+  documents: [],
+}
+
+type FormData = {
+  firstName: string
+  lastName: string
+  dateOfBirth: string
+  email: string
+  phone: string
+  status: 'active' | 'inactive' | 'archived'
+  address: Address | undefined
+  emergencyContact: EmergencyContact | undefined
+  medicalInfo: {
+    allergies: string[]
+    currentMedications: Medication[]
+    conditions: string[]
+    bloodType: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-' | undefined
+    lastVisit: string
+    status: 'active' | 'inactive' | 'critical'
+  }
+  insurance: {
+    provider: string
+    policyNumber: string
+    groupNumber: string
+    effectiveDate: string | undefined
+    expirationDate: string
+    copay: number
+    deductible: number | undefined
+  }
+  documents: Patient['documents']
 }
 
 export default function PatientForm({ patient, patientId, isEdit = false }: PatientFormProps) {
   const navigate = useNavigate()
-  const [formData, setFormData] = useState<typeof defaultFormData>(defaultFormData)
+  const [formData, setFormData] = useState<FormData>(defaultFormData)
   const [isLoading, setIsLoading] = useState(isEdit && !patient)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -70,8 +126,17 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
             status: data.status,
             address: data.address,
             emergencyContact: data.emergencyContact,
-            medicalInfo: data.medicalInfo,
-            insurance: data.insurance,
+            medicalInfo: {
+              ...data.medicalInfo,
+              bloodType: data.medicalInfo.bloodType ?? undefined,
+            },
+            insurance: {
+              ...data.insurance,
+              groupNumber: data.insurance.groupNumber ?? '',
+              effectiveDate: data.insurance.effectiveDate ?? undefined,
+              expirationDate: data.insurance.expirationDate ?? '',
+              deductible: data.insurance.deductible ?? undefined,
+            },
             documents: data.documents,
           })
         } catch (err) {
@@ -92,8 +157,17 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
         status: patient.status,
         address: patient.address,
         emergencyContact: patient.emergencyContact,
-        medicalInfo: patient.medicalInfo,
-        insurance: patient.insurance,
+        medicalInfo: {
+          ...patient.medicalInfo,
+          bloodType: patient.medicalInfo.bloodType ?? undefined,
+        },
+        insurance: {
+          ...patient.insurance,
+          groupNumber: patient.insurance.groupNumber ?? '',
+          effectiveDate: patient.insurance.effectiveDate ?? undefined,
+          expirationDate: patient.insurance.expirationDate ?? '',
+          deductible: patient.insurance.deductible ?? undefined,
+        },
         documents: patient.documents,
       })
       setIsLoading(false)
@@ -108,13 +182,16 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
   }
 
   const handleNestedChange = (section: string, field: string, value: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      [section]: {
-        ...prev[section as keyof typeof prev],
-        [field]: value,
-      },
-    }))
+    setFormData((prev) => {
+      const sectionValue = prev[section as keyof typeof prev]
+      return {
+        ...prev,
+        [section]: {
+          ...(sectionValue && typeof sectionValue === 'object' ? sectionValue : {}),
+          [field]: value,
+        },
+      }
+    })
   }
 
   const handleAddressChange = (field: string, value: string) => {

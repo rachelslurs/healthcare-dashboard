@@ -3,7 +3,18 @@ import type { ReactNode } from 'react';
 import globalsCss from '@/assets/styles/globals.css?url';
 
 import { Outlet, createRootRoute, HeadContent, Scripts } from '@tanstack/react-router'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import ErrorBoundary from '@/components/errors/error-boundary'
+
+// Create a QueryClient instance
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      refetchOnWindowFocus: false,
+    },
+  },
+})
 
 export const rootRoute = createRootRoute({
   head: () => ({
@@ -57,11 +68,13 @@ export const rootRoute = createRootRoute({
 
 function RootComponent() {
   return (
-    <ErrorBoundary>
-      <RootDocument>
-        <Outlet />
-      </RootDocument>
-    </ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <ErrorBoundary>
+        <RootDocument>
+          <Outlet />
+        </RootDocument>
+      </ErrorBoundary>
+    </QueryClientProvider>
   );
 }
 

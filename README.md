@@ -580,51 +580,51 @@ To regenerate sample data or start fresh:
 - [x] Pagination (if used): Click "Last Page" → Loads instantly.
 
 #### ✅ Search & Filtering
-- [ ] **Debounce Test:** Type "Johnson" rapidly → Network request only fires after typing stops (300ms debounce, not on every keystroke).
+- [x] **Debounce Test:** Type "Johnson" rapidly → Network request only fires after typing stops (300ms debounce, not on every keystroke).
 - [ ] **TanStack Query Caching:** Search for "Smith", navigate away, return → Results load instantly from cache (no network request).
 - [ ] Filter by "Active" → Only active patients shown.
-- [ ] Sort by "Last Visit" → Correctly orders dates (Newest vs Oldest). TanStack Query caches each sort combination separately.
-- [ ] Clear Search → Restores full 1000+ list instantly from cache if previously viewed.
+- [x] Sort by "Last Visit" → Correctly orders dates (Newest vs Oldest). TanStack Query caches each sort combination separately.
+- [x] Clear Search → Restores full 1000+ list instantly from cache if previously viewed.
 
 
 ### 4. Forms: Create & Edit 
 
 #### ✅ File Uploads 
-- [ ] Click "Upload Photo" → System file picker opens.
-- [ ] Only show on edit for faster implementation
+- [x] Click "Upload Photo" → System file picker opens.
+- [x] Only show on edit for faster implementation
 - [ ] Select Image → **Preview** of image appears in the form.
 - [ ] **Validation:** Try to upload a non-image (e.g., .pdf or .exe) → Shows error.
 - [ ] Submit Form → Image persists on Patient Detail page.
 
 #### ✅ Validation and Form Behavior
-- [ ] **Validation:** Try to submit with empty "Name" → "Required" error appears.
+- [x] **Validation:** Try to submit with empty "Name" → "Required" error appears.
 - [ ] **Dirty State:** Fill half the form, click "Back" → Browser asks "Discard unsaved changes?"
 
 
 ### 5. Patient Detail Page
 
 #### ✅ Data Display
-- [ ] Name, DOB, Age (calculated correctly) are visible.
-- [ ] Status Badge (Active/Inactive/Archived) has correct color coding.
+- [x] Name, DOB, Age (calculated correctly) are visible.
+- [x] Status Badge (Active/Inactive/Archived) has correct color coding.
 - [ ] Medical History list renders correctly (or "None" if empty).
 - [ ] Patient Photo renders (or distinct placeholder if null).
 
 #### ✅ Actions
-- [ ] "Edit" button → Navigates to `/patients/:id/edit` with data pre-filled.
-- [ ] "Delete" button → Opens Confirmation Modal.
-- [ ] Confirm Delete → Redirects to List, shows "Patient Deleted" toast.
+- [x] "Edit" button → Navigates to `/patients/:id/edit` with data pre-filled.
+- [x] "Delete" button → Opens Confirmation Modal.
+- [x] Confirm Delete → Redirects to List, shows "Patient Deleted" toast.
 
 
 ### 6. Global State & Activity
 
 #### ✅ Activity Feed
-- [ ] **Create Action:** Create new patient "Jane Doe".
-- [ ] **Verify Feed:** Go to Dashboard Home (`/`) → "Jane Doe created" appears in Recent Activity list.
-- [ ] **Persistence:** Refresh page → Activity history remains
+- [x] **Create Action:** Create new patient "Jane Doe".
+- [x] **Verify Feed:** Go to Dashboard Home (`/`) → "Jane Doe created" appears in Recent Activity list.
+- [x] **Persistence:** Refresh page → Activity history remains
 
 #### ✅ Global Notifications
-- [ ] **Success:** Create/Edit success triggers a global toast notification.
-- [ ] **Error:** Network failure triggers a global error toast.
+- [x] **Success:** Create/Edit success triggers a global toast notification.
+- [x] **Error:** Network failure triggers a global error toast.
 - [ ] Navigate away while toast is showing → toast remains visible until timeout.
 
 
@@ -639,7 +639,7 @@ To regenerate sample data or start fresh:
 ### 8. Responsive Design
 
 #### ✅ Mobile (375px) & Tablet
-- [ ] **Hamburger Menu:** Sidebar collapses into a hamburger menu on mobile.
+- [x] **Hamburger Menu:** Sidebar collapses into a hamburger menu on mobile.
 - [ ] **Table/Cards:** Patient list transforms from wide table to stacked cards or scrollable table on mobile.
-- [ ] **Form Inputs:** No horizontal scrolling required to fill forms.
+- [x] **Form Inputs:** No horizontal scrolling required to fill forms.
 - [ ] **Touch Targets:** Buttons are large enough for touch (>44px).

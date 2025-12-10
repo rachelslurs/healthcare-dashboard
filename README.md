@@ -69,7 +69,8 @@ The database is automatically seeded with 20 sample patients on first run. Can b
 ### Error Handling Strategy
 
 ### Known Issues/To Dos
-- **Medication Management**: The patient form currently does not include UI for managing current medications. 
+- **Medication Management**: The patient form currently does not include UI for managing current medications.
+- **Documents Section**: Document upload and management UI has not been implemented for the patient form or patient detail page. The backend supports document uploads via `/api/patients/{patient_id}/upload-document`, but the frontend UI is pending. 
 
 ### Component Architecture
 - **Separation of Concerns**:

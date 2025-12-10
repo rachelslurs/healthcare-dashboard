@@ -28,9 +28,6 @@ const getActionColor = (actionType: string): 'green' | 'blue' | 'red' | 'orange'
       return 'blue'
     case 'DELETE':
       return 'red'
-    case 'VIEW':
-    case 'READ':
-      return 'purple'
     default:
       return 'zinc'
   }

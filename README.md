@@ -78,6 +78,24 @@ The database is automatically seeded with 20 sample patients on first run. Can b
 
 ### Error Handling Strategy
 
+**API Error Handling (`lib/api-utils.ts`):**
+- **`handleApiError()`**: Centralized error handler for all API responses
+  - Extracts error details from response body, handles 404s with custom messages
+  - Used consistently across all API functions
+- **`transformPaginatedResponse()`**: Normalizes backend paginated responses (handles both camelCase and snake_case formats)
+
+**Component Error Handling (`lib/error-utils.ts`):**
+- **`getErrorMessage()`**: Safely extracts error messages from `Error` instances or unknown types with fallback messages
+- Replaces repetitive `err instanceof Error ? err.message : 'default'` patterns
+
+**Error Display:**
+- **QueryErrorDisplay**: User-friendly error component for TanStack Query errors with retry functionality
+- **LoadingSpinner**: Reusable loading state component
+- Toast notifications for action errors (create, update, delete)
+- Inline form validation errors via React Hook Form's `ErrorMessage` component
+
+**Benefits:** DRY principles, consistent error messages, centralized error handling logic, and improved maintainability.
+
 ### Known Issues/To Dos
 - **Medication Management**: The patient form currently does not include UI for managing current medications.
 - **Documents Section**: Document upload and management UI has not been implemented for the patient form or patient detail page. The backend supports document uploads via `/api/patients/{patient_id}/upload-document`, but the frontend UI is pending.

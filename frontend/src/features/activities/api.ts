@@ -1,5 +1,6 @@
 import type { PaginatedData } from '@/components/layout/data-table'
 import type { Activity } from './types'
+import { API_BASE_URL } from '@/lib/constants'
 
 // API parameter types
 export interface GetActivitiesParams {
@@ -8,8 +9,6 @@ export interface GetActivitiesParams {
   sortBy?: 'timestamp'
   sortOrder?: 'asc' | 'desc'
 }
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 /**
  * Get paginated list of activities

@@ -1,5 +1,6 @@
 import type { PaginatedData } from '@/components/layout/data-table'
 import type { PatientListItem, Patient } from './types'
+import { API_BASE_URL } from '@/lib/constants'
 
 // API parameter types
 export interface GetPatientsParams {
@@ -10,8 +11,6 @@ export interface GetPatientsParams {
   sortBy?: 'lastName' | 'firstName' | 'lastVisit' | 'status' | 'age'
   sortOrder?: 'asc' | 'desc'
 }
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 /**
  * Get paginated list of patients with optional search, filtering, and sorting

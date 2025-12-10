@@ -7,8 +7,7 @@ import type { Patient } from './types'
 import { getPatient, createPatient, updatePatient, uploadPatientPhoto } from './api'
 import { toast } from '@/lib/toast'
 import { patientFormSchema, type PatientFormData } from './patient-form-schema'
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+import { API_BASE_URL } from '@/lib/constants'
 
 // Convert ISO date string to YYYY-MM-DD format for date input
 const formatDateForInput = (dateString: string | undefined): string => {

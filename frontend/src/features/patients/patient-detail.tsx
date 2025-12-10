@@ -9,8 +9,7 @@ import { DescriptionList, DescriptionTerm, DescriptionDetails } from '@/componen
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogTitle, DialogDescription, DialogBody, DialogActions } from '@/components/ui/dialog'
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+import { API_BASE_URL } from '@/lib/constants'
 
 // Format date for display
 const formatDate = (dateString: string | undefined): string => {

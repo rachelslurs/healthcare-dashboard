@@ -43,6 +43,8 @@ The database is automatically seeded with 20 sample patients on first run. Can b
   - `components/feedback/` - User feedback components (Toast notifications)
 
 ### Form Validation & Management
+- **React Hook Form**: Form state management and validation library
+- **Zod**: TypeScript-first schema validation for form validation
 - **Headless UI Forms**: Using `Fieldset`, `Label`, and `ErrorMessage` components
 - **Client-Side Validation**: Real-time validation with error display
 - **Dirty State Tracking**: Browser-based unsaved changes warnings

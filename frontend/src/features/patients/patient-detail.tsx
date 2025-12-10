@@ -114,7 +114,7 @@ export default function PatientDetail() {
   }
 
   const handleDeleteConfirm = async () => {
-    if (!patientId || !patient) return
+    if (!patientId) return
 
     setIsDeleting(true)
     try {

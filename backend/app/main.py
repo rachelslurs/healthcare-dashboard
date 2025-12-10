@@ -1,8 +1,12 @@
-from fastapi import FastAPI, Depends, Query, HTTPException, Response
+from fastapi import FastAPI, Depends, Query, HTTPException, Response, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime, date
+import os
+import shutil
+from pathlib import Path
 from app.database import get_db, init_db
 from app.models import Patient, Activity
 from app.schemas import (
@@ -11,6 +15,16 @@ from app.schemas import (
 )
 
 app = FastAPI()
+
+# Upload directory configuration
+UPLOAD_DIR = Path(os.getenv("UPLOAD_DIR", "./uploads"))
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+# Allowed image extensions
+ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png"}
+
+# Allowed document extensions
+ALLOWED_DOCUMENT_EXTENSIONS = {".pdf"}
 
 
 @app.on_event("startup")
@@ -26,6 +40,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount static files for uploads
+app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 
 @app.get("/api/")
 def read_root():
@@ -269,3 +286,111 @@ def get_activities(
         page_size=page_size,
         total_pages=total_pages
     )
+
+
+@app.post("/api/patients/{patient_id}/upload-photo", response_model=PatientResponse)
+def upload_patient_photo(
+    patient_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    """Upload a photo for a patient."""
+    # Check if patient exists
+    patient = db.query(Patient).filter(Patient.id == patient_id).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
+    
+    # Validate file extension
+    file_ext = Path(file.filename).suffix.lower()
+    if file_ext not in ALLOWED_IMAGE_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file type. Allowed types: {', '.join(ALLOWED_IMAGE_EXTENSIONS)}"
+        )
+    
+    # Generate unique filename with timestamp
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{timestamp}_{file.filename}"
+    file_path = UPLOAD_DIR / filename
+    
+    # Delete old photo if it exists
+    if patient.photo_url:
+        old_file_path = UPLOAD_DIR / Path(patient.photo_url).name
+        if old_file_path.exists():
+            old_file_path.unlink()
+    
+    # Save the file
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    # Update patient photo_url
+    patient.photo_url = f"/uploads/{filename}"
+    db.commit()
+    db.refresh(patient)
+    
+    # Log activity
+    patient_name = f"{patient.first_name} {patient.last_name}"
+    log_activity(
+        db=db,
+        action_type="UPDATE",
+        description=f"Uploaded photo for {patient_name}",
+        patient_id=patient.id
+    )
+    
+    return patient_to_response(patient)
+
+
+@app.post("/api/patients/{patient_id}/upload-document", response_model=PatientResponse)
+def upload_patient_document(
+    patient_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    """Upload a document for a patient."""
+    # Check if patient exists
+    patient = db.query(Patient).filter(Patient.id == patient_id).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
+    
+    # Validate file extension
+    file_ext = Path(file.filename).suffix.lower()
+    if file_ext not in ALLOWED_DOCUMENT_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file type. Allowed types: {', '.join(ALLOWED_DOCUMENT_EXTENSIONS)}"
+        )
+    
+    # Generate unique filename with timestamp
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{timestamp}_{file.filename}"
+    file_path = UPLOAD_DIR / filename
+    
+    # Save the file
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    # Add document metadata to patient.documents array
+    documents = patient.documents or []
+    document_metadata = {
+        "filename": file.filename,
+        "url": f"/uploads/{filename}",
+        "uploaded_at": datetime.now().isoformat(),
+        "size": file_path.stat().st_size
+    }
+    documents.append(document_metadata)
+    
+    # Update patient documents
+    patient.documents = documents
+    db.commit()
+    db.refresh(patient)
+    
+    # Log activity
+    patient_name = f"{patient.first_name} {patient.last_name}"
+    log_activity(
+        db=db,
+        action_type="UPDATE",
+        description=f"Uploaded document '{file.filename}' for {patient_name}",
+        patient_id=patient.id
+    )
+    
+    return patient_to_response(patient)

@@ -41,18 +41,16 @@ def startup_event():
     # If this env var is not set, we're likely running outside Docker (e.g., local development
     # with `uvicorn app.main:app --reload`), so run migrations here as a fallback.
     if not os.getenv("MIGRATIONS_RUN_BY_ENTRYPOINT"):
+        import logging
+        logger = logging.getLogger(__name__)
         try:
             from app.migrations import make_columns_nullable
-            import logging
-            logger = logging.getLogger(__name__)
             logger.info("Running database migrations (not in Docker or entrypoint didn't run them)...")
             make_columns_nullable()
             logger.info("Database migrations completed.")
         except Exception as e:
             # Log but don't fail startup if migration fails
             # This allows the app to start even if migration has issues
-            import logging
-            logger = logging.getLogger(__name__)
             logger.warning(f"Database migration warning (non-Docker run): {e}")
     
     # Generate sample data if configured

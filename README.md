@@ -1,5 +1,36 @@
 # Healthcare Dashboard
 
+## Table of Contents
+
+- [Quick Start](#quick-start)
+  - [Launch Application](#launch-application)
+  - [Environment Variables](#environment-variables)
+  - [Seed Data](#seed-data)
+- [Architecture Decisions](#architecture-decisions)
+  - [UX/Performance Patterns](#uxperformance-patterns)
+  - [Performance Optimizations](#performance-optimizations)
+  - [Route Structure](#route-structure)
+  - [API Client Architecture](#api-client-architecture)
+  - [Error Handling Strategy](#error-handling-strategy)
+  - [Known Issues/To Dos](#known-issuesto-dos)
+  - [Component Architecture](#component-architecture)
+  - [Form Validation & Management](#form-validation--management)
+  - [State Management](#state-management)
+    - [Sorting & Pagination State](#sorting--pagination-state)
+    - [Toast Notification System](#toast-notification-system)
+    - [Form State](#form-state)
+  - [Library Choices & Rationale](#library-choices--rationale)
+  - [Backend Architecture](#backend-architecture)
+- [Test Plan](#test-plan)
+  - [Developer Experience & Architecture](#1-developer-experience--architecture)
+  - [Navigation & Routing](#2-navigation--routing)
+  - [Patient List & Performance](#3-patient-list--performance)
+  - [Forms: Create & Edit](#4-forms-create--edit)
+  - [Patient Detail Page](#5-patient-detail-page)
+  - [Global State & Activity](#6-global-state--activity)
+  - [Error Handling](#7-error-handling)
+  - [Responsive Design](#8-responsive-design)
+
 ## Quick Start
 
 ## Launch Application

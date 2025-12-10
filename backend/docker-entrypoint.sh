@@ -64,14 +64,32 @@ fi
 if [ "$MIGRATION_AVAILABLE" = true ]; then
   echo "🔄 Running migrations..."
   echo ""
-  if python -m app.migrations 2>&1; then
-    echo ""
-    echo "✅ Database migrations completed successfully!"
-    echo ""
+  
+  # Capture both stdout and stderr, and preserve the exit code
+  MIGRATION_OUTPUT=$(python -m app.migrations 2>&1)
+  MIGRATION_EXIT=$?
+  
+  # Display the migration output
+  echo "$MIGRATION_OUTPUT"
+  echo ""
+  
+  # Check exit code to differentiate between success, warnings, and failures
+  if [ $MIGRATION_EXIT -eq 0 ]; then
+    # Check if output contains warning indicators (case-insensitive)
+    if echo "$MIGRATION_OUTPUT" | grep -qi "warning\|warn"; then
+      echo "⚠️  Migration completed with warnings (see output above)"
+      echo "   The server will still start, but you may want to review any warnings."
+      echo ""
+    else
+      echo "✅ Database migrations completed successfully!"
+      echo ""
+    fi
   else
-    echo ""
-    echo "⚠️  Migration completed with warnings (check logs above)"
-    echo "   The server will still start, but you may want to review any warnings."
+    # Non-zero exit code indicates an actual failure
+    echo "❌ Migration failed with exit code $MIGRATION_EXIT"
+    echo "   Error details are shown above."
+    echo "   The server will still start, but the database may be in an inconsistent state."
+    echo "   Please review the error messages and fix any issues before proceeding."
     echo ""
   fi
 else

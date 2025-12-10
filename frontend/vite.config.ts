@@ -31,7 +31,9 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     watch: {
-      usePolling: true, // Helps with file watching in Docker
+      // Use polling for file watching in Docker; can be disabled for native development.
+      // Set VITE_USE_POLLING=true in your environment to enable polling.
+      usePolling: process.env.VITE_USE_POLLING === 'true',
     },
   },
 })

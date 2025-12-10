@@ -2,12 +2,14 @@ from fastapi import FastAPI, Depends, Query, HTTPException, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy import func as sql_func
 from datetime import datetime
 from typing import Optional
 import os
 import shutil
 import uuid
+import mimetypes
 from pathlib import Path
 from app.database import get_db, init_db
 from app.models import Patient, Activity
@@ -28,6 +30,12 @@ ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png"}
 
 # Allowed document extensions
 ALLOWED_DOCUMENT_EXTENSIONS = {".pdf"}
+
+# Allowed MIME types for images
+ALLOWED_IMAGE_MIME_TYPES = {"image/jpeg", "image/jpg", "image/png"}
+
+# Allowed MIME types for documents
+ALLOWED_DOCUMENT_MIME_TYPES = {"application/pdf"}
 
 
 @app.on_event("startup")
@@ -371,7 +379,7 @@ def delete_patient(patient_id: str, db: Session = Depends(get_db)):
 
 
 @app.post("/api/patients/{patient_id}/upload-photo", response_model=PatientResponse)
-def upload_patient_photo(
+async def upload_patient_photo(
     patient_id: str,
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
@@ -390,20 +398,41 @@ def upload_patient_photo(
             detail=f"Invalid file type. Allowed types: {', '.join(ALLOWED_IMAGE_EXTENSIONS)}"
         )
     
+    # Read file content for validation
+    file_content = await file.read()
+    
+    # Validate MIME type from content
+    detected_mime, _ = mimetypes.guess_type(file.filename)
+    if detected_mime not in ALLOWED_IMAGE_MIME_TYPES:
+        # Fallback: check magic numbers for common image formats
+        is_valid_image = False
+        if file_content.startswith(b'\xff\xd8\xff'):  # JPEG
+            is_valid_image = file_ext in {".jpg", ".jpeg"}
+        elif file_content.startswith(b'\x89PNG\r\n\x1a\n'):  # PNG
+            is_valid_image = file_ext == ".png"
+        
+        if not is_valid_image:
+            raise HTTPException(
+                status_code=400,
+                detail="File content does not match the file extension. Please upload a valid image file."
+            )
+    
     # Generate unique filename with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"photo_{patient_id}_{timestamp}{file_ext}"
     file_path = UPLOAD_DIR / filename
     
-    # Save the file
+    # Save the file (write content directly since we already read it)
     with open(file_path, "wb") as dest_file:
-        shutil.copyfileobj(file.file, dest_file)
+        dest_file.write(file_content)
     
     # Store photo URL in medical_info for now
     # If there's a dedicated photo_url field in the model, use that instead
     medical_info = patient.medical_info or {}
     medical_info['photo_url'] = f"/uploads/{filename}"
     patient.medical_info = medical_info
+    # Flag the JSON column as modified to ensure SQLAlchemy tracks the change
+    flag_modified(patient, 'medical_info')
     
     patient.updated_at = datetime.now().isoformat()
     db.commit()
@@ -489,7 +518,7 @@ def get_activities(
 
 
 @app.post("/api/patients/{patient_id}/upload-document", response_model=PatientResponse)
-def upload_patient_document(
+async def upload_patient_document(
     patient_id: str,
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
@@ -508,14 +537,27 @@ def upload_patient_document(
             detail=f"Invalid file type. Allowed types: {', '.join(ALLOWED_DOCUMENT_EXTENSIONS)}"
         )
     
+    # Read file content for validation
+    file_content = await file.read()
+    
+    # Validate MIME type from content
+    detected_mime, _ = mimetypes.guess_type(file.filename)
+    if detected_mime not in ALLOWED_DOCUMENT_MIME_TYPES:
+        # Check PDF magic number: PDF files start with %PDF
+        if not file_content.startswith(b'%PDF'):
+            raise HTTPException(
+                status_code=400,
+                detail="File content does not match the file extension. Please upload a valid PDF file."
+            )
+    
     # Generate unique filename with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"{timestamp}_{Path(file.filename).name}"
     file_path = UPLOAD_DIR / filename
     
-    # Save the file
+    # Save the file (write content directly since we already read it)
     with open(file_path, "wb") as dest_file:
-        shutil.copyfileobj(file.file, dest_file)
+        dest_file.write(file_content)
     
     # Determine document type from filename or default to 'other'
     doc_type = 'other'
@@ -543,6 +585,8 @@ def upload_patient_document(
     
     # Update patient documents
     patient.documents = documents
+    # Flag the JSON column as modified to ensure SQLAlchemy tracks the change
+    flag_modified(patient, 'documents')
     patient.updated_at = datetime.now().isoformat()
     db.commit()
     db.refresh(patient)

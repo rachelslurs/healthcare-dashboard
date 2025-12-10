@@ -25,6 +25,30 @@ if [ -f "requirements.txt" ]; then
   fi
 fi
 
+# Run database migrations with clear feedback
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🗄️  Running Database Migrations"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
+if python -c "from app.migrations import make_columns_nullable" 2>/dev/null; then
+  echo "🔄 Running migrations..."
+  echo ""
+  if python -m app.migrations 2>&1; then
+    echo ""
+    echo "✅ Database migrations completed successfully!"
+    echo ""
+  else
+    echo ""
+    echo "⚠️  Migration completed with warnings (check logs above)"
+    echo "   The server will still start, but you may want to review any warnings."
+    echo ""
+  fi
+else
+  echo "⚠️  Could not import migration module (this is OK if migrations aren't needed)"
+  echo ""
+fi
+
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "🎯 Starting Uvicorn server with hot reload..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

@@ -23,12 +23,16 @@ const addressSchema = z.object({
 })
 
 // Emergency contact schema - always present in form, but fields can be empty
-// Validation ensures if any field is filled, name/relationship/phone must be filled
+// Validation ensures if name is provided, relationship and phone must be filled
+// Email is always optional
 const emergencyContactSchema = z.object({
-  name: z.string(),
-  relationship: z.string(),
-  phone: z.string(),
-  email: z.string().email('Invalid email address').optional().or(z.literal('')),
+  name: z.string().nullable(),
+  relationship: z.string().nullable(),
+  phone: z.string().nullable(),
+  email: z.preprocess(
+    (val) => (val === '' || val === null ? undefined : val),
+    z.string().email('Invalid email address').optional()
+  ),
 })
 
 // Medical info schema
@@ -71,14 +75,11 @@ export const patientFormSchema = z.object({
   insurance: insuranceSchema,
 }).refine(
   (data) => {
-    // If any emergency contact field is filled, name, relationship, and phone must all be filled
-    const hasAnyField = data.emergencyContact.name?.trim() || 
-                        data.emergencyContact.relationship?.trim() || 
-                        data.emergencyContact.phone?.trim() ||
-                        data.emergencyContact.email?.trim()
-    if (hasAnyField) {
+    // If name is provided, relationship and phone must also be provided
+    // Email is always optional
+    const hasName = data.emergencyContact.name?.trim()
+    if (hasName) {
       return (
-        data.emergencyContact.name?.trim() &&
         data.emergencyContact.relationship?.trim() &&
         data.emergencyContact.phone?.trim()
       )
@@ -86,7 +87,7 @@ export const patientFormSchema = z.object({
     return true
   },
   {
-    message: 'Emergency contact name, relationship, and phone are required if emergency contact is provided',
+    message: 'Emergency contact relationship and phone are required when a name is provided',
     path: ['emergencyContact'],
   }
 ).refine(

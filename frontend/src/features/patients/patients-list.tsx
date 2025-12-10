@@ -5,6 +5,7 @@ import { getPatients } from './api'
 import usePaginatedData from '@/hooks/usePaginatedData'
 import useSortedData from '@/hooks/useSortedData'
 import { Badge } from '@/components/ui/badge'
+import { getSearchParams } from '@/lib/ssr'
 
 // Format date for display
 const formatDate = (dateString: string | undefined): string => {
@@ -95,7 +96,7 @@ export default function PatientsList() {
 
   // Build pagination URL with query parameters
   const buildPageUrl = (page: number) => {
-    const params = new URLSearchParams(window.location.search)
+    const params = getSearchParams()
     params.set('page', page.toString())
     return `/patients?${params.toString()}`
   }

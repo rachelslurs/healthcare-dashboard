@@ -1,4 +1,5 @@
 import { useNavigate } from '@tanstack/react-router'
+import { getSearchParams } from '@/lib/ssr'
 
 interface UseSortedDataOptions {
   defaultSortOrder?: 'asc' | 'desc'
@@ -29,7 +30,7 @@ export default function useSortedData({
 
   // Handle column sort
   const handleSort = (columnKey: string) => {
-    const params = new URLSearchParams(window.location.search)
+    const params = getSearchParams()
     const newSortBy = columnKey
     const newSortOrder = currentSortBy === columnKey && currentSortOrder === 'asc' ? 'desc' : 'asc'
     

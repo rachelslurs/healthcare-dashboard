@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime, date
 from app.database import get_db, init_db
-from app.models import Patient
-from app.schemas import PatientListResponse, PaginatedPatientsResponse, PatientResponse
+from app.models import Patient, Activity
+from app.schemas import PatientListResponse, PaginatedPatientsResponse, PatientResponse, PatientCreate
 
 app = FastAPI()
 
@@ -40,6 +40,22 @@ def calculate_age(date_of_birth: date) -> int:
     if (today.month, today.day) < (date_of_birth.month, date_of_birth.day):
         age -= 1
     return age
+
+
+def log_activity(
+    db: Session,
+    action_type: str,
+    description: str,
+    patient_id: int = None
+):
+    """Log an activity to the database."""
+    activity = Activity(
+        action_type=action_type,
+        description=description,
+        patient_id=patient_id
+    )
+    db.add(activity)
+    db.commit()
 
 
 def patient_to_response(patient: Patient) -> PatientResponse:
@@ -112,5 +128,37 @@ def get_patient(patient_id: int, db: Session = Depends(get_db)):
     
     if not patient:
         raise HTTPException(status_code=404, detail="Patient not found")
+    
+    return patient_to_response(patient)
+
+
+@app.post("/api/patients", response_model=PatientResponse, status_code=201)
+def create_patient(patient_data: PatientCreate, db: Session = Depends(get_db)):
+    """Create a new patient."""
+    # Create patient from schema
+    patient = Patient(
+        first_name=patient_data.first_name,
+        last_name=patient_data.last_name,
+        date_of_birth=patient_data.date_of_birth,
+        phone=patient_data.phone,
+        email=patient_data.email,
+        status=patient_data.status,
+        medical_history=patient_data.medical_history or {},
+        insurance_info=patient_data.insurance_info or {},
+        emergency_contacts=patient_data.emergency_contacts or []
+    )
+    
+    db.add(patient)
+    db.commit()
+    db.refresh(patient)
+    
+    # Log activity
+    patient_name = f"{patient.first_name} {patient.last_name}"
+    log_activity(
+        db=db,
+        action_type="CREATE",
+        description=f"Added new patient {patient_name}",
+        patient_id=patient.id
+    )
     
     return patient_to_response(patient)

@@ -17,6 +17,7 @@ import { toast } from '@/lib/toast'
 import { getPatient, createPatient, updatePatient, uploadPatientPhoto } from './api'
 import { patientFormSchema, type PatientFormData } from './patient-form-schema'
 import PhotoPreview from './photo-preview'
+import Tags from './tags'
 import type { Patient } from './types'
 
 
@@ -284,15 +285,24 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           : undefined,
         // Convert empty emergency contact to undefined
         // Only require name, relationship, and phone (email is optional)
-        emergencyContact: formData.emergencyContact &&
-          formData.emergencyContact.name?.trim() &&
-          formData.emergencyContact.relationship?.trim() &&
-          formData.emergencyContact.phone?.trim()
-          ? {
-              ...formData.emergencyContact,
-              email: formData.emergencyContact.email?.trim() || undefined,
+        emergencyContact: (() => {
+          const ec = formData.emergencyContact
+          if (!ec) return undefined
+          
+          const name = ec.name?.trim()
+          const relationship = ec.relationship?.trim()
+          const phone = ec.phone?.trim()
+          
+          if (name && relationship && phone) {
+            return {
+              name: name as string,
+              relationship: relationship as string,
+              phone: phone as string,
+              email: ec.email?.trim() || undefined,
             }
-          : undefined,
+          }
+          return undefined
+        })(),
         // Ensure lastVisit is a string (not undefined)
         medicalInfo: {
           ...formData.medicalInfo,
@@ -521,7 +531,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
 
         {/* Address */}
         <Fieldset>
-          <Legend>Address (Optional)</Legend>
+          <Legend>Address</Legend>
           <FieldGroup>
             <Field>
               <Label>Street</Label>
@@ -591,7 +601,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
 
         {/* Emergency Contact */}
         <Fieldset>
-          <Legend>Emergency Contact (Optional)</Legend>
+          <Legend>Emergency Contact</Legend>
           <FieldGroup>
             <Field>
               <Label>
@@ -660,7 +670,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           <FieldGroup>
             <Field>
               <Label>Allergies</Label>
-              <div className='space-y-2'>
+              <div data-slot='control' className='space-y-2'>
                 <div className='flex gap-2'>
                   <Input
                     type='text'
@@ -678,31 +688,18 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                     Add
                   </Button>
                 </div>
-                {allergies.length > 0 && (
-                  <div className='flex flex-wrap gap-2 mt-2'>
-                    {allergies.map((allergy, index) => (
-                      <span
-                        key={index}
-                        className='inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm'
-                      >
-                        {allergy}
-                        <button
-                          type='button'
-                          onClick={() => handleRemoveAllergy(index)}
-                          className='text-blue-700 hover:text-blue-900'
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
+                <Tags
+                  items={allergies}
+                  onRemove={handleRemoveAllergy}
+                  color='blue'
+                  itemLabel={(allergy) => `Remove ${allergy}`}
+                />
               </div>
             </Field>
 
             <Field>
               <Label>Medical Conditions</Label>
-              <div className='space-y-2'>
+              <div data-slot='control' className='space-y-2'>
                 <div className='flex gap-2'>
                   <Input
                     type='text'
@@ -720,25 +717,12 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                     Add
                   </Button>
                 </div>
-                {conditions.length > 0 && (
-                  <div className='flex flex-wrap gap-2 mt-2'>
-                    {conditions.map((condition, index) => (
-                      <span
-                        key={index}
-                        className='inline-flex items-center gap-1 px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm'
-                      >
-                        {condition}
-                        <button
-                          type='button'
-                          onClick={() => handleRemoveCondition(index)}
-                          className='text-purple-700 hover:text-purple-900'
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
+                <Tags
+                  items={conditions}
+                  onRemove={handleRemoveCondition}
+                  color='blue'
+                  itemLabel={(condition) => `Remove ${condition}`}
+                />
               </div>
             </Field>
 
@@ -891,7 +875,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
         </Fieldset>
 
         {/* Form Actions */}
-        <div className='flex gap-4 justify-end pt-6 border-t'>
+        <div className='flex gap-4 justify-end pt-6'>
           <Button type='button' onClick={handleCancel} outline>
             Cancel
           </Button>

@@ -70,7 +70,9 @@ export const Input = forwardRef(function Input(
           // Basic layout
           'relative block w-full appearance-none rounded-lg px-[calc(--spacing(3.5)-1px)] py-[calc(--spacing(2.5)-1px)] sm:px-[calc(--spacing(3)-1px)] sm:py-[calc(--spacing(1.5)-1px)]',
           // Typography
-          'text-base/6 text-ascertain-foreground placeholder:text-neutral-600 sm:text-sm/6',
+          'text-base/6 sm:text-sm/6',
+          // Text color - only apply to non-date inputs (date inputs use webkit pseudo-elements)
+          props.type && !dateTypes.includes(props.type) && 'text-ascertain-foreground',
           // Border - Ascertain styling
           'border border-neutral-800/10 data-hover:border-neutral-800/20',
           // Background color

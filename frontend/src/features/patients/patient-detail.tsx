@@ -24,6 +24,7 @@ import { getErrorMessage } from "@/lib/error-utils";
 import { toast } from "@/lib/toast";
 
 import { getPatient, deletePatient } from "./api";
+import Tags from "./tags";
 import type { Patient } from "./types";
 
 export default function PatientDetail() {
@@ -294,16 +295,7 @@ export default function PatientDetail() {
             <DescriptionTerm>Allergies</DescriptionTerm>
             <DescriptionDetails>
               {patient.medicalInfo.allergies.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {patient.medicalInfo.allergies.map((allergy, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
-                    >
-                      {allergy}
-                    </span>
-                  ))}
-                </div>
+                <Tags items={patient.medicalInfo.allergies} color="blue" />
               ) : (
                 "None"
               )}
@@ -312,16 +304,7 @@ export default function PatientDetail() {
             <DescriptionTerm>Conditions</DescriptionTerm>
             <DescriptionDetails>
               {patient.medicalInfo.conditions.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {patient.medicalInfo.conditions.map((condition, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
-                    >
-                      {condition}
-                    </span>
-                  ))}
-                </div>
+                <Tags items={patient.medicalInfo.conditions} color="blue" />
               ) : (
                 "None"
               )}

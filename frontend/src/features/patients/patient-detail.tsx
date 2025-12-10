@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from '@tanstack/react-router'
+import { useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { getPatient, deletePatient } from './api'
 import type { Patient } from './types'
@@ -39,6 +40,7 @@ const getStatusColor = (status: 'active' | 'inactive' | 'archived'): 'green' | '
 export default function PatientDetail() {
   const { patientId } = useParams({ strict: false })
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [patient, setPatient] = useState<Patient | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
@@ -117,6 +119,9 @@ export default function PatientDetail() {
     setIsDeleting(true)
     try {
       await deletePatient(patientId)
+      
+      // Invalidate activities query cache to refresh the activities list
+      queryClient.invalidateQueries({ queryKey: ['activities'] })
       
       toast({
         title: 'Patient deleted',

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { useQueryClient } from '@tanstack/react-query'
 import type { Patient, Address, EmergencyContact, Medication, InsuranceInfo } from './types'
 import { getPatient, createPatient, updatePatient, uploadPatientPhoto } from './api'
 import { toast } from '@/lib/toast'
@@ -119,6 +120,7 @@ type FormData = {
 
 export default function PatientForm({ patient, patientId, isEdit = false }: PatientFormProps) {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [formData, setFormData] = useState<FormData>(defaultFormData)
   const [isLoading, setIsLoading] = useState(isEdit && !patient)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -380,6 +382,9 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           }
         }
         
+        // Invalidate activities query cache to refresh the activities list
+        queryClient.invalidateQueries({ queryKey: ['activities'] })
+        
         toast({
           title: 'Patient updated',
           description: 'Patient information has been successfully updated.',
@@ -388,6 +393,9 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
         navigate({ to: `/patients/${patientId}` })
       } else {
         const newPatient = await createPatient(submitData)
+        
+        // Invalidate activities query cache to refresh the activities list
+        queryClient.invalidateQueries({ queryKey: ['activities'] })
         
         toast({
           title: 'Patient created',

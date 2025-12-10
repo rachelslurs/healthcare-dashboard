@@ -4,6 +4,23 @@ import type { Patient, Address, EmergencyContact, Medication, InsuranceInfo } fr
 import { getPatient, createPatient, updatePatient, uploadPatientPhoto } from './api'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+
+// Convert ISO date string to YYYY-MM-DD format for date input
+const formatDateForInput = (dateString: string | undefined): string => {
+  if (!dateString) return ''
+  try {
+    const date = new Date(dateString)
+    // Check if date is valid
+    if (isNaN(date.getTime())) return ''
+    // Return YYYY-MM-DD format
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  } catch {
+    return ''
+  }
+}
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
@@ -126,7 +143,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           setFormData({
             firstName: data.firstName,
             lastName: data.lastName,
-            dateOfBirth: data.dateOfBirth,
+            dateOfBirth: formatDateForInput(data.dateOfBirth),
             email: data.email,
             phone: data.phone,
             status: data.status,
@@ -158,7 +175,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
       setFormData({
         firstName: patient.firstName,
         lastName: patient.lastName,
-        dateOfBirth: patient.dateOfBirth,
+        dateOfBirth: formatDateForInput(patient.dateOfBirth),
         email: patient.email,
         phone: patient.phone,
         status: patient.status,

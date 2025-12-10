@@ -1,5 +1,18 @@
-import DataTable, { type ColumnDefinition, type PaginatedData } from '@/components/layout/data-table'
+import { format } from 'date-fns'
+import DataTable, { type ColumnDefinition } from '@/components/layout/data-table'
 import type { Activity } from './types'
+import { getActivities } from './api'
+import usePaginatedData from '@/hooks/usePaginatedData'
+
+// Format timestamp for display
+const formatTimestamp = (timestamp: string): string => {
+  try {
+    const date = new Date(timestamp)
+    return format(date, 'MMM d, yyyy h:mm a')
+  } catch {
+    return timestamp
+  }
+}
 
 // Define columns for the activities table
 const columns: ColumnDefinition<Activity>[] = [
@@ -13,7 +26,7 @@ const columns: ColumnDefinition<Activity>[] = [
   },
   {
     header: 'Timestamp',
-    accessor: 'timestamp',
+    accessor: (row) => formatTimestamp(row.timestamp),
   },
   {
     header: 'Patient ID',
@@ -22,10 +35,10 @@ const columns: ColumnDefinition<Activity>[] = [
 ]
 
 export default function ActivitiesList() {
-  // For now, empty data - will be replaced with API call later
-  const data: PaginatedData<Activity> | undefined = undefined
-  const isLoading = false
-  const error = null
+  const { data, isLoading, error } = usePaginatedData({
+    fetchFn: ({ page, pageSize }) => getActivities({ page, pageSize }),
+    pageSize: 10,
+  })
 
   // Build pagination URL with query parameters
   const buildPageUrl = (page: number) => {

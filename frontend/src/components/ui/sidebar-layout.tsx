@@ -54,7 +54,7 @@ export function SidebarLayout({
   return (
     <div className="relative isolate flex min-h-svh w-full bg-ascertain-background max-lg:flex-col lg:bg-ascertain-background">
       {/* Sidebar on desktop */}
-      <header className="fixed top-0 right-0 z-10 hidden lg:block px-4 py-2.5">
+      <header className="fixed top-0 right-0 left-64 z-10 hidden lg:block px-4 py-2.5">
         <div className="bg-ascertain-white/80 backdrop-blur-sm rounded-t-xl px-4 py-2.5">
           {navbar}
         </div>

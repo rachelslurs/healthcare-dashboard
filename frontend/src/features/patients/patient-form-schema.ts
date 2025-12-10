@@ -12,17 +12,6 @@ const medicationSchema = z.object({
   isActive: z.boolean(),
 })
 
-// Document schema
-const documentSchema = z.object({
-  id: z.string(),
-  type: z.enum(['medical_record', 'insurance_card', 'photo_id', 'test_result', 'other']),
-  name: z.string(),
-  uploadDate: z.string(),
-  fileSize: z.number(),
-  mimeType: z.string(),
-  url: z.string(),
-})
-
 // Address schema - always present in form, but fields can be empty
 // Validation ensures if any field is filled, all required fields must be filled
 const addressSchema = z.object({
@@ -80,7 +69,6 @@ export const patientFormSchema = z.object({
   emergencyContact: emergencyContactSchema,
   medicalInfo: medicalInfoSchema,
   insurance: insuranceSchema,
-  documents: z.array(documentSchema),
 }).refine(
   (data) => {
     // If any emergency contact field is filled, name, relationship, and phone must all be filled

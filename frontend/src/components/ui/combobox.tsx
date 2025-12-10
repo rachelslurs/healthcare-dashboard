@@ -66,7 +66,7 @@ export function Combobox<T>({
             // Horizontal padding
             'pr-[calc(--spacing(10)-1px)] pl-[calc(--spacing(3.5)-1px)] sm:pr-[calc(--spacing(9)-1px)] sm:pl-[calc(--spacing(3)-1px)]',
             // Typography
-            'text-base/6 text-zinc-950 placeholder:text-zinc-500 sm:text-sm/6 dark:text-white',
+            'text-base/6 text-zinc-950 placeholder:text-zinc-500 sm:text-sm/6',
             // Border
             'border border-zinc-950/10 data-hover:border-zinc-950/20',
             // Background color

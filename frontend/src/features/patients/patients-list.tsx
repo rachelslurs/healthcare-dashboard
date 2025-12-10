@@ -1,4 +1,3 @@
-import { format } from 'date-fns'
 import type React from 'react'
 import { useMemo, useCallback, memo } from 'react'
 import { useQuery } from '@tanstack/react-query'
@@ -13,16 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input, InputGroup } from '@/components/ui/input'
 import { TableRow, TableCell } from '@/components/ui/table'
-
-// Format date for display - moved outside component for performance
-const formatDate = (dateString: string | undefined): string => {
-  if (!dateString) return '—'
-  try {
-    return format(new Date(dateString), 'MMM d, yyyy')
-  } catch {
-    return dateString
-  }
-}
+import { formatDate } from '@/lib/date-utils'
 
 // Format age for display - moved outside component for performance
 const formatAge = (age: number | undefined): string => {

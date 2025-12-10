@@ -5,6 +5,8 @@ import type { Activity } from './types'
 export interface GetActivitiesParams {
   page?: number
   pageSize?: number
+  sortBy?: 'timestamp'
+  sortOrder?: 'asc' | 'desc'
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
@@ -15,12 +17,20 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 export async function getActivities(
   params: GetActivitiesParams = {}
 ): Promise<PaginatedData<Activity>> {
-  const { page = 1, pageSize = 10 } = params
+  const { page = 1, pageSize = 10, sortBy, sortOrder } = params
 
   const searchParams = new URLSearchParams({
     page: page.toString(),
     page_size: pageSize.toString(),
   })
+
+  if (sortBy) {
+    searchParams.append('sort_by', sortBy)
+  }
+
+  if (sortOrder) {
+    searchParams.append('sort_order', sortOrder)
+  }
 
   const response = await fetch(`${API_BASE_URL}/api/activities?${searchParams}`)
 

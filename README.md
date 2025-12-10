@@ -4,6 +4,40 @@
 
 ## Launch Application
 
+### Option 1: Docker Compose (Recommended)
+
+The easiest way to run the entire application:
+
+1. **Start all services:**
+   ```bash
+   docker-compose up
+   ```
+
+2. **Access the application:**
+   - Frontend: http://localhost:5173
+   - Backend API: http://localhost:8000
+   - API Documentation: http://localhost:8000/docs
+
+3. **Stop the application:**
+   ```bash
+   docker-compose down
+   ```
+
+4. **View logs:**
+   ```bash
+   docker-compose logs -f
+   ```
+
+#### Environment Variables
+
+**Frontend:**
+- `VITE_API_URL`: Backend API URL (default: `http://localhost:8000`)
+
+**Backend:**
+- `SEED_PATIENT_COUNT`: Number of sample patients to generate (default: 0, set to 20 for development)
+- `DATABASE_URL`: Database connection string (default: `sqlite:///./healthcare.db`)
+- `UPLOAD_DIR`: Directory for file uploads (default: `./uploads`)
+
 ### Seed Data
 
 The database is automatically seeded with 20 sample patients on first run. Can be overridden using env variable SEED_PATIENT_COUNT.

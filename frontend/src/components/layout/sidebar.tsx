@@ -38,7 +38,7 @@ export default function Sidebar() {
   return (
     <SidebarComponent>
       <SidebarHeader>
-        <SidebarHeading className="text-xl">Ascertain</SidebarHeading>
+        <SidebarHeading className="text-xl">A</SidebarHeading>
       </SidebarHeader>
       <SidebarBody>
         <SidebarSection>
@@ -58,8 +58,8 @@ export default function Sidebar() {
             <DropdownButton as={SidebarItem}>
               <span className="flex min-w-0 items-center gap-3">
                 <span className="min-w-0">
-                  <span className="block truncate text-sm/5 font-medium text-zinc-950 dark:text-white">Rachel</span>
-                  <span className="block truncate text-xs/5 font-normal text-zinc-500 dark:text-zinc-400">
+                  <span className="block truncate text-sm/5 font-medium text-ascertain-foreground">Rachel</span>
+                  <span className="block truncate text-xs/5 font-normal text-neutral-600">
                     rachel@example.com
                   </span>
                 </span>

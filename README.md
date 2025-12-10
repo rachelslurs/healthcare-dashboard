@@ -341,6 +341,40 @@ toastInstance.update({ title: "Complete!" })
 - `UPLOAD_DIR`: Directory for file uploads (default: `./uploads`)
 
 #### Database Management
+
+**Running Migrations:**
+Before deploying changes that modify the database schema, run migrations:
+- **Docker**: 
+  ```bash
+  docker-compose exec backend python -m app.migrations
+  ```
+  Or use the helper script:
+  ```bash
+  chmod +x backend/run_migration.sh
+  ./backend/run_migration.sh
+  ```
+- **Local development**: 
+  ```bash
+  cd backend
+  python -m app.migrations
+  ```
+
+**Running Other Python Scripts in Docker:**
+To run any Python script or command in the backend container:
+```bash
+# Run a Python module
+docker-compose exec backend python -m app.module_name
+
+# Run a Python script
+docker-compose exec backend python path/to/script.py
+
+# Open an interactive Python shell
+docker-compose exec backend python
+
+# Run a one-off command
+docker-compose exec backend python -c "print('Hello from container')"
+```
+
 **Reset/Delete Database:**
 To regenerate sample data or start fresh, delete the database file:
 - **Local development**: Delete `backend/healthcare.db`

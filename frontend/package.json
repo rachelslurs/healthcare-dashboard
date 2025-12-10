@@ -19,7 +19,9 @@
         "motion": "^12.23.25",
         "react": "^19.2.1",
         "react-dom": "^19.2.1",
-        "tailwindcss": "^4.1.17"
+        "react-hook-form": "^7.68.0",
+        "tailwindcss": "^4.1.17",
+        "zod": "^4.1.13"
     },
     "devDependencies": {
         "@tanstack/eslint-plugin-query": "^5.91.2",

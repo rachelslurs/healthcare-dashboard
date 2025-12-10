@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
 import type React from 'react'
+import { useMemo, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
@@ -70,7 +71,7 @@ export default function PatientsList() {
   })
 
   // Update URL when search changes (URL updates immediately, API call is debounced via query key)
-  const handleSearchChange = (value: string) => {
+  const handleSearchChange = useCallback((value: string) => {
     navigate({
       to: '/patients',
       search: {
@@ -79,10 +80,10 @@ export default function PatientsList() {
         page: 1, // Reset to first page when search changes
       },
     })
-  }
+  }, [navigate, search])
 
-  // Define columns for the patients table
-  const columns: ColumnDefinition<PatientListItem>[] = [
+  // Define columns for the patients table - memoized to prevent recreation on every render
+  const columns: ColumnDefinition<PatientListItem>[] = useMemo(() => [
     {
       header: 'Name',
       accessor: (row) => `${row.firstName || ''} ${row.lastName || ''}`.trim() || '—',
@@ -109,7 +110,7 @@ export default function PatientsList() {
       sortKey: 'lastVisit',
       width: '20%',
     },
-  ]
+  ], [])
 
   // Use TanStack Query for data fetching
   const {
@@ -131,7 +132,7 @@ export default function PatientsList() {
     placeholderData: (previousData) => previousData, // Keep previous data visible during transitions
   })
 
-  const goToPage = (newPage: number) => {
+  const goToPage = useCallback((newPage: number) => {
     navigate({
       to: '/patients',
       search: {
@@ -139,10 +140,11 @@ export default function PatientsList() {
         page: newPage,
       },
     })
-  }
+  }, [navigate, search])
 
   // Render clickable rows that navigate to patient detail
-  const renderRow = (row: PatientListItem, index: number) => {
+  // Memoized with useCallback to prevent unnecessary re-renders of table rows
+  const renderRow = useCallback((row: PatientListItem, index: number) => {
     const patientName = `${row.firstName || ''} ${row.lastName || ''}`.trim() || 'Patient'
     return (
       <TableRow
@@ -174,7 +176,7 @@ export default function PatientsList() {
         })}
       </TableRow>
     )
-  }
+  }, [columns])
 
   return (
     <div className="p-6">

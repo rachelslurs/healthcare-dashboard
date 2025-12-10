@@ -34,15 +34,15 @@ const styles = {
   ],
   outline: [
     // Base
-    'border-neutral-950/10 text-neutral-950 data-active:bg-neutral-950/2.5 data-hover:bg-neutral-950/2.5',
+    'border-zinc-950/10 text-zinc-950 data-active:bg-zinc-950/2.5 data-hover:bg-zinc-950/2.5',
     // Icon
-    '[--btn-icon:var(--color-neutral-500)] data-active:[--btn-icon:var(--color-neutral-700)] data-hover:[--btn-icon:var(--color-neutral-700)]',
+    '[--btn-icon:var(--color-zinc-500)] data-active:[--btn-icon:var(--color-zinc-700)] data-hover:[--btn-icon:var(--color-zinc-700)]',
   ],
   plain: [
     // Base
-    'border-transparent text-neutral-950 data-active:bg-neutral-950/5 data-hover:bg-neutral-950/5',
+    'border-transparent text-zinc-950 data-active:bg-zinc-950/5 data-hover:bg-zinc-950/5',
     // Icon
-    '[--btn-icon:var(--color-neutral-500)] data-active:[--btn-icon:var(--color-neutral-700)] data-hover:[--btn-icon:var(--color-neutral-700)]',
+    '[--btn-icon:var(--color-zinc-500)] data-active:[--btn-icon:var(--color-zinc-700)] data-hover:[--btn-icon:var(--color-zinc-700)]',
   ],
   colors: {
     'dark/zinc': [
@@ -184,7 +184,7 @@ export function TouchTarget({ children }: { children: React.ReactNode }) {
         className="absolute top-1/2 left-1/2 size-[max(100%,2.75rem)] -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
         aria-hidden="true"
       />
-      {children}
+      <span className="relative">{children}</span>
     </>
   )
 }

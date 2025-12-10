@@ -92,7 +92,7 @@ function PaginationControls({
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div className="text-sm text-zinc-500 dark:text-zinc-400">
+      <div className="text-sm text-zinc-500">
         Showing {start} to {end} of {total} {itemLabel}
       </div>
       <Pagination>
@@ -131,9 +131,9 @@ function LoadingOverlay({ isVisible }: LoadingOverlayProps) {
   if (!isVisible) return null
 
   return (
-    <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-white/50 backdrop-blur-sm dark:bg-zinc-900/50">
+    <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-white/50 backdrop-blur-sm">
       <div className="flex flex-col items-center gap-2">
-        <div className="size-8 animate-spin rounded-full border-4 border-zinc-300 border-t-zinc-600 dark:border-zinc-700 dark:border-t-zinc-400" />
+        <div className="size-8 animate-spin rounded-full border-4 border-zinc-300 border-t-zinc-600" />
       </div>
     </div>
   )
@@ -151,7 +151,7 @@ function TableSkeleton({ rows = 5, columns }: TableSkeletonProps) {
         <TableRow key={rowIndex}>
           {Array.from({ length: columns }).map((_, colIndex) => (
             <TableCell key={colIndex}>
-              <div className="h-4 w-3/4 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
+              <div className="h-4 w-3/4 animate-pulse rounded bg-zinc-200" />
             </TableCell>
           ))}
         </TableRow>
@@ -193,12 +193,12 @@ export default function DataTable<T extends Record<string, any>>({
   const showOverlay = isFetching && hasData
 
   return (
-    <div className={clsx('relative rounded-lg border border-zinc-950/10 bg-white shadow-sm dark:border-white/10 dark:bg-zinc-900', className)}>
+    <div className={clsx('relative rounded-lg border border-zinc-950/10 bg-white shadow-sm', className)}>
       <LoadingOverlay isVisible={showOverlay} />
       
       {error ? (
         <div className="flex flex-col items-center justify-center gap-4 p-12">
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="text-sm text-zinc-600">
             {error.message || 'An error occurred while loading data'}
           </p>
           {refetch && (
@@ -230,7 +230,7 @@ export default function DataTable<T extends Record<string, any>>({
         </div>
       ) : !hasData ? (
         <div className="flex items-center justify-center p-12">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-zinc-500">
             {emptyMessage}
           </p>
         </div>
@@ -282,7 +282,7 @@ export default function DataTable<T extends Record<string, any>>({
             </Table>
           </div>
           {data && (
-            <div className="border-t border-zinc-950/10 px-6 py-4 dark:border-white/10">
+            <div className="border-t border-zinc-950/10 px-6 py-4">
               <PaginationControls
                 page={data.page}
                 totalPages={data.total_pages}

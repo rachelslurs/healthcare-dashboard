@@ -36,6 +36,7 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+    # Entrypoint script will handle dependency installation and show feedback
     command: npm run dev -- --host
     restart: unless-stopped
     develop:

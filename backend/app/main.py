@@ -36,6 +36,18 @@ def startup_event():
     """Initialize database on startup."""
     init_db()
     
+    # Run database migrations (e.g., making columns nullable)
+    # This ensures existing databases are updated to match the current schema
+    try:
+        from app.migrations import make_columns_nullable
+        make_columns_nullable()
+    except Exception as e:
+        # Log but don't fail startup if migration fails
+        # This allows the app to start even if migration has issues
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(f"Database migration warning: {e}")
+    
     # Generate sample data if configured
     seed_count = int(os.getenv("SEED_PATIENT_COUNT", "0"))
     if seed_count > 0:

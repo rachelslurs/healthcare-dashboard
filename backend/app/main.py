@@ -143,7 +143,7 @@ def get_patients(
     page_size: int = Query(10, ge=1, le=100, description="Items per page"),
     search: str = Query(None, description="Search by first name or last name"),
     status: str = Query(None, description="Filter by status (active, inactive, archived)"),
-    sort_by: str = Query("lastName", description="Sort by: lastName, status, lastVisit"),
+    sort_by: str = Query("lastName", description="Sort by: lastName, firstName, status, lastVisit, age"),
     sort_order: str = Query("asc", description="Sort order: asc or desc"),
     db: Session = Depends(get_db)
 ):
@@ -179,6 +179,9 @@ def get_patients(
     if sort_by == "lastName":
         sort_column = Patient.last_name
         actual_order = sort_order
+    elif sort_by == "firstName":
+        sort_column = Patient.first_name
+        actual_order = sort_order
     elif sort_by == "status":
         # Sort by patient status field
         sort_column = Patient.status
@@ -187,10 +190,15 @@ def get_patients(
         # Sort by lastVisit in medical_info JSON using JSON_EXTRACT for SQLite compatibility
         sort_column = sql_func.json_extract(Patient.medical_info, '$.last_visit')
         actual_order = sort_order
+    elif sort_by == "age":
+        # Sort by age (calculated from date_of_birth)
+        # For age, we sort by date_of_birth in reverse (older DOB = older age)
+        sort_column = Patient.date_of_birth
+        actual_order = "desc" if sort_order == "asc" else "asc"  # Reverse because older DOB = older age
     else:
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid sort_by. Must be one of: lastName, status, lastVisit"
+            detail=f"Invalid sort_by. Must be one of: lastName, firstName, status, lastVisit, age"
         )
     
     # Apply sorting
@@ -199,8 +207,10 @@ def get_patients(
     else:
         order_expr = sort_column.asc()
     
-    # Handle NULL values for lastVisit
+    # Handle NULL values for lastVisit and age
     if sort_by == "lastVisit":
+        order_expr = order_expr.nulls_last()
+    elif sort_by == "age":
         order_expr = order_expr.nulls_last()
     
     query = query.order_by(order_expr)
@@ -358,19 +368,44 @@ def delete_patient(patient_id: str, db: Session = Depends(get_db)):
 def get_activities(
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(10, ge=1, le=100, description="Items per page"),
+    sort_by: str = Query("timestamp", description="Sort by: timestamp"),
+    sort_order: str = Query("desc", description="Sort order: asc or desc"),
     db: Session = Depends(get_db)
 ):
-    """Get paginated list of activities, sorted by most recent first."""
+    """Get paginated list of activities with optional sorting."""
+    # Validate sort parameters
+    if sort_by not in ["timestamp"]:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid sort_by. Must be: timestamp"
+        )
+    
+    if sort_order not in ["asc", "desc"]:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid sort_order. Must be 'asc' or 'desc'"
+        )
+    
     # Calculate offset
     offset = (page - 1) * page_size
     
     # Get total count
     total = db.query(Activity).count()
     
-    # Get activities for current page, sorted by timestamp (most recent first)
+    # Apply sorting
+    if sort_by == "timestamp":
+        if sort_order == "desc":
+            order_expr = Activity.timestamp.desc()
+        else:
+            order_expr = Activity.timestamp.asc()
+    else:
+        # Default to descending timestamp if invalid sort_by
+        order_expr = Activity.timestamp.desc()
+    
+    # Get activities for current page
     activities = (
         db.query(Activity)
-        .order_by(Activity.timestamp.desc())
+        .order_by(order_expr)
         .offset(offset)
         .limit(page_size)
         .all()

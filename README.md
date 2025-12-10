@@ -62,7 +62,7 @@ The database is automatically seeded with 20 sample patients on first run. Can b
 
 ### Route Structure
 - **File-Based Routing**: TanStack Router with file-based route generation
-- **Layout Nesting**: Base layout (`_base.tsx`) wraps all routes with MainLayout (Header + Sidebar)
+- **Layout Nesting**: Base layout ([`_base.tsx`](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/_base.tsx)) wraps all routes with MainLayout (Header + Sidebar)
 - **Route Organization**:
   - `/` - Dashboard/Activity feed
   - `/patients` - Patient list
@@ -78,19 +78,19 @@ The database is automatically seeded with 20 sample patients on first run. Can b
 
 ### Error Handling Strategy
 
-**API Error Handling (`lib/api-utils.ts`):**
+**API Error Handling** ([`lib/api-utils.ts`](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/lib/api-utils.ts)):
 - **`handleApiError()`**: Centralized error handler for all API responses
   - Extracts error details from response body, handles 404s with custom messages
   - Used consistently across all API functions
 - **`transformPaginatedResponse()`**: Normalizes backend paginated responses (handles both camelCase and snake_case formats)
 
-**Component Error Handling (`lib/error-utils.ts`):**
+**Component Error Handling** ([`lib/error-utils.ts`](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/lib/error-utils.ts)):
 - **`getErrorMessage()`**: Safely extracts error messages from `Error` instances or unknown types with fallback messages
 - Replaces repetitive `err instanceof Error ? err.message : 'default'` patterns
 
 **Error Display:**
-- **QueryErrorDisplay**: User-friendly error component for TanStack Query errors with retry functionality
-- **LoadingSpinner**: Reusable loading state component
+- **QueryErrorDisplay** ([`components/errors/query-error-display.tsx`](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/components/errors/query-error-display.tsx)): User-friendly error component for TanStack Query errors with retry functionality
+- **LoadingSpinner** ([`components/feedback/loading-spinner.tsx`](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/components/feedback/loading-spinner.tsx)): Reusable loading state component
 - Toast notifications for action errors (create, update, delete)
 - Inline form validation errors via React Hook Form's `ErrorMessage` component
 
@@ -103,9 +103,9 @@ The database is automatically seeded with 20 sample patients on first run. Can b
 
 ### Component Architecture
 - **Separation of Concerns**:
-  - `features/` - Feature-specific components organized by domain (e.g., `features/patients/`, `features/activity/`)
-    - Flat structure: components directly in feature folder (e.g., `features/patients/patients-list.tsx`)
-    - Shared form components reused across routes (e.g., `patient-form.tsx` used by both new and edit routes)
+  - `features/` - Feature-specific components organized by domain (e.g., [`features/patients/`](https://github.com/rachelslurs/healthcare-dashboard/tree/main/frontend/src/features/patients), [`features/activities/`](https://github.com/rachelslurs/healthcare-dashboard/tree/main/frontend/src/features/activities))
+    - Flat structure: components directly in feature folder (e.g., [`features/patients/patients-list.tsx`](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/features/patients/patients-list.tsx))
+    - Shared form components reused across routes (e.g., [`patient-form.tsx`](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/features/patients/patient-form.tsx) used by both new and edit routes)
   - `components/ui/` - Reusable, unstyled UI primitives using [Catalyst](https://tailwindcss.com/plus/ui-kit)
   - `components/layout/` - Layout-specific components (Header, Sidebar, MainLayout)
   - `components/feedback/` - User feedback components (Toast notifications)
@@ -139,7 +139,7 @@ We use a **hybrid approach** based on the complexity and use case of each data t
   - **Refresh Persistence**: Page state persists on refresh
 - Implementation:
   - Route search params validated with Zod schema
-  - `useSortedData` hook reads from and updates URL via TanStack Router's `navigate`
+  - [`useSortedData`](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/hooks/useSortedData.ts) hook reads from and updates URL via TanStack Router's `navigate`
   - TanStack Query cache keys include URL params for proper invalidation
   - 5-minute cache staleness with background refetching
 
@@ -182,26 +182,26 @@ The application uses a custom toast notification system that works outside React
 
 **Core Components:**
 
-1. **State Management** (`lib/toast.ts`):
+1. **State Management** ([`lib/toast.ts`](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/lib/toast.ts)):
    - Reducer function for managing toast state
    - In-memory state and listener array
    - Dispatch function that updates state and notifies all listeners
    - Standalone `toast()` function for creating toasts from anywhere
    - `dismissToast()` function for programmatic dismissal
 
-2. **useToast Hook** (`hooks/use-toast.ts`):
+2. **useToast Hook** ([`hooks/use-toast.ts`](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/hooks/use-toast.ts)):
    - Subscribes to global state on mount
    - Unsubscribes on unmount
    - Returns current toast array and helper functions
    - Uses `useState` initialized with current memory state
    - Uses `useEffect` to add/remove component's state setter from listeners array
 
-3. **Toast Component** (`components/ui/toast.tsx`):
+3. **Toast Component** ([`components/ui/toast.tsx`](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/components/ui/toast.tsx)):
    - Presentation component for individual toast
    - Supports title, description, variant (default/destructive), and custom actions
    - Handles open/close state and animations
 
-4. **Toaster Component** (`components/feedback/toaster.tsx`):
+4. **Toaster Component** ([`components/feedback/toaster.tsx`](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/components/feedback/toaster.tsx)):
    - Renders all active toasts
    - Uses `useToast` hook to get current toast array
    - Maps over toasts and renders them with proper positioning
@@ -217,7 +217,7 @@ The application uses a custom toast notification system that works outside React
 
 ```typescript
 // Import the standalone toast function
-import { toast } from '@/lib/toast'
+import { toast } from '@/lib/toast' // See: lib/toast.ts
 
 // Success toast (default variant)
 toast({
@@ -414,10 +414,10 @@ To regenerate sample data or start fresh, delete the database file:
 backend/
 ├── app/
 │   ├── __init__.py
-│   ├── main.py          # FastAPI application and endpoints
-│   ├── database.py      # Database configuration and session management
-│   ├── models.py        # SQLAlchemy models
-│   └── schemas.py       # Pydantic schemas for validation
+│   ├── [main.py](https://github.com/rachelslurs/healthcare-dashboard/blob/main/backend/app/main.py)          # FastAPI application and endpoints
+│   ├── [database.py](https://github.com/rachelslurs/healthcare-dashboard/blob/main/backend/app/database.py)      # Database configuration and session management
+│   ├── [models.py](https://github.com/rachelslurs/healthcare-dashboard/blob/main/backend/app/models.py)        # SQLAlchemy models
+│   └── [schemas.py](https://github.com/rachelslurs/healthcare-dashboard/blob/main/backend/app/schemas.py)       # Pydantic schemas for validation
 ├── requirements.txt
 ├── Dockerfile
 └── README.md
@@ -432,19 +432,19 @@ frontend/
 │   │       ├── patient-detail.tsx
 │   │       └── patient-form.tsx
 │   ├── routes/          # Route configuration files (thin wrappers)
-│   │   ├── __root.tsx    # Root layout
-│   │   ├── _base.tsx    # Base layout wrapper
+│   │   ├── [__root.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/__root.tsx)    # Root layout
+│   │   ├── [_base.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/_base.tsx)    # Base layout wrapper
 │   │   ├── _base/
-│   │   │   ├── index.tsx
-│   │   │   └── $.tsx
+│   │   │   ├── [index.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/_base/index.tsx)
+│   │   │   └── [$.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/_base/$.tsx)
 │   │   └── patients/
-│   │       ├── index.tsx
-│   │       ├── new.tsx
+│   │       ├── [index.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/patients/index.tsx)
+│   │       ├── [new.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/patients/new.tsx)
 │   │       └── $patientId/
-│   │           ├── layout.tsx
-│   │           ├── index.tsx
-│   │           └── edit.tsx
-│   ├── router.tsx       # Manual route tree configuration
+│   │           ├── [layout.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/patients/$patientId/layout.tsx)
+│   │           ├── [index.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/patients/$patientId/index.tsx)
+│   │           └── [edit.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/patients/$patientId/edit.tsx)
+│   ├── [router.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/router.tsx)       # Manual route tree configuration
 │   ├── components/      # Shared UI components
 │   ├── types/           # TypeScript type definitions
 │   └── assets/          # Static assets

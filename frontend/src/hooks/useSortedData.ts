@@ -17,17 +17,9 @@ export default function useSortedData({
 }: UseSortedDataOptions = {}) {
   const navigate = useNavigate()
   
-  // Try to get search params from route, fallback to undefined if not in route context
-  let searchParams: { sortBy?: string; sortOrder?: 'asc' | 'desc' } | undefined
-  try {
-    searchParams = useSearch({ strict: false }) as { sortBy?: string; sortOrder?: 'asc' | 'desc' }
-  } catch (error) {
-    // Not in a route context, will use local state fallback
-    if (process.env.NODE_ENV === 'development') {
-      console.debug('useSearch not available, falling back to local state')
-    }
-    searchParams = undefined
-  }
+  // Get search params from route (must be called unconditionally - hooks rule)
+  // useSearch with strict: false should handle cases where we're not in a route context
+  const searchParams = useSearch({ strict: false }) as { sortBy?: string; sortOrder?: 'asc' | 'desc' } | undefined
 
   const currentSortBy = searchParams?.sortBy
   const currentSortOrder = (searchParams?.sortOrder || defaultSortOrder) as 'asc' | 'desc'

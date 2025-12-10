@@ -63,25 +63,25 @@ export default function usePaginatedData<T>({
   // Extract search string for dependency tracking
   const searchString = getSearchString()
   
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true)
-      setError(null)
-      
-      try {
-        const page = getPage()
-        const { sortBy, sortOrder } = getSortParams()
-        const result = await fetchFnRef.current({ page, pageSize, sortBy, sortOrder })
-        setData(result)
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to fetch data'))
-      } finally {
-        setIsLoading(false)
-      }
+  const fetchData = async () => {
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      const page = getPage()
+      const { sortBy, sortOrder } = getSortParams()
+      const result = await fetchFnRef.current({ page, pageSize, sortBy, sortOrder })
+      setData(result)
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to fetch data'))
+    } finally {
+      setIsLoading(false)
     }
-
+  }
+  
+  useEffect(() => {
     fetchData()
   }, [pageSize, searchString]) // Re-run when pageSize or search params change
 
-  return { data, isLoading, error }
+  return { data, isLoading, error, refetch: fetchData }
 }

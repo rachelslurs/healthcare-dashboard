@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useParams } from '@tanstack/react-router'
+import { useParams, useNavigate } from '@tanstack/react-router'
 import { format } from 'date-fns'
-import { getPatient } from './api'
+import { getPatient, deletePatient } from './api'
 import type { Patient } from './types'
 import { DescriptionList, DescriptionTerm, DescriptionDetails } from '@/components/ui/description-list'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogTitle, DialogDescription, DialogBody, DialogActions } from '@/components/ui/dialog'
 
 // Format date for display
 const formatDate = (dateString: string | undefined): string => {
@@ -46,9 +48,12 @@ const getMedicalStatusColor = (status: 'active' | 'inactive' | 'critical'): 'gre
 
 export default function PatientDetail() {
   const { patientId } = useParams({ strict: false })
+  const navigate = useNavigate()
   const [patient, setPatient] = useState<Patient | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     if (!patientId) {
@@ -108,19 +113,58 @@ export default function PatientDetail() {
     )
   }
 
+  const handleEdit = () => {
+    navigate({ to: `/patients/${patientId}/edit` })
+  }
+
+  const handleDeleteClick = () => {
+    setDeleteDialogOpen(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!patientId) return
+
+    setIsDeleting(true)
+    try {
+      await deletePatient(patientId)
+      // Navigate back to patients list after successful deletion
+      navigate({ to: '/patients' })
+    } catch (err) {
+      console.error('Failed to delete patient:', err)
+      setIsDeleting(false)
+      // You might want to show an error message to the user here
+    }
+  }
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false)
+  }
+
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">
-          {patient.firstName} {patient.lastName}
-        </h1>
-        <div className="flex items-center gap-2">
-          <Badge color={getStatusColor(patient.status)}>
-            {patient.status.charAt(0).toUpperCase() + patient.status.slice(1)}
-          </Badge>
-          {patient.age && (
-            <span className="text-sm text-gray-600">Age: {patient.age}</span>
-          )}
+        <div className="flex items-start justify-between mb-2">
+          <div>
+            <h1 className="text-2xl font-bold mb-2">
+              {patient.firstName} {patient.lastName}
+            </h1>
+            <div className="flex items-center gap-2">
+              <Badge color={getStatusColor(patient.status)}>
+                {patient.status.charAt(0).toUpperCase() + patient.status.slice(1)}
+              </Badge>
+              {patient.age && (
+                <span className="text-sm text-gray-600">Age: {patient.age}</span>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button outline onClick={handleEdit}>
+              Edit
+            </Button>
+            <Button color="red" onClick={handleDeleteClick}>
+              Delete
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -273,6 +317,26 @@ export default function PatientDetail() {
           </DescriptionList>
         </section>
       </div>
+
+      <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
+        <DialogTitle>Delete Patient</DialogTitle>
+        <DialogDescription>
+          Are you sure you want to delete {patient ? `${patient.firstName} ${patient.lastName}` : 'this patient'}? This action cannot be undone.
+        </DialogDescription>
+        <DialogBody>
+          <p className="text-sm text-neutral-600">
+            This will permanently remove the patient from the system.
+          </p>
+        </DialogBody>
+        <DialogActions>
+          <Button outline onClick={handleDeleteCancel} disabled={isDeleting}>
+            Cancel
+          </Button>
+          <Button color="red" onClick={handleDeleteConfirm} disabled={isDeleting}>
+            {isDeleting ? 'Deleting...' : 'Delete'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   )
 }

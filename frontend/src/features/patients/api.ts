@@ -77,3 +77,19 @@ export async function getPatient(id: string): Promise<Patient> {
 
   return await response.json()
 }
+
+/**
+ * Delete a patient by ID
+ */
+export async function deletePatient(id: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/patients/${id}`, {
+    method: 'DELETE',
+  })
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error(`Patient with ID ${id} not found`)
+    }
+    throw new Error(`Failed to delete patient: ${response.statusText}`)
+  }
+}

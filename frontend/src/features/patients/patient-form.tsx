@@ -96,7 +96,6 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
 
   const {
     register,
-    handleSubmit: formHandleSubmit,
     control,
     formState: { errors, isSubmitting },
     setValue,
@@ -318,8 +317,8 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           } catch (photoErr) {
             // Show error for photo upload but still navigate since patient was updated
             toast({
-              title: 'Photo upload failed',
-              description: photoErr instanceof Error ? photoErr.message : 'Failed to upload patient photo',
+              title: 'Patient updated, but photo upload failed',
+              description: `Patient information was saved successfully, but the photo could not be uploaded: ${photoErr instanceof Error ? photoErr.message : 'Unknown error'}`,
               variant: 'destructive',
             })
           }

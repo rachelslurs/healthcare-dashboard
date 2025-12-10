@@ -20,7 +20,7 @@ class Patient(Base):
     
     # JSON columns for complex nested data
     address = Column(JSON, nullable=True)
-    emergency_contact = Column(JSON, nullable=False)
+    emergency_contact = Column(JSON, nullable=True)
     medical_info = Column(JSON, nullable=False)
     insurance = Column(JSON, nullable=False)
     documents = Column(JSON, default=list)

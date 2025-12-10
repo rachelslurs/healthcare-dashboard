@@ -43,7 +43,7 @@ class MedicalInfo(BaseModel):
     allergies: List[str]
     current_medications: List[Medication] = Field(..., alias="currentMedications")
     conditions: List[str]
-    blood_type: Literal['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] = Field(..., alias="bloodType")
+    blood_type: Optional[Literal['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']] = Field(None, alias="bloodType")
     last_visit: Optional[str] = Field(None, alias="lastVisit")
     status: Literal['active', 'inactive', 'critical']
     
@@ -91,7 +91,7 @@ class PatientBase(BaseModel):
     phone: str = Field(..., min_length=1, max_length=20)
     status: str = Field(default="active", pattern="^(active|inactive|archived)$")
     address: Optional[Address] = None
-    emergency_contact: EmergencyContact = Field(..., alias="emergencyContact")
+    emergency_contact: Optional[EmergencyContact] = Field(None, alias="emergencyContact")
     medical_info: MedicalInfo = Field(..., alias="medicalInfo")
     insurance: InsuranceInfo
     documents: List[Document] = Field(default_factory=list)

@@ -211,26 +211,28 @@ export default function PatientDetail() {
         ) : null}
 
         {/* Emergency Contact */}
-        <section>
-          <h2 className="text-lg font-semibold mb-4">Emergency Contact</h2>
-          <DescriptionList>
-            <DescriptionTerm>Name</DescriptionTerm>
-            <DescriptionDetails>{patient.emergencyContact.name}</DescriptionDetails>
+        {patient.emergencyContact ? (
+          <section>
+            <h2 className="text-lg font-semibold mb-4">Emergency Contact</h2>
+            <DescriptionList>
+              <DescriptionTerm>Name</DescriptionTerm>
+              <DescriptionDetails>{patient.emergencyContact.name}</DescriptionDetails>
 
-            <DescriptionTerm>Relationship</DescriptionTerm>
-            <DescriptionDetails>{patient.emergencyContact.relationship}</DescriptionDetails>
+              <DescriptionTerm>Relationship</DescriptionTerm>
+              <DescriptionDetails>{patient.emergencyContact.relationship}</DescriptionDetails>
 
-            <DescriptionTerm>Phone</DescriptionTerm>
-            <DescriptionDetails>{patient.emergencyContact.phone}</DescriptionDetails>
+              <DescriptionTerm>Phone</DescriptionTerm>
+              <DescriptionDetails>{patient.emergencyContact.phone}</DescriptionDetails>
 
-            {patient.emergencyContact.email && (
-              <>
-                <DescriptionTerm>Email</DescriptionTerm>
-                <DescriptionDetails>{patient.emergencyContact.email}</DescriptionDetails>
-              </>
-            )}
-          </DescriptionList>
-        </section>
+              {patient.emergencyContact.email && (
+                <>
+                  <DescriptionTerm>Email</DescriptionTerm>
+                  <DescriptionDetails>{patient.emergencyContact.email}</DescriptionDetails>
+                </>
+              )}
+            </DescriptionList>
+          </section>
+        ) : null}
 
         {/* Medical Information */}
         <section>
@@ -244,7 +246,7 @@ export default function PatientDetail() {
             </DescriptionDetails>
 
             <DescriptionTerm>Blood Type</DescriptionTerm>
-            <DescriptionDetails>{patient.medicalInfo.bloodType}</DescriptionDetails>
+            <DescriptionDetails>{patient.medicalInfo.bloodType || '—'}</DescriptionDetails>
 
             <DescriptionTerm>Allergies</DescriptionTerm>
             <DescriptionDetails>

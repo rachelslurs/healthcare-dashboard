@@ -1,3 +1,5 @@
+import { memo } from 'react'
+
 interface TagProps {
   items: string[]
   onRemove?: (index: number) => void
@@ -6,7 +8,7 @@ interface TagProps {
   className?: string
 }
 
-export default function Tags({ items, onRemove, color = 'blue', itemLabel, className }: TagProps) {
+function Tags({ items, onRemove, color = 'blue', itemLabel, className }: TagProps) {
   if (items.length === 0) return null
 
   const colorClasses = {
@@ -67,3 +69,5 @@ export default function Tags({ items, onRemove, color = 'blue', itemLabel, class
     </div>
   )
 }
+
+export default memo(Tags)

@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useForm, Controller, useWatch, type SubmitHandler } from 'react-hook-form'
 
 import LoadingSpinner from '@/components/feedback/loading-spinner'
@@ -94,8 +94,12 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
   const emergencyContact = useWatch({ control, name: 'emergencyContact' })
   
   // Watch allergies and conditions to avoid multiple watch calls
-  const allergies = useWatch({ control, name: 'medicalInfo.allergies' }) || []
-  const conditions = useWatch({ control, name: 'medicalInfo.conditions' }) || []
+  const rawAllergies = useWatch({ control, name: 'medicalInfo.allergies' })
+  const rawConditions = useWatch({ control, name: 'medicalInfo.conditions' })
+  
+  // Memoize to prevent new array references on every render
+  const allergies = useMemo(() => rawAllergies || [], [rawAllergies])
+  const conditions = useMemo(() => rawConditions || [], [rawConditions])
 
   // Fetch patient data for edit mode
   useEffect(() => {

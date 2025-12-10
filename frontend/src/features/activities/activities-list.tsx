@@ -6,21 +6,7 @@ import { getActivities } from './api'
 import useSortedData from '@/hooks/useSortedData'
 import { Badge } from '@/components/ui/badge'
 import { formatTimestamp } from '@/lib/date-utils'
-
-// Get badge color based on action type
-const getActionColor = (actionType: string): 'green' | 'blue' | 'red' | 'orange' | 'purple' | 'zinc' => {
-  const upperAction = actionType.toUpperCase()
-  switch (upperAction) {
-    case 'CREATE':
-      return 'green'
-    case 'UPDATE':
-      return 'blue'
-    case 'DELETE':
-      return 'red'
-    default:
-      return 'zinc'
-  }
-}
+import { getActionColor } from '@/lib/badge-utils'
 
 // Format action type as a badge
 const formatActionType = (actionType: string) => {

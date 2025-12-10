@@ -28,3 +28,9 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+def init_db():
+    """Initialize database by creating all tables."""
+    from app.models import Patient, Activity
+    Base.metadata.create_all(bind=engine)

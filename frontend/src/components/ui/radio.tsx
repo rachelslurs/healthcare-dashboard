@@ -107,7 +107,7 @@ const colors = {
 type Color = keyof typeof colors
 
 export function Radio({
-  color = 'dark/zinc',
+  color = 'violet',
   className,
   ...props
 }: { color?: Color; className?: string } & Omit<Headless.RadioProps, 'as' | 'className' | 'children'>) {

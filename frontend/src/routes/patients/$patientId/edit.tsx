@@ -4,7 +4,7 @@ import PatientForm from '@/features/patients/patient-form'
 
 export const patientIdEditRoute = createRoute({
   getParentRoute: () => patientIdLayoutRoute,
-  path: '/edit',
+  path: 'edit',
   component: EditPatient,
 })
 

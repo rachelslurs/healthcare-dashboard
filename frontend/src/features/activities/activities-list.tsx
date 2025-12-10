@@ -1,5 +1,5 @@
 import { format, parseISO } from 'date-fns'
-import { useState } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import DataTable, { type ColumnDefinition } from '@/components/layout/data-table'
 import type { Activity } from './types'
@@ -83,12 +83,12 @@ export default function ActivitiesList() {
     placeholderData: (previousData) => previousData, // Keep previous data visible during transitions
   })
 
-  const goToPage = (newPage: number) => {
+  const goToPage = useCallback((newPage: number) => {
     setPage(newPage)
-  }
+  }, [])
 
-  // Define columns for the activities table
-  const columns: ColumnDefinition<Activity>[] = [
+  // Define columns for the activities table - memoized to prevent recreation
+  const columns: ColumnDefinition<Activity>[] = useMemo(() => [
     {
       header: 'Action',
       accessor: (row) => formatActionType(row.actionType),
@@ -111,7 +111,7 @@ export default function ActivitiesList() {
       accessor: 'patientId',
       width: '20%',
     },
-  ]
+  ], [])
 
   return (
     <div className="p-6">

@@ -38,7 +38,7 @@ export default function Sidebar() {
   return (
     <SidebarComponent>
       <SidebarHeader>
-        <SidebarHeading className="text-2xl">Ascertain</SidebarHeading>
+        <SidebarHeading className="text-xl">Ascertain</SidebarHeading>
       </SidebarHeader>
       <SidebarBody>
         <SidebarSection>

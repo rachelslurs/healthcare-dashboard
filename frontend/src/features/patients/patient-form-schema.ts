@@ -25,15 +25,16 @@ const addressSchema = z.object({
 // Emergency contact schema - always present in form, but fields can be empty
 // Validation ensures if name is provided, relationship and phone must be filled
 // Email is always optional
+// Note: Union order matters for performance - check cheap cases (empty/null/undefined) before expensive email validation
 const emergencyContactSchema = z.object({
   name: z.string().nullable(),
   relationship: z.string().nullable(),
   phone: z.string().nullable(),
   email: z.union([
-    z.string().email('Invalid email address'),
     z.literal(''),
     z.null(),
     z.undefined(),
+    z.string().email('Invalid email address'),
   ]).optional(),
 })
 

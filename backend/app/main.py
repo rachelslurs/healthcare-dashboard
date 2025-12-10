@@ -267,7 +267,7 @@ def create_patient(patient_data: PatientCreate, db: Session = Depends(get_db)):
         phone=patient_data.phone,
         email=patient_data.email,
         status=patient_data.status,
-        address=patient_data.address.model_dump(by_alias=False),  # Use field names (snake_case)
+        address=patient_data.address.model_dump(by_alias=False) if patient_data.address else None,  # Use field names (snake_case)
         emergency_contact=patient_data.emergency_contact.model_dump(by_alias=False),
         medical_info=patient_data.medical_info.model_dump(by_alias=False),
         insurance=patient_data.insurance.model_dump(by_alias=False),

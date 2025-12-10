@@ -22,13 +22,7 @@ const defaultFormData = {
   email: '',
   phone: '',
   status: 'active' as const,
-  address: {
-    street: '',
-    city: '',
-    state: '',
-    zipCode: '',
-    country: 'USA',
-  },
+  address: undefined as Address | undefined,
   emergencyContact: {
     name: '',
     relationship: '',
@@ -47,10 +41,10 @@ const defaultFormData = {
     provider: '',
     policyNumber: '',
     groupNumber: '',
-    effectiveDate: '',
+    effectiveDate: undefined as string | undefined,
     expirationDate: '',
     copay: 0,
-    deductible: 0,
+    deductible: undefined as number | undefined,
   },
   documents: [] as Patient['documents'],
 }
@@ -128,6 +122,16 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     }))
   }
 
+  const handleAddressChange = (field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      address: {
+        ...(prev.address || { street: '', city: '', state: '', zipCode: '', country: 'USA' }),
+        [field]: value,
+      },
+    }))
+  }
+
   const handleAddAllergy = () => {
     if (allergyInput.trim()) {
       setFormData((prev) => ({
@@ -180,11 +184,23 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     setError(null)
 
     try {
+      // Prepare form data, converting empty address to undefined
+      const submitData = {
+        ...formData,
+        address: formData.address && 
+          formData.address.street && 
+          formData.address.city && 
+          formData.address.state && 
+          formData.address.zipCode
+          ? formData.address
+          : undefined,
+      }
+
       if (isEdit && patientId) {
-        await updatePatient(patientId, formData)
+        await updatePatient(patientId, submitData)
         navigate({ to: `/patients/${patientId}` })
       } else {
-        const newPatient = await createPatient(formData)
+        const newPatient = await createPatient(submitData)
         navigate({ to: `/patients/${newPatient.id}` })
       }
     } catch (err) {
@@ -315,44 +331,35 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
 
         {/* Address */}
         <Fieldset>
-          <Legend>Address</Legend>
+          <Legend>Address (Optional)</Legend>
           <FieldGroup>
             <Field>
-              <Label>
-                Street <span className="text-red-500">*</span>
-              </Label>
+              <Label>Street</Label>
               <Input
                 type="text"
-                value={formData.address.street}
-                onChange={(e) => handleNestedChange('address', 'street', e.target.value)}
-                required
+                value={formData.address?.street || ''}
+                onChange={(e) => handleAddressChange('street', e.target.value)}
                 placeholder="123 Main St"
               />
             </Field>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <Field>
-                <Label>
-                  City <span className="text-red-500">*</span>
-                </Label>
+                <Label>City</Label>
                 <Input
                   type="text"
-                  value={formData.address.city}
-                  onChange={(e) => handleNestedChange('address', 'city', e.target.value)}
-                  required
+                  value={formData.address?.city || ''}
+                  onChange={(e) => handleAddressChange('city', e.target.value)}
                   placeholder="New York"
                 />
               </Field>
 
               <Field>
-                <Label>
-                  State <span className="text-red-500">*</span>
-                </Label>
+                <Label>State</Label>
                 <Input
                   type="text"
-                  value={formData.address.state}
-                  onChange={(e) => handleNestedChange('address', 'state', e.target.value)}
-                  required
+                  value={formData.address?.state || ''}
+                  onChange={(e) => handleAddressChange('state', e.target.value)}
                   placeholder="NY"
                 />
               </Field>
@@ -360,27 +367,21 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <Field>
-                <Label>
-                  ZIP Code <span className="text-red-500">*</span>
-                </Label>
+                <Label>ZIP Code</Label>
                 <Input
                   type="text"
-                  value={formData.address.zipCode}
-                  onChange={(e) => handleNestedChange('address', 'zipCode', e.target.value)}
-                  required
+                  value={formData.address?.zipCode || ''}
+                  onChange={(e) => handleAddressChange('zipCode', e.target.value)}
                   placeholder="10001"
                 />
               </Field>
 
               <Field>
-                <Label>
-                  Country <span className="text-red-500">*</span>
-                </Label>
+                <Label>Country</Label>
                 <Input
                   type="text"
-                  value={formData.address.country}
-                  onChange={(e) => handleNestedChange('address', 'country', e.target.value)}
-                  required
+                  value={formData.address?.country || 'USA'}
+                  onChange={(e) => handleAddressChange('country', e.target.value)}
                   placeholder="USA"
                 />
               </Field>
@@ -634,14 +635,11 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <Field>
-                <Label>
-                  Effective Date <span className="text-red-500">*</span>
-                </Label>
+                <Label>Effective Date</Label>
                 <Input
                   type="date"
-                  value={formData.insurance.effectiveDate}
-                  onChange={(e) => handleNestedChange('insurance', 'effectiveDate', e.target.value)}
-                  required
+                  value={formData.insurance.effectiveDate || ''}
+                  onChange={(e) => handleNestedChange('insurance', 'effectiveDate', e.target.value || undefined)}
                 />
               </Field>
 
@@ -672,16 +670,13 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
               </Field>
 
               <Field>
-                <Label>
-                  Deductible ($) <span className="text-red-500">*</span>
-                </Label>
+                <Label>Deductible ($)</Label>
                 <Input
                   type="number"
                   step="0.01"
                   min="0"
-                  value={formData.insurance.deductible}
-                  onChange={(e) => handleNestedChange('insurance', 'deductible', parseFloat(e.target.value) || 0)}
-                  required
+                  value={formData.insurance.deductible ?? ''}
+                  onChange={(e) => handleNestedChange('insurance', 'deductible', e.target.value ? parseFloat(e.target.value) : undefined)}
                   placeholder="1000.00"
                 />
               </Field>

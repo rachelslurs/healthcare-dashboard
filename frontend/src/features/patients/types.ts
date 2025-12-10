@@ -30,10 +30,10 @@ export interface InsuranceInfo {
   provider: string;
   policyNumber: string;
   groupNumber?: string;
-  effectiveDate: string;
+  effectiveDate?: string;
   expirationDate?: string;
   copay: number;
-  deductible: number;
+  deductible?: number;
 }
 
 export interface Document {
@@ -55,7 +55,7 @@ export interface Patient {
   email: string;
   phone: string;
   status: 'active' | 'inactive' | 'archived';  // Patient status (separate from medicalInfo.status)
-  address: Address;
+  address?: Address;
   emergencyContact: EmergencyContact;
   medicalInfo: {
     allergies: string[];

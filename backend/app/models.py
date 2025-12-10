@@ -19,7 +19,7 @@ class Patient(Base):
     status = Column(String(20), nullable=False, default="active", index=True)  # Patient status (separate from medical_info.status)
     
     # JSON columns for complex nested data
-    address = Column(JSON, nullable=False)
+    address = Column(JSON, nullable=True)
     emergency_contact = Column(JSON, nullable=False)
     medical_info = Column(JSON, nullable=False)
     insurance = Column(JSON, nullable=False)

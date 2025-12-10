@@ -61,10 +61,10 @@ class InsuranceInfo(BaseModel):
     provider: str
     policy_number: str = Field(..., alias="policyNumber")
     group_number: Optional[str] = Field(None, alias="groupNumber")
-    effective_date: str = Field(..., alias="effectiveDate")
+    effective_date: Optional[str] = Field(None, alias="effectiveDate")
     expiration_date: Optional[str] = Field(None, alias="expirationDate")
     copay: float = Field(..., description="Copay amount in dollars (stored as float, rounded to 2 decimal places)")
-    deductible: float = Field(..., description="Deductible amount in dollars (stored as float, rounded to 2 decimal places)")
+    deductible: Optional[float] = Field(None, description="Deductible amount in dollars (stored as float, rounded to 2 decimal places)")
     
     model_config = ConfigDict(populate_by_name=True)
 
@@ -90,7 +90,7 @@ class PatientBase(BaseModel):
     email: EmailStr
     phone: str = Field(..., min_length=1, max_length=20)
     status: str = Field(default="active", pattern="^(active|inactive|archived)$")
-    address: Address
+    address: Optional[Address] = None
     emergency_contact: EmergencyContact = Field(..., alias="emergencyContact")
     medical_info: MedicalInfo = Field(..., alias="medicalInfo")
     insurance: InsuranceInfo

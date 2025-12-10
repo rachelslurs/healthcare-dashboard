@@ -188,25 +188,27 @@ export default function PatientDetail() {
         </section>
 
         {/* Address */}
-        <section>
-          <h2 className="text-lg font-semibold mb-4">Address</h2>
-          <DescriptionList>
-            <DescriptionTerm>Street</DescriptionTerm>
-            <DescriptionDetails>{patient.address.street}</DescriptionDetails>
+        {patient.address ? (
+          <section>
+            <h2 className="text-lg font-semibold mb-4">Address</h2>
+            <DescriptionList>
+              <DescriptionTerm>Street</DescriptionTerm>
+              <DescriptionDetails>{patient.address.street}</DescriptionDetails>
 
-            <DescriptionTerm>City</DescriptionTerm>
-            <DescriptionDetails>{patient.address.city}</DescriptionDetails>
+              <DescriptionTerm>City</DescriptionTerm>
+              <DescriptionDetails>{patient.address.city}</DescriptionDetails>
 
-            <DescriptionTerm>State</DescriptionTerm>
-            <DescriptionDetails>{patient.address.state}</DescriptionDetails>
+              <DescriptionTerm>State</DescriptionTerm>
+              <DescriptionDetails>{patient.address.state}</DescriptionDetails>
 
-            <DescriptionTerm>ZIP Code</DescriptionTerm>
-            <DescriptionDetails>{patient.address.zipCode}</DescriptionDetails>
+              <DescriptionTerm>ZIP Code</DescriptionTerm>
+              <DescriptionDetails>{patient.address.zipCode}</DescriptionDetails>
 
-            <DescriptionTerm>Country</DescriptionTerm>
-            <DescriptionDetails>{patient.address.country}</DescriptionDetails>
-          </DescriptionList>
-        </section>
+              <DescriptionTerm>Country</DescriptionTerm>
+              <DescriptionDetails>{patient.address.country}</DescriptionDetails>
+            </DescriptionList>
+          </section>
+        ) : null}
 
         {/* Emergency Contact */}
         <section>
@@ -288,7 +290,7 @@ export default function PatientDetail() {
             )}
 
             <DescriptionTerm>Effective Date</DescriptionTerm>
-            <DescriptionDetails>{formatDate(patient.insurance.effectiveDate)}</DescriptionDetails>
+            <DescriptionDetails>{formatDate(patient.insurance.effectiveDate) || '—'}</DescriptionDetails>
 
             {patient.insurance.expirationDate && (
               <>
@@ -301,7 +303,7 @@ export default function PatientDetail() {
             <DescriptionDetails>${patient.insurance.copay.toFixed(2)}</DescriptionDetails>
 
             <DescriptionTerm>Deductible</DescriptionTerm>
-            <DescriptionDetails>${patient.insurance.deductible.toFixed(2)}</DescriptionDetails>
+            <DescriptionDetails>{patient.insurance.deductible ? `$${patient.insurance.deductible.toFixed(2)}` : '—'}</DescriptionDetails>
           </DescriptionList>
         </section>
 

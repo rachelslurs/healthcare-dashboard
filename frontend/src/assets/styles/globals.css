@@ -84,7 +84,7 @@
   
   /* Border Radius - Ascertain Brand (rounded-lg = 8px, rounded-xl = 12px) */
   --radius: 0.5rem; /* 8px - rounded-lg default */
-  --radius-lg: 0.75rem; /* 12px - rounded-xl */
+  --radius-lg: 0.5rem; /* 8px - rounded-lg */
   --radius-md: 0.5rem; /* 8px - rounded-lg */
   --radius-sm: 0.375rem; /* 6px - rounded-md */
   --radius-xl: 0.75rem; /* 12px - rounded-xl */

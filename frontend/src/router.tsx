@@ -2,7 +2,7 @@ import { createRouter } from '@tanstack/react-router'
 
 import { rootRoute } from './routes/__root'
 import { baseRoute } from './routes/_base'
-import { baseIndexRoute } from './routes/_base/'
+import { baseIndexRoute } from './routes/_base/index-route'
 import { notFoundRoute } from './routes/_base/$'
 import { patientsIndexRoute } from './routes/patients'
 import { patientIdIndexRoute } from './routes/patients/$patientId'

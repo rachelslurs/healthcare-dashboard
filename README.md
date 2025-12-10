@@ -91,7 +91,45 @@ The database is automatically seeded with 20 sample patients on first run. Can b
 ### State Management
 - **React State**: Local component state for UI interactions
 - **Server State**: TanStack Query (when implemented) for server data caching and synchronization
-- **URL State**: TanStack Router for route-based state (filters, pagination)
+- **URL State**: TanStack Router for route-based state (navigation, route params)
+
+#### Sorting & Pagination State
+**Decision: React State (Local State) vs URL State**
+
+We use **React local state** for sorting and pagination instead of syncing with URL query parameters. This decision was made for the following reasons:
+
+**Why React State:**
+- **Simpler Implementation**: No need to parse/serialize URL params or handle browser history
+- **Better Performance**: State changes don't trigger route updates or history entries
+- **Cleaner URLs**: Keeps URLs focused on navigation (routes) rather than UI state
+- **Faster Interactions**: Pagination and sorting feel more responsive without URL updates
+- **Easier State Management**: Direct state updates without router coordination
+
+**When to Use URL State Instead:**
+URL state (via TanStack Router) is better suited for:
+- **Shareable Filters**: When users need to share filtered/searched views via URL
+- **Deep Linking**: When specific table states should be bookmarkable
+- **Browser Back/Forward**: When pagination/sort history should be navigable via browser buttons
+- **SEO/Indexing**: When search engines should index filtered views
+
+**Current Implementation:**
+- Sorting state managed by `useSortedData` hook with `useState`
+- Pagination state managed by `usePaginatedData` hook with `useState`
+- State resets appropriately (e.g., page resets to 1 when sort changes)
+- Both hooks are reusable and can be easily migrated to URL state if needed
+
+**Migration Path:**
+If URL sync becomes necessary, the hooks can be updated to:
+1. Read initial state from URL search params
+2. Update URL on state changes using TanStack Router's `navigate`
+3. React to URL changes via router's reactive location
+
+**Future Improvements:**
+TanStack Router could be considered for future improvements if the following requirements emerge:
+- Users need to share specific filtered/sorted table views via URL
+- Deep linking to specific pagination states becomes important
+- Browser back/forward navigation through table state is desired
+- SEO requirements for indexed filtered views
 
 #### Form State
 

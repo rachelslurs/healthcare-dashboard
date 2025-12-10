@@ -74,7 +74,6 @@ const defaultFormValues: PatientFormData = {
     copay: 0,
     deductible: undefined,
   },
-  documents: [],
 }
 
 export default function PatientForm({ patient, patientId, isEdit = false }: PatientFormProps) {
@@ -146,7 +145,6 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
               copay: data.insurance.copay,
               deductible: data.insurance.deductible ?? undefined,
             },
-            documents: data.documents || [],
           })
           setCurrentPhotoUrl(data.photoUrl)
         } catch (err) {
@@ -194,7 +192,6 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           copay: patient.insurance.copay,
           deductible: patient.insurance.deductible ?? undefined,
         },
-        documents: patient.documents || [],
       })
       setCurrentPhotoUrl(patient.photoUrl)
       setIsLoading(false)
@@ -306,6 +303,8 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           ...formData.medicalInfo,
           lastVisit: formData.medicalInfo.lastVisit || '',
         },
+        // Documents field is not used in the form, but required by API
+        documents: [],
       }
 
       if (isEdit && patientId) {

@@ -17,10 +17,10 @@ export default function LoadingSpinner({
 }: LoadingSpinnerProps) {
   return (
     <div className={clsx('flex items-center justify-center min-h-[400px]', className)}>
-      <div className="flex flex-col items-center gap-2">
-        <div className="size-8 animate-spin rounded-full border-4 border-neutral-300 border-t-neutral-600" />
+      <div className='flex flex-col items-center gap-2'>
+        <div className='size-8 animate-spin rounded-full border-4 border-neutral-300 border-t-neutral-600' />
         {message && (
-          <p className="text-sm text-gray-600">{message}</p>
+          <p className='text-sm text-gray-600'>{message}</p>
         )}
       </div>
     </div>

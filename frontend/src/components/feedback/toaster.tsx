@@ -19,9 +19,9 @@ export default function Toaster() {
 
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-50 flex flex-col items-end gap-4 p-4 sm:items-end sm:p-6 lg:left-64 lg:top-20"
-      aria-live="polite"
-      aria-label="Notifications"
+      className='pointer-events-none fixed inset-0 z-50 flex flex-col items-end gap-4 p-4 sm:items-end sm:p-6 lg:left-64 lg:top-20'
+      aria-live='polite'
+      aria-label='Notifications'
     >
       {toasts.map((toast) => (
         <Toast

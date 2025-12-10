@@ -5,7 +5,7 @@ import { Link } from './link'
 export function Text({ className, ...props }: React.ComponentPropsWithoutRef<'p'>) {
   return (
     <p
-      data-slot="text"
+      data-slot='text'
       {...props}
       className={clsx(className, 'text-base/6 text-neutral-500 sm:text-sm/6')}
     />

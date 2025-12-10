@@ -46,11 +46,11 @@ export function Toast({ toast, onOpenChange }: ToastProps) {
           ? 'border-red-200/50 bg-red-50/50'
           : 'border-neutral-800/10 bg-ascertain-white'
       )}
-      role="alert"
-      aria-live="assertive"
-      aria-atomic="true"
+      role='alert'
+      aria-live='assertive'
+      aria-atomic='true'
     >
-      <div className="grid gap-1 flex-1 min-w-0">
+      <div className='grid gap-1 flex-1 min-w-0'>
         {toast.title && (
           <div
             className={clsx(
@@ -72,7 +72,7 @@ export function Toast({ toast, onOpenChange }: ToastProps) {
           </div>
         )}
         {toast.action && (
-          <div className="mt-2">
+          <div className='mt-2'>
             <Button
               outline
               onClick={() => handleActionClick(toast.action!)}
@@ -96,19 +96,19 @@ export function Toast({ toast, onOpenChange }: ToastProps) {
             ? 'text-red-700/60 hover:text-red-900' 
             : 'text-neutral-600 hover:text-ascertain-foreground'
         )}
-        aria-label="Close"
+        aria-label='Close'
       >
         <svg
-          className="h-4 w-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+          className='h-4 w-4'
+          fill='none'
+          viewBox='0 0 24 24'
+          stroke='currentColor'
           strokeWidth={2}
         >
           <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M6 18L18 6M6 6l12 12"
+            strokeLinecap='round'
+            strokeLinejoin='round'
+            d='M6 18L18 6M6 6l12 12'
           />
         </svg>
       </button>

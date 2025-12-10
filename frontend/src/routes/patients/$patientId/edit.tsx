@@ -10,7 +10,7 @@ export const patientIdEditRoute = createRoute({
   path: 'edit',
   component: EditPatient,
   errorComponent: ({ error, reset }) => (
-    <QueryErrorDisplay error={error} reset={reset} title="Failed to load patient for editing" />
+    <QueryErrorDisplay error={error} reset={reset} title='Failed to load patient for editing' />
   ),
 })
 

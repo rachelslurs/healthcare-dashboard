@@ -14,7 +14,7 @@ export default memo(function TableSkeleton({ rows = 5, columns }: TableSkeletonP
         <TableRow key={rowIndex}>
           {Array.from({ length: columns }).map((_, colIndex) => (
             <TableCell key={colIndex}>
-              <div className="h-4 w-3/4 animate-pulse rounded bg-neutral-200" />
+              <div className='h-4 w-3/4 animate-pulse rounded bg-neutral-200' />
             </TableCell>
           ))}
         </TableRow>

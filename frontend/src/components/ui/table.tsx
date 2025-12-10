@@ -24,10 +24,10 @@ export function Table({
 }: { bleed?: boolean; dense?: boolean; grid?: boolean; striped?: boolean } & React.ComponentPropsWithoutRef<'div'>) {
   return (
     <TableContext.Provider value={{ bleed, dense, grid, striped } as React.ContextType<typeof TableContext>}>
-      <div className="flow-root">
+      <div className='flow-root'>
         <div {...props} className={clsx(className, '-mx-(--gutter) overflow-x-auto whitespace-nowrap')}>
             <div className={clsx('inline-block min-w-full align-middle', !bleed && 'sm:px-(--gutter)')}>
-            <table className="min-w-full text-left text-sm/6 text-ascertain-foreground" style={{ tableLayout: 'fixed' }}>{children}</table>
+            <table className='min-w-full text-left text-sm/6 text-ascertain-foreground' style={{ tableLayout: 'fixed' }}>{children}</table>
           </div>
         </div>
       </div>
@@ -56,7 +56,7 @@ export function TableRow({
   className,
   ...props
 }: { href?: string; target?: string; title?: string } & React.ComponentPropsWithoutRef<'tr'>) {
-  let { striped } = useContext(TableContext)
+  const { striped } = useContext(TableContext)
 
   return (
     <TableRowContext.Provider value={{ href, target, title } as React.ContextType<typeof TableRowContext>}>
@@ -76,7 +76,7 @@ export function TableRow({
 }
 
 export function TableHeader({ className, ...props }: React.ComponentPropsWithoutRef<'th'>) {
-  let { bleed, grid } = useContext(TableContext)
+  const { bleed, grid } = useContext(TableContext)
 
   return (
     <th
@@ -92,9 +92,9 @@ export function TableHeader({ className, ...props }: React.ComponentPropsWithout
 }
 
 export function TableCell({ className, children, ...props }: React.ComponentPropsWithoutRef<'td'>) {
-  let { bleed, dense, grid, striped } = useContext(TableContext)
-  let { href, target, title } = useContext(TableRowContext)
-  let [cellRef, setCellRef] = useState<HTMLElement | null>(null)
+  const { bleed, dense, grid, striped } = useContext(TableContext)
+  const { href, target, title } = useContext(TableRowContext)
+  const [cellRef, setCellRef] = useState<HTMLElement | null>(null)
 
   return (
     <td
@@ -116,7 +116,7 @@ export function TableCell({ className, children, ...props }: React.ComponentProp
           target={target}
           aria-label={title}
           tabIndex={cellRef?.previousElementSibling === null ? 0 : -1}
-          className="absolute inset-0 focus:outline-hidden"
+          className='absolute inset-0 focus:outline-hidden'
         />
       )}
       {children}

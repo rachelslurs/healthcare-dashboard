@@ -87,8 +87,8 @@ export default function DataTable<T extends Record<string, any>>({
       <LoadingOverlay isVisible={showOverlay} />
       
       {error ? (
-        <div className="flex flex-col items-center justify-center gap-4 p-12">
-          <p className="text-sm text-neutral-600">
+        <div className='flex flex-col items-center justify-center gap-4 p-12'>
+          <p className='text-sm text-neutral-600'>
             {error.message || 'An error occurred while loading data'}
           </p>
           {refetch && (
@@ -98,7 +98,7 @@ export default function DataTable<T extends Record<string, any>>({
           )}
         </div>
       ) : isLoading && !hasData ? (
-        <div className="overflow-x-auto">
+        <div className='overflow-x-auto'>
           <Table striped={true} dense={true}>
             <TableHead>
               <TableHeaderRow
@@ -114,14 +114,14 @@ export default function DataTable<T extends Record<string, any>>({
           </Table>
         </div>
       ) : !hasData ? (
-        <div className="flex items-center justify-center p-12">
-          <p className="text-sm text-neutral-500">
+        <div className='flex items-center justify-center p-12'>
+          <p className='text-sm text-neutral-500'>
             {emptyMessage}
           </p>
         </div>
       ) : (
         <>
-          <div className="overflow-x-auto">
+          <div className='overflow-x-auto'>
             <Table>
             <TableHead>
               <TableHeaderRow
@@ -163,7 +163,7 @@ export default function DataTable<T extends Record<string, any>>({
             </Table>
           </div>
           {data && (
-            <div className="border-t border-neutral-950/10 px-6 py-4">
+            <div className='border-t border-neutral-950/10 px-6 py-4'>
               <PaginationControls
                 page={data.page}
                 totalPages={data.total_pages}

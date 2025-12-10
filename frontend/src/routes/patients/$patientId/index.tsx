@@ -10,6 +10,6 @@ export const patientIdIndexRoute = createRoute({
   path: '/',
   component: PatientDetail,
   errorComponent: ({ error, reset }) => (
-    <QueryErrorDisplay error={error} reset={reset} title="Failed to load patient details" />
+    <QueryErrorDisplay error={error} reset={reset} title='Failed to load patient details' />
   ),
 })

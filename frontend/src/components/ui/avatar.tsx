@@ -23,7 +23,7 @@ export function Avatar({
 }: AvatarProps & React.ComponentPropsWithoutRef<'span'>) {
   return (
     <span
-      data-slot="avatar"
+      data-slot='avatar'
       {...props}
       className={clsx(
         className,
@@ -36,17 +36,17 @@ export function Avatar({
     >
       {initials && (
         <svg
-          className="size-full fill-current p-[5%] text-[48px] font-medium uppercase select-none"
-          viewBox="0 0 100 100"
+          className='size-full fill-current p-[5%] text-[48px] font-medium uppercase select-none'
+          viewBox='0 0 100 100'
           aria-hidden={alt ? undefined : 'true'}
         >
           {alt && <title>{alt}</title>}
-          <text x="50%" y="50%" alignmentBaseline="middle" dominantBaseline="middle" textAnchor="middle" dy=".125em">
+          <text x='50%' y='50%' alignmentBaseline='middle' dominantBaseline='middle' textAnchor='middle' dy='.125em'>
             {initials}
           </text>
         </svg>
       )}
-      {src && <img className="size-full" src={src} alt={alt} />}
+      {src && <img className='size-full' src={src} alt={alt} />}
     </span>
   )
 }
@@ -66,7 +66,7 @@ export const AvatarButton = forwardRef(function AvatarButton(
     ),
   ref: React.ForwardedRef<HTMLButtonElement>
 ) {
-  let classes = clsx(
+  const classes = clsx(
     className,
     square ? 'rounded-[20%]' : 'rounded-full',
     'relative inline-grid focus:not-data-focus:outline-hidden data-focus:outline-2 data-focus:outline-offset-2 data-focus:outline-blue-500'

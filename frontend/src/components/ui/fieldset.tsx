@@ -20,7 +20,7 @@ export function Legend({
 }: { className?: string } & Omit<Headless.LegendProps, 'as' | 'className'>) {
   return (
     <Headless.Legend
-      data-slot="legend"
+      data-slot='legend'
       {...props}
       className={clsx(
         className,
@@ -31,7 +31,7 @@ export function Legend({
 }
 
 export function FieldGroup({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
-  return <div data-slot="control" {...props} className={clsx(className, 'space-y-8')} />
+  return <div data-slot='control' {...props} className={clsx(className, 'space-y-8')} />
 }
 
 export function Field({ className, ...props }: { className?: string } & Omit<Headless.FieldProps, 'as' | 'className'>) {
@@ -54,7 +54,7 @@ export function Field({ className, ...props }: { className?: string } & Omit<Hea
 export function Label({ className, ...props }: { className?: string } & Omit<Headless.LabelProps, 'as' | 'className'>) {
   return (
     <Headless.Label
-      data-slot="label"
+      data-slot='label'
       {...props}
       className={clsx(
         className,
@@ -70,7 +70,7 @@ export function Description({
 }: { className?: string } & Omit<Headless.DescriptionProps, 'as' | 'className'>) {
   return (
     <Headless.Description
-      data-slot="description"
+      data-slot='description'
       {...props}
       className={clsx(className, 'text-base/6 text-zinc-500 data-disabled:opacity-50 sm:text-sm/6')}
     />
@@ -83,7 +83,7 @@ export function ErrorMessage({
 }: { className?: string } & Omit<Headless.DescriptionProps, 'as' | 'className'>) {
   return (
     <Headless.Description
-      data-slot="error"
+      data-slot='error'
       {...props}
       className={clsx(className, 'text-base/6 text-red-600 data-disabled:opacity-50 sm:text-sm/6')}
     />

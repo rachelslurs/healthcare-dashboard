@@ -77,17 +77,17 @@ export default function ActivitiesList() {
   ], [])
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+    <div className='p-6'>
+      <h1 className='text-2xl font-bold mb-4'>Dashboard</h1>
       <DataTable
         columns={columns}
         data={data}
         isLoading={isLoading}
         isFetching={isFetching}
         error={error}
-        itemLabel="activities"
+        itemLabel='activities'
         onPageChange={goToPage}
-        emptyMessage="No activities found"
+        emptyMessage='No activities found'
         onSort={handleSort}
         currentSortBy={currentSortBy}
         currentSortOrder={currentSortOrder}

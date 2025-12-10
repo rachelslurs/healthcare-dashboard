@@ -19,8 +19,8 @@ export default memo(function PhotoPreview({ photoPreview, currentPhotoUrl, apiBa
   return (
     <img
       src={photoUrl}
-      alt="Patient photo preview"
-      className="w-32 h-32 rounded-full object-cover border-2 border-neutral-200"
+      alt='Patient photo preview'
+      className='w-32 h-32 rounded-full object-cover border-2 border-neutral-200'
     />
   )
 })

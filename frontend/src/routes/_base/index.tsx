@@ -10,6 +10,6 @@ export const baseIndexRoute = createRoute({
   path: '/',
   component: ActivitiesList,
   errorComponent: ({ error, reset }) => (
-    <QueryErrorDisplay error={error} reset={reset} title="Failed to load activities" />
+    <QueryErrorDisplay error={error} reset={reset} title='Failed to load activities' />
   ),
 })

@@ -51,11 +51,11 @@ export function SidebarFooter({ className, ...props }: React.ComponentPropsWitho
 }
 
 export function SidebarSection({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
-  let id = useId()
+  const id = useId()
 
   return (
     <LayoutGroup id={id}>
-      <div {...props} data-slot="section" className={clsx(className, 'flex flex-col gap-0.5')} />
+      <div {...props} data-slot='section' className={clsx(className, 'flex flex-col gap-0.5')} />
     </LayoutGroup>
   )
 }
@@ -65,7 +65,7 @@ export function SidebarDivider({ className, ...props }: React.ComponentPropsWith
 }
 
 export function SidebarSpacer({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
-  return <div aria-hidden="true" {...props} className={clsx(className, 'mt-8 flex-1')} />
+  return <div aria-hidden='true' {...props} className={clsx(className, 'mt-8 flex-1')} />
 }
 
 export function SidebarHeading({ className, as = 'h3', ...props }: { className?: string; as?: React.ElementType } & React.ComponentPropsWithoutRef<React.ElementType>) {
@@ -85,7 +85,7 @@ export const SidebarItem = forwardRef(function SidebarItem(
   ),
   ref: React.ForwardedRef<HTMLAnchorElement | HTMLButtonElement>
 ) {
-  let classes = clsx(
+  const classes = clsx(
     // Base
     'flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left text-base/6 font-medium text-ascertain-foreground sm:py-2 sm:text-sm/5',
     // Leading icon/icon-only
@@ -106,8 +106,8 @@ export const SidebarItem = forwardRef(function SidebarItem(
     <span className={clsx(className, 'relative')}>
       {current && (
         <motion.span
-          layoutId="current-indicator"
-          className="absolute inset-y-2 -left-4 w-0.5 rounded-full bg-brand"
+          layoutId='current-indicator'
+          className='absolute inset-y-2 -left-4 w-0.5 rounded-full bg-brand'
         />
       )}
       {typeof props.href === 'string' ? (

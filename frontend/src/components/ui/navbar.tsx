@@ -13,11 +13,11 @@ export function Navbar({ className, ...props }: React.ComponentPropsWithoutRef<'
 }
 
 export function NavbarDivider({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
-  return <div aria-hidden="true" {...props} className={clsx(className, 'h-6 w-px bg-neutral-800/10')} />
+  return <div aria-hidden='true' {...props} className={clsx(className, 'h-6 w-px bg-neutral-800/10')} />
 }
 
 export function NavbarSection({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
-  let id = useId()
+  const id = useId()
 
   return (
     <LayoutGroup id={id}>
@@ -27,7 +27,7 @@ export function NavbarSection({ className, ...props }: React.ComponentPropsWitho
 }
 
 export function NavbarSpacer({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
-  return <div aria-hidden="true" {...props} className={clsx(className, '-ml-4 flex-1')} />
+  return <div aria-hidden='true' {...props} className={clsx(className, '-ml-4 flex-1')} />
 }
 
 export const NavbarItem = forwardRef(function NavbarItem(
@@ -42,7 +42,7 @@ export const NavbarItem = forwardRef(function NavbarItem(
   ),
   ref: React.ForwardedRef<HTMLAnchorElement | HTMLButtonElement>
 ) {
-  let classes = clsx(
+  const classes = clsx(
     // Base
     'relative flex min-w-0 items-center gap-3 rounded-lg p-2 text-left text-base/6 font-medium text-ascertain-foreground sm:text-sm/5',
     // Leading icon/icon-only
@@ -61,8 +61,8 @@ export const NavbarItem = forwardRef(function NavbarItem(
     <span className={clsx(className, 'relative')}>
       {current && (
         <motion.span
-          layoutId="current-indicator"
-          className="absolute inset-x-2 -bottom-2.5 h-0.5 rounded-full bg-brand"
+          layoutId='current-indicator'
+          className='absolute inset-x-2 -bottom-2.5 h-0.5 rounded-full bg-brand'
         />
       )}
       {typeof props.href === 'string' ? (

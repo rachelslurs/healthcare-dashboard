@@ -19,6 +19,6 @@ export const patientsIndexRoute = createRoute({
   validateSearch: patientsRouteSearchSchema,
   component: PatientsList,
   errorComponent: ({ error, reset }) => (
-    <QueryErrorDisplay error={error} reset={reset} title="Failed to load patients" />
+    <QueryErrorDisplay error={error} reset={reset} title='Failed to load patients' />
   ),
 })

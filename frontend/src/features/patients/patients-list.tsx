@@ -135,7 +135,7 @@ export default function PatientsList() {
         key={row.id}
         href={`/patients/${row.id}`}
         title={`View ${patientName}`}
-        className="cursor-pointer"
+        className='cursor-pointer'
       >
         {columns.map((column, colIndex) => {
           let content: React.ReactNode
@@ -163,22 +163,22 @@ export default function PatientsList() {
   }, [columns])
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Patients</h1>
-        <Button href="/patients/new">Add New Patient</Button>
+    <div className='p-6'>
+      <div className='flex items-center justify-between mb-4'>
+        <h1 className='text-2xl font-bold'>Patients</h1>
+        <Button href='/patients/new'>Add New Patient</Button>
       </div>
 
       {/* Search Input */}
-      <div className="mb-6">
+      <div className='mb-6'>
         <InputGroup>
-          <MagnifyingGlassIcon data-slot="icon" />
+          <MagnifyingGlassIcon data-slot='icon' />
           <Input
-            type="search"
-            placeholder="Search by name..."
+            type='search'
+            placeholder='Search by name...'
             value={searchTerm}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full max-w-md"
+            className='w-full max-w-md'
           />
         </InputGroup>
       </div>
@@ -189,7 +189,7 @@ export default function PatientsList() {
         isLoading={isLoading}
         isFetching={isFetching}
         error={error}
-        itemLabel="patients"
+        itemLabel='patients'
         onPageChange={goToPage}
         emptyMessage={debouncedSearch ? 'No patients found matching your search' : 'No patients found'}
         onSort={handleSort}

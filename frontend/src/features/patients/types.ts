@@ -56,12 +56,12 @@ export interface Patient {
   phone: string;
   status: 'active' | 'inactive' | 'archived';  // Patient status (separate from medicalInfo.status)
   address?: Address;
-  emergencyContact: EmergencyContact;
+  emergencyContact?: EmergencyContact;
   medicalInfo: {
     allergies: string[];
     currentMedications: Medication[];
     conditions: string[];
-    bloodType: 'A+' | 'A-' | 'B+' | 'AB+' | 'AB-' | 'O+' | 'O-';
+    bloodType?: 'A+' | 'A-' | 'B+' | 'AB+' | 'AB-' | 'O+' | 'O-';
     lastVisit: string;
     status: 'active' | 'inactive' | 'critical';  // Medical status
   };

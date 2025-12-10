@@ -23,17 +23,12 @@ const defaultFormData = {
   phone: '',
   status: 'active' as const,
   address: undefined as Address | undefined,
-  emergencyContact: {
-    name: '',
-    relationship: '',
-    phone: '',
-    email: '',
-  },
+  emergencyContact: undefined as EmergencyContact | undefined,
   medicalInfo: {
     allergies: [] as string[],
     currentMedications: [] as Medication[],
     conditions: [] as string[],
-    bloodType: 'O+' as const,
+    bloodType: undefined as 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-' | undefined,
     lastVisit: '',
     status: 'active' as const,
   },
@@ -132,6 +127,16 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     }))
   }
 
+  const handleEmergencyContactChange = (field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      emergencyContact: {
+        ...(prev.emergencyContact || { name: '', relationship: '', phone: '', email: '' }),
+        [field]: value,
+      },
+    }))
+  }
+
   const handleAddAllergy = () => {
     if (allergyInput.trim()) {
       setFormData((prev) => ({
@@ -184,6 +189,25 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     setError(null)
 
     try {
+      // Validate emergency contact if provided
+      if (formData.emergencyContact) {
+        if (!formData.emergencyContact.name?.trim()) {
+          setError('Emergency contact name is required if emergency contact is provided')
+          setIsSubmitting(false)
+          return
+        }
+        if (!formData.emergencyContact.relationship?.trim()) {
+          setError('Emergency contact relationship is required if emergency contact is provided')
+          setIsSubmitting(false)
+          return
+        }
+        if (!formData.emergencyContact.phone?.trim()) {
+          setError('Emergency contact phone is required if emergency contact is provided')
+          setIsSubmitting(false)
+          return
+        }
+      }
+
       // Prepare form data, converting empty address to undefined
       const submitData = {
         ...formData,
@@ -193,6 +217,13 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           formData.address.state && 
           formData.address.zipCode
           ? formData.address
+          : undefined,
+        // Convert empty emergency contact to undefined
+        emergencyContact: formData.emergencyContact &&
+          formData.emergencyContact.name &&
+          formData.emergencyContact.relationship &&
+          formData.emergencyContact.phone
+          ? formData.emergencyContact
           : undefined,
       }
 
@@ -391,30 +422,30 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
 
         {/* Emergency Contact */}
         <Fieldset>
-          <Legend>Emergency Contact</Legend>
+          <Legend>Emergency Contact (Optional)</Legend>
           <FieldGroup>
             <Field>
               <Label>
-                Name <span className="text-red-500">*</span>
+                Name {formData.emergencyContact && <span className="text-red-500">*</span>}
               </Label>
               <Input
                 type="text"
-                value={formData.emergencyContact.name}
-                onChange={(e) => handleNestedChange('emergencyContact', 'name', e.target.value)}
-                required
+                value={formData.emergencyContact?.name || ''}
+                onChange={(e) => handleEmergencyContactChange('name', e.target.value)}
+                required={!!formData.emergencyContact}
                 placeholder="Jane Doe"
               />
             </Field>
 
             <Field>
               <Label>
-                Relationship <span className="text-red-500">*</span>
+                Relationship {formData.emergencyContact && <span className="text-red-500">*</span>}
               </Label>
               <Input
                 type="text"
-                value={formData.emergencyContact.relationship}
-                onChange={(e) => handleNestedChange('emergencyContact', 'relationship', e.target.value)}
-                required
+                value={formData.emergencyContact?.relationship || ''}
+                onChange={(e) => handleEmergencyContactChange('relationship', e.target.value)}
+                required={!!formData.emergencyContact}
                 placeholder="Spouse"
               />
             </Field>
@@ -422,13 +453,13 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <Field>
                 <Label>
-                  Phone <span className="text-red-500">*</span>
+                  Phone {formData.emergencyContact && <span className="text-red-500">*</span>}
                 </Label>
                 <Input
                   type="tel"
-                  value={formData.emergencyContact.phone}
-                  onChange={(e) => handleNestedChange('emergencyContact', 'phone', e.target.value)}
-                  required
+                  value={formData.emergencyContact?.phone || ''}
+                  onChange={(e) => handleEmergencyContactChange('phone', e.target.value)}
+                  required={!!formData.emergencyContact}
                   placeholder="(555) 123-4567"
                 />
               </Field>
@@ -437,8 +468,8 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                 <Label>Email</Label>
                 <Input
                   type="email"
-                  value={formData.emergencyContact.email || ''}
-                  onChange={(e) => handleNestedChange('emergencyContact', 'email', e.target.value)}
+                  value={formData.emergencyContact?.email || ''}
+                  onChange={(e) => handleEmergencyContactChange('email', e.target.value)}
                   placeholder="jane.doe@example.com"
                 />
               </Field>
@@ -536,16 +567,14 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <Field>
-                <Label>
-                  Blood Type <span className="text-red-500">*</span>
-                </Label>
+                <Label>Blood Type</Label>
                 <Select
-                  value={formData.medicalInfo.bloodType}
+                  value={formData.medicalInfo.bloodType || ''}
                   onChange={(e) =>
-                    handleNestedChange('medicalInfo', 'bloodType', e.target.value as Patient['medicalInfo']['bloodType'])
+                    handleNestedChange('medicalInfo', 'bloodType', e.target.value || undefined)
                   }
-                  required
                 >
+                  <option value="">Not specified</option>
                   <option value="A+">A+</option>
                   <option value="A-">A-</option>
                   <option value="B+">B+</option>

@@ -23,7 +23,7 @@ export function PaginationPrevious({
   disabled?: boolean
   className?: string 
 }>) {
-  const isDisabled = disabled || href === null
+  const isDisabled = disabled || (href === null && !onClick)
   return (
     <Button 
       {...(href ? { href } : { onClick, disabled: isDisabled })} 
@@ -56,7 +56,7 @@ export function PaginationNext({
   disabled?: boolean
   className?: string 
 }>) {
-  const isDisabled = disabled || href === null
+  const isDisabled = disabled || (href === null && !onClick)
   return (
     <Button 
       {...(href ? { href } : { onClick, disabled: isDisabled })} 

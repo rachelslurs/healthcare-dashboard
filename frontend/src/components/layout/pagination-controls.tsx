@@ -99,7 +99,7 @@ export default memo(function PaginationControls({
         <div className='flex items-center justify-center'>
           <div className='flex items-center gap-x-2 w-full max-w-md'>
             <PaginationPrevious
-              onClick={page > 1 ? handlePrevious : undefined}
+              onClick={handlePrevious}
               disabled={page <= 1}
             />
             <div className='flex-1 flex justify-center'>
@@ -121,7 +121,7 @@ export default memo(function PaginationControls({
               </PaginationList>
             </div>
             <PaginationNext
-              onClick={page < totalPages ? handleNext : undefined}
+              onClick={handleNext}
               disabled={page >= totalPages}
             />
           </div>

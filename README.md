@@ -42,7 +42,7 @@ The easiest way to run the entire application:
 
 1. **Start all services:**
    ```bash
-   docker-compose up
+   docker compose up
    ```
    
    **With watch mode (recommended for development):**
@@ -59,12 +59,12 @@ The easiest way to run the entire application:
 
 3. **Stop the application:**
    ```bash
-   docker-compose down
+   docker compose down
    ```
 
 4. **View logs:**
    ```bash
-   docker-compose logs -f
+   docker compose logs -f
    ```
 
 **Startup Feedback:**
@@ -528,14 +528,14 @@ setValue('medicalInfo.allergies', [...allergies, newAllergy], {
   ✅ Database migrations completed successfully!
   ```
 - **Manual Migration**: If needed, you can run migrations manually:
-  - `docker-compose exec backend python -m app.migrations`
+  - `docker compose exec backend python -m app.migrations`
   - Or use the helper script: `./backend/run_migration.sh`
 - **Migration Behavior**: Migrations are idempotent and safe to run multiple times. They check the current database state before making changes.
 
 **Reset/Delete Database:**
 To regenerate sample data or start fresh:
 - **Local development**: Delete `backend/healthcare.db`
-- **Docker**: Run `docker-compose down -v` (removes volumes: database + uploads)
+- **Docker**: Run `docker compose down -v` (removes volumes: database + uploads)
   - Or manually delete: `docker volume rm healthcare-dash_backend-data`
 - **Note**: Sample data only generates when the database is empty. After deleting, restart the backend to regenerate sample data (if `SEED_PATIENT_COUNT > 0`)
 
@@ -546,13 +546,13 @@ To regenerate sample data or start fresh:
 ### 1. Developer Experience & Architecture
 
 #### ✅ Code Quality
-- [ ] Run `docker-compose exec frontend npm run lint` → **Zero** linting errors (ESLint).
-- [ ] Run type check: `docker-compose exec frontend npx tsc --noEmit` → **Zero** TypeScript errors.
-- [ ] Run `docker-compose exec frontend npm run build` → Build completes without warnings.
+- [ ] Run `docker compose exec frontend npm run lint` → **Zero** linting errors (ESLint).
+- [ ] Run type check: `docker compose exec frontend npx tsc --noEmit` → **Zero** TypeScript errors.
+- [ ] Run `docker compose exec frontend npm run build` → Build completes without warnings.
 - [ ] Folder structure clearly separates `features`, `components`, and `hooks`.
 
 #### ✅ Docker & Setup
-- [ ] `docker-compose up` starts both Frontend (Vite) and Backend (FastAPI/Python).
+- [ ] `docker compose up` starts both Frontend (Vite) and Backend (FastAPI/Python).
 - [ ] Frontend accessible at `http://localhost:5173`.
 - [ ] Backend accessible at `http://localhost:8000`.
 - [ ] `README.md` contains clear start instructions.

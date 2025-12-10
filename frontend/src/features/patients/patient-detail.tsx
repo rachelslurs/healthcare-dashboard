@@ -3,6 +3,7 @@ import { useParams, useNavigate } from '@tanstack/react-router'
 import { format } from 'date-fns'
 import { getPatient, deletePatient } from './api'
 import type { Patient } from './types'
+import { toast } from '@/lib/toast'
 import { DescriptionList, DescriptionTerm, DescriptionDetails } from '@/components/ui/description-list'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -124,17 +125,30 @@ export default function PatientDetail() {
   }
 
   const handleDeleteConfirm = async () => {
-    if (!patientId) return
+    if (!patientId || !patient) return
 
     setIsDeleting(true)
     try {
       await deletePatient(patientId)
+      
+      toast({
+        title: 'Patient deleted',
+        description: `${patient.firstName} ${patient.lastName} has been successfully removed from the system.`,
+      })
+      
       // Navigate back to patients list after successful deletion
       navigate({ to: '/patients' })
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete patient'
       console.error('Failed to delete patient:', err)
       setIsDeleting(false)
-      // You might want to show an error message to the user here
+      setDeleteDialogOpen(false)
+      
+      toast({
+        title: 'Failed to delete patient',
+        description: errorMessage,
+        variant: 'destructive',
+      })
     }
   }
 

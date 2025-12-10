@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import type { Patient, Address, EmergencyContact, Medication, InsuranceInfo } from './types'
 import { getPatient, createPatient, updatePatient, uploadPatientPhoto } from './api'
+import { toast } from '@/lib/toast'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
@@ -370,17 +371,44 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
         
         // Upload photo if a new one was selected
         if (photoFile) {
-          await uploadPatientPhoto(patientId, photoFile)
+          try {
+            await uploadPatientPhoto(patientId, photoFile)
+          } catch (photoErr) {
+            // Show error for photo upload but still navigate since patient was updated
+            toast({
+              title: 'Photo upload failed',
+              description: photoErr instanceof Error ? photoErr.message : 'Failed to upload patient photo',
+              variant: 'destructive',
+            })
+          }
         }
+        
+        toast({
+          title: 'Patient updated',
+          description: 'Patient information has been successfully updated.',
+        })
         
         navigate({ to: `/patients/${patientId}` })
       } else {
         const newPatient = await createPatient(submitData)
+        
+        toast({
+          title: 'Patient created',
+          description: `${submitData.firstName} ${submitData.lastName} has been successfully added to the system.`,
+        })
+        
         navigate({ to: `/patients/${newPatient.id}` })
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save patient')
+      const errorMessage = err instanceof Error ? err.message : 'Failed to save patient'
+      setError(errorMessage)
       setIsSubmitting(false)
+      
+      toast({
+        title: isEdit ? 'Failed to update patient' : 'Failed to create patient',
+        description: errorMessage,
+        variant: 'destructive',
+      })
     }
   }
 

@@ -92,20 +92,24 @@ export default function ActivitiesList() {
     {
       header: 'Action',
       accessor: (row) => formatActionType(row.actionType),
+      width: '12%',
     },
     {
       header: 'Description',
       accessor: 'description',
+      width: '40%',
     },
     {
       header: 'Timestamp',
       accessor: (row) => formatTimestamp(row.timestamp),
       sortable: true,
       sortKey: 'timestamp',
+      width: '28%',
     },
     {
       header: 'Patient ID',
       accessor: 'patientId',
+      width: '20%',
     },
   ]
 

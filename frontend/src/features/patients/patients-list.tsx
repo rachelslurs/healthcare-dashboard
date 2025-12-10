@@ -87,23 +87,27 @@ export default function PatientsList() {
       header: 'Name',
       accessor: (row) => `${row.firstName || ''} ${row.lastName || ''}`.trim() || '—',
       sortable: false,
+      width: '20%',
     },
     {
       header: 'Age',
       accessor: (row) => formatAge(row.age),
       sortable: false,
+      width: '15%',
     },
     {
       header: 'Status',
       accessor: (row) => formatStatus(row.status),
       sortable: true,
       sortKey: 'status',
+      width: '15%',
     },
     {
       header: 'Last Visit',
       accessor: (row) => formatDate(row.lastVisit),
       sortable: true,
       sortKey: 'lastVisit',
+      width: '20%',
     },
   ]
 
@@ -162,6 +166,7 @@ export default function PatientsList() {
             <TableCell
               key={colIndex}
               className={column.className}
+              style={column.width ? { width: column.width } : undefined}
             >
               {content}
             </TableCell>

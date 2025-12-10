@@ -428,7 +428,7 @@ def upload_patient_document(
     
     # Generate unique filename with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"{timestamp}_{file.filename}"
+    filename = f"{timestamp}_{Path(file.filename).name}"
     file_path = UPLOAD_DIR / filename
     
     # Save the file

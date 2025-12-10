@@ -9,11 +9,13 @@ import { toast } from '@/lib/toast'
 import { patientFormSchema, type PatientFormData } from './patient-form-schema'
 import { API_BASE_URL } from '@/lib/constants'
 import { formatDateForInput } from '@/lib/date-utils'
+import { getErrorMessage } from '@/lib/error-utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { Fieldset, Legend, FieldGroup, Field, Label, Description, ErrorMessage } from '@/components/ui/fieldset'
 import PhotoPreview from './photo-preview'
+import LoadingSpinner from '@/components/feedback/loading-spinner'
 
 interface PatientFormProps {
   patient?: Patient
@@ -136,7 +138,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
         } catch (err) {
           toast({
             title: 'Error',
-            description: err instanceof Error ? err.message : 'Failed to load patient data',
+            description: getErrorMessage(err, 'Failed to load patient data'),
             variant: 'destructive',
           })
         } finally {
@@ -300,7 +302,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
             // Show error for photo upload but still navigate since patient was updated
             toast({
               title: 'Patient updated, but photo upload failed',
-              description: `Patient information was saved successfully, but the photo could not be uploaded: ${photoErr instanceof Error ? photoErr.message : 'Unknown error'}`,
+              description: `Patient information was saved successfully, but the photo could not be uploaded: ${getErrorMessage(photoErr, 'Unknown error')}`,
               variant: 'destructive',
             })
           }
@@ -329,7 +331,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
         navigate({ to: `/patients/${newPatient.id}` })
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to save patient'
+      const errorMessage = getErrorMessage(err, 'Failed to save patient')
       
       toast({
         title: isEdit ? 'Failed to update patient' : 'Failed to create patient',
@@ -350,12 +352,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
   if (isLoading) {
     return (
       <div className="p-6">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex flex-col items-center gap-2">
-            <div className="size-8 animate-spin rounded-full border-4 border-neutral-300 border-t-neutral-600" />
-            <p className="text-sm text-gray-600">Loading patient information...</p>
-          </div>
-        </div>
+        <LoadingSpinner message="Loading patient information..." />
       </div>
     )
   }

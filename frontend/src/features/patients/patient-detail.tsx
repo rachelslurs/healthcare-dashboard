@@ -11,6 +11,8 @@ import { Dialog, DialogTitle, DialogDescription, DialogBody, DialogActions } fro
 import { API_BASE_URL } from '@/lib/constants'
 import { formatDate } from '@/lib/date-utils'
 import { getStatusColor } from '@/lib/badge-utils'
+import LoadingSpinner from '@/components/feedback/loading-spinner'
+import { getErrorMessage } from '@/lib/error-utils'
 
 
 export default function PatientDetail() {
@@ -50,12 +52,7 @@ export default function PatientDetail() {
   if (isLoading) {
     return (
       <div className="p-6">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex flex-col items-center gap-2">
-            <div className="size-8 animate-spin rounded-full border-4 border-neutral-300 border-t-neutral-600" />
-            <p className="text-sm text-gray-600">Loading patient information...</p>
-          </div>
-        </div>
+        <LoadingSpinner message="Loading patient information..." />
       </div>
     )
   }
@@ -107,7 +104,7 @@ export default function PatientDetail() {
       // Navigate back to patients list after successful deletion
       navigate({ to: '/patients' })
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to delete patient'
+      const errorMessage = getErrorMessage(err, 'Failed to delete patient')
       console.error('Failed to delete patient:', err)
       setIsDeleting(false)
       setDeleteDialogOpen(false)

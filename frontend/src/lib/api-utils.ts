@@ -5,18 +5,35 @@ import type { PaginatedData } from '@/components/layout/data-table'
  */
 
 /**
+ * Backend paginated response structure
+ * Handles both camelCase and snake_case formats from the API
+ */
+interface BackendPaginatedResponse<T> {
+  items: T[]
+  total: number
+  page: number
+  // Support both camelCase and snake_case formats
+  pageSize?: number
+  page_size?: number
+  totalPages?: number
+  total_pages?: number
+}
+
+/**
  * Transform backend paginated response to match frontend PaginatedData format
  * Handles both camelCase (pageSize, totalPages) and snake_case (page_size, total_pages) formats
  * @param data - Backend response data
  * @returns Transformed PaginatedData object
  */
-export function transformPaginatedResponse<T>(data: any): PaginatedData<T> {
+export function transformPaginatedResponse<T>(
+  data: BackendPaginatedResponse<T>
+): PaginatedData<T> {
   return {
     items: data.items,
     total: data.total,
     page: data.page,
-    page_size: data.pageSize || data.page_size,
-    total_pages: data.totalPages || data.total_pages,
+    page_size: data.pageSize ?? data.page_size ?? 10, // Default to 10 if neither is provided
+    total_pages: data.totalPages ?? data.total_pages ?? 1, // Default to 1 if neither is provided
   }
 }
 

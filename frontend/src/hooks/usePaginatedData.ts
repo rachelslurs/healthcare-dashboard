@@ -24,7 +24,6 @@ export default function usePaginatedData<T>({
   
   // useLocation automatically triggers re-renders when the location changes
   // This includes changes via TanStack Router navigation and browser back/forward
-  const location = useLocation()
 
   // Store fetchFn in ref to avoid dependency issues
   const fetchFnRef = useRef(fetchFn)

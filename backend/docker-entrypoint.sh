@@ -31,8 +31,9 @@ if [ -f "requirements.txt" ]; then
   else
     # Use pip check to validate the entire dependency tree for conflicts
     # This catches issues like version mismatches or broken dependencies
+    # pip check returns exit code 0 when there are no conflicts, non-zero when conflicts exist
     echo "🔍 Validating dependency tree..."
-    if pip check 2>&1 | grep -q .; then
+    if ! pip check >/dev/null 2>&1; then
       echo "⚠️  Dependency conflicts detected:"
       pip check
       echo ""

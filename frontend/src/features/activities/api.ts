@@ -1,6 +1,7 @@
 import type { PaginatedData } from '@/components/layout/data-table'
 import type { Activity } from './types'
 import { API_BASE_URL } from '@/lib/constants'
+import { transformPaginatedResponse, handleApiError } from '@/lib/api-utils'
 
 // API parameter types
 export interface GetActivitiesParams {
@@ -34,18 +35,9 @@ export async function getActivities(
   const response = await fetch(`${API_BASE_URL}/api/activities?${searchParams}`)
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch activities: ${response.statusText}`)
+    await handleApiError(response, 'Failed to fetch activities')
   }
 
   const data = await response.json()
-
-  // Transform backend response to match frontend PaginatedData format
-  // Backend may return camelCase (pageSize, totalPages) or snake_case (page_size, total_pages)
-  return {
-    items: data.items,
-    total: data.total,
-    page: data.page,
-    page_size: data.pageSize || data.page_size,
-    total_pages: data.totalPages || data.total_pages,
-  }
+  return transformPaginatedResponse<Activity>(data)
 }

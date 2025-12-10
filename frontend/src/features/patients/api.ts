@@ -1,6 +1,7 @@
 import type { PaginatedData } from '@/components/layout/data-table'
 import type { PatientListItem, Patient } from './types'
 import { API_BASE_URL } from '@/lib/constants'
+import { transformPaginatedResponse, handleApiError } from '@/lib/api-utils'
 
 // API parameter types
 export interface GetPatientsParams {
@@ -45,20 +46,11 @@ export async function getPatients(
   const response = await fetch(`${API_BASE_URL}/api/patients?${searchParams}`)
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch patients: ${response.statusText}`)
+    await handleApiError(response, 'Failed to fetch patients')
   }
 
   const data = await response.json()
-
-  // Transform backend response to match frontend PaginatedData format
-  // Backend may return camelCase (pageSize, totalPages) or snake_case (page_size, total_pages)
-  return {
-    items: data.items,
-    total: data.total,
-    page: data.page,
-    page_size: data.pageSize || data.page_size,
-    total_pages: data.totalPages || data.total_pages,
-  }
+  return transformPaginatedResponse<PatientListItem>(data)
 }
 
 /**
@@ -68,10 +60,7 @@ export async function getPatient(id: string): Promise<Patient> {
   const response = await fetch(`${API_BASE_URL}/api/patients/${id}`)
 
   if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error(`Patient with ID ${id} not found`)
-    }
-    throw new Error(`Failed to fetch patient: ${response.statusText}`)
+    await handleApiError(response, 'Failed to fetch patient', `Patient with ID ${id} not found`)
   }
 
   return await response.json()
@@ -90,8 +79,7 @@ export async function createPatient(patientData: Omit<Patient, 'id' | 'createdAt
   })
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}))
-    throw new Error(errorData.detail || `Failed to create patient: ${response.statusText}`)
+    await handleApiError(response, 'Failed to create patient')
   }
 
   return await response.json()
@@ -110,11 +98,7 @@ export async function updatePatient(id: string, patientData: Partial<Omit<Patien
   })
 
   if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error(`Patient with ID ${id} not found`)
-    }
-    const errorData = await response.json().catch(() => ({}))
-    throw new Error(errorData.detail || `Failed to update patient: ${response.statusText}`)
+    await handleApiError(response, 'Failed to update patient', `Patient with ID ${id} not found`)
   }
 
   return await response.json()
@@ -129,10 +113,7 @@ export async function deletePatient(id: string): Promise<void> {
   })
 
   if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error(`Patient with ID ${id} not found`)
-    }
-    throw new Error(`Failed to delete patient: ${response.statusText}`)
+    await handleApiError(response, 'Failed to delete patient', `Patient with ID ${id} not found`)
   }
 }
 
@@ -149,11 +130,7 @@ export async function uploadPatientPhoto(id: string, file: File): Promise<Patien
   })
 
   if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error(`Patient with ID ${id} not found`)
-    }
-    const errorData = await response.json().catch(() => ({}))
-    throw new Error(errorData.detail || `Failed to upload photo: ${response.statusText}`)
+    await handleApiError(response, 'Failed to upload photo', `Patient with ID ${id} not found`)
   }
 
   return await response.json()

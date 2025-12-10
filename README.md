@@ -91,46 +91,54 @@ The database is automatically seeded with 20 sample patients on first run. Can b
 
 ### State Management
 - **React State**: Local component state for UI interactions
-- **Server State**: TanStack Query (when implemented) for server data caching and synchronization
+- **Server State**: TanStack Query for server data caching and synchronization
 - **URL State**: TanStack Router for route-based state (navigation, route params)
 
 #### Sorting & Pagination State
 **Decision: React State (Local State) vs URL State**
 
-We use **React local state** for sorting and pagination instead of syncing with URL query parameters. This decision was made for the following reasons:
+We use a **hybrid approach** based on the complexity and use case of each data table:
 
-**Why React State:**
-- **Simpler Implementation**: No need to parse/serialize URL params or handle browser history
-- **Better Performance**: State changes don't trigger route updates or history entries
-- **Cleaner URLs**: Keeps URLs focused on navigation (routes) rather than UI state
-- **Faster Interactions**: Pagination and sorting feel more responsive without URL updates
-- **Easier State Management**: Direct state updates without router coordination
+**Patients List (URL State):**
+- Uses **TanStack Router URL state** for pagination, sorting, and search
+- Search params: `page`, `search`, `sortBy`, `sortOrder`
+- Benefits:
+  - **Shareable URLs**: Users can share specific search results (e.g., `/patients?search=Smith&page=2&sortBy=lastName`)
+  - **Browser Navigation**: Back/forward buttons work through pagination and search history
+  - **Bookmarkable States**: Users can bookmark filtered/sorted views
+  - **Refresh Persistence**: Page state persists on refresh
+- Implementation:
+  - Route search params validated with Zod schema
+  - `useSortedData` hook reads from and updates URL via TanStack Router's `navigate`
+  - TanStack Query cache keys include URL params for proper invalidation
+  - 5-minute cache staleness with background refetching
 
-**When to Use URL State Instead:**
-URL state (via TanStack Router) is better suited for:
-- **Shareable Filters**: When users need to share filtered/searched views via URL
-- **Deep Linking**: When specific table states should be bookmarkable
-- **Browser Back/Forward**: When pagination/sort history should be navigable via browser buttons
-- **SEO/Indexing**: When search engines should index filtered views
+**Activities List (React State):**
+- Uses **React local state** for pagination and sorting
+- Simpler implementation for tables without search functionality
+- No need for URL sync when sharing/bookmarking isn't required
+
+**When to Use Each Approach:**
+
+**Use URL State when:**
+- Table has search/filter functionality
+- Users need to share filtered views
+- Deep linking to specific states is valuable
+- Browser back/forward navigation is desired
+- State should persist on page refresh
+
+**Use React State when:**
+- Simple tables without search
+- No sharing/bookmarking requirements
+- Temporary UI state that shouldn't be persisted
+- Faster interactions are prioritized over URL sync
 
 **Current Implementation:**
-- Sorting state managed by `useSortedData` hook with `useState`
-- Pagination state managed by `usePaginatedData` hook with `useState`
-- State resets appropriately (e.g., page resets to 1 when sort changes)
-- Both hooks are reusable and can be easily migrated to URL state if needed
-
-**Migration Path:**
-If URL sync becomes necessary, the hooks can be updated to:
-1. Read initial state from URL search params
-2. Update URL on state changes using TanStack Router's `navigate`
-3. React to URL changes via router's reactive location
-
-**Future Improvements:**
-TanStack Router could be considered for future improvements if the following requirements emerge:
-- Users need to share specific filtered/sorted table views via URL
-- Deep linking to specific pagination states becomes important
-- Browser back/forward navigation through table state is desired
-- SEO requirements for indexed filtered views
+- **Patients List**: URL state via TanStack Router with Zod validation
+- **Activities List**: React local state with `useState`
+- Both use **TanStack Query** for data fetching with automatic caching
+- Query keys include all state dependencies for proper cache invalidation
+- State resets appropriately (e.g., page resets to 1 when sort or search changes)
 
 #### Form State
 
@@ -144,6 +152,17 @@ TanStack Router could be considered for future improvements if the following req
   - Built-in data loading and SSR support
   - Path aliases (`@/`) for cleaner imports
   - Excellent developer experience
+
+#### Server State Management
+- **TanStack Query**:
+  - Automatic caching and request deduplication
+  - Background refetching and stale-while-revalidate pattern
+  - Optimistic updates support
+  - Built-in loading and error states
+  - Query invalidation and refetching based on query keys
+  - Used for all server data fetching (patients list, search, sorting, pagination)
+  - Query keys include all dependencies (page, sortBy, sortOrder, search) ensuring proper cache management
+  - 5-minute default stale time for optimal performance
 
 #### UI Components
 - **Headless UI**: 
@@ -299,10 +318,11 @@ frontend/
 - [ ] Pagination (if used): Click "Last Page" → Loads instantly.
 
 #### ✅ Search & Filtering
-- [ ] **Debounce Test:** Type "Johnson" rapidly → Network request only fires after typing stops (not on every keystroke).
+- [ ] **Debounce Test:** Type "Johnson" rapidly → Network request only fires after typing stops (300ms debounce, not on every keystroke).
+- [ ] **TanStack Query Caching:** Search for "Smith", navigate away, return → Results load instantly from cache (no network request).
 - [ ] Filter by "Active" → Only active patients shown.
-- [ ] Sort by "Last Visit" → Correctly orders dates (Newest vs Oldest).
-- [ ] Clear Search → Restores full 1000+ list instantly.
+- [ ] Sort by "Last Visit" → Correctly orders dates (Newest vs Oldest). TanStack Query caches each sort combination separately.
+- [ ] Clear Search → Restores full 1000+ list instantly from cache if previously viewed.
 
 
 ### 4. Forms: Create & Edit 

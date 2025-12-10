@@ -1,4 +1,14 @@
 import {
+  ArrowRightStartOnRectangleIcon,
+  LightBulbIcon,
+} from '@heroicons/react/16/solid'
+import {
+  ChartBarIcon,
+  ChevronUpIcon,
+  UserGroupIcon,
+} from '@heroicons/react/20/solid'
+
+import {
   Dropdown,
   DropdownButton,
   DropdownDivider,
@@ -16,15 +26,6 @@ import {
   SidebarSection,
   SidebarHeading,
 } from '../ui/sidebar'
-import {
-  ArrowRightStartOnRectangleIcon,
-  LightBulbIcon,
-} from '@heroicons/react/16/solid'
-import {
-  ChartBarIcon,
-  ChevronUpIcon,
-  UserGroupIcon,
-} from '@heroicons/react/20/solid'
 
 export default function Sidebar() {
   const handleShareFeedback = () => {

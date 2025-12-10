@@ -2,6 +2,7 @@
 
 import * as Headless from '@headlessui/react'
 import React, { useState } from 'react'
+
 import { NavbarItem } from './navbar'
 
 function OpenMenuIcon() {

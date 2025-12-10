@@ -1,7 +1,9 @@
 import { createRoute, useParams } from '@tanstack/react-router'
-import { patientIdLayoutRoute } from './layout'
-import PatientForm from '@/features/patients/patient-form'
+
 import QueryErrorDisplay from '@/components/errors/query-error-display'
+import PatientForm from '@/features/patients/patient-form'
+
+import { patientIdLayoutRoute } from './layout'
 
 export const patientIdEditRoute = createRoute({
   getParentRoute: () => patientIdLayoutRoute,

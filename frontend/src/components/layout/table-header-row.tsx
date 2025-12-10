@@ -1,7 +1,9 @@
+import clsx from 'clsx'
 import type React from 'react'
 import { memo, useCallback } from 'react'
-import clsx from 'clsx'
+
 import { TableRow, TableHeader } from '../ui/table'
+
 import type { ColumnDefinition } from './data-table'
 
 interface TableHeaderRowProps<T> {

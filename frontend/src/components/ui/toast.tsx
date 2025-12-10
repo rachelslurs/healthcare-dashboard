@@ -1,7 +1,9 @@
 import clsx from 'clsx'
 import type React from 'react'
-import { Button } from './button'
+
 import type { Toast, ToastAction } from '@/lib/toast'
+
+import { Button } from './button'
 
 export interface ToastProps {
   toast: Toast

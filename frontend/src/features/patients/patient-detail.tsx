@@ -1,18 +1,19 @@
-import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
-import { getPatient, deletePatient } from './api'
-import type { Patient } from './types'
-import { toast } from '@/lib/toast'
-import { DescriptionList, DescriptionTerm, DescriptionDetails } from '@/components/ui/description-list'
+import { useParams, useNavigate } from '@tanstack/react-router'
+import { useState, useEffect } from 'react'
+
+import LoadingSpinner from '@/components/feedback/loading-spinner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { DescriptionList, DescriptionTerm, DescriptionDetails } from '@/components/ui/description-list'
 import { Dialog, DialogTitle, DialogDescription, DialogBody, DialogActions } from '@/components/ui/dialog'
+import { getStatusColor } from '@/lib/badge-utils'
 import { API_BASE_URL } from '@/lib/constants'
 import { formatDate } from '@/lib/date-utils'
-import { getStatusColor } from '@/lib/badge-utils'
-import LoadingSpinner from '@/components/feedback/loading-spinner'
 import { getErrorMessage } from '@/lib/error-utils'
+import { toast } from '@/lib/toast'
+import { getPatient, deletePatient } from './api'
+import type { Patient } from './types'
 
 
 export default function PatientDetail() {

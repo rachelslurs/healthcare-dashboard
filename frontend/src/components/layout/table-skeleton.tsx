@@ -1,4 +1,5 @@
 import { memo } from 'react'
+
 import { TableRow, TableCell } from '../ui/table'
 
 interface TableSkeletonProps {

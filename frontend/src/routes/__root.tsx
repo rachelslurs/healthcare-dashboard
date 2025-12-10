@@ -1,9 +1,9 @@
 /// <reference types="vite/client" />
-import type { ReactNode } from 'react';
-import globalsCss from '@/assets/styles/globals.css?url';
-
-import { Outlet, createRootRoute, HeadContent, Scripts } from '@tanstack/react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Outlet, createRootRoute, HeadContent, Scripts } from '@tanstack/react-router'
+import type { ReactNode } from 'react';
+
+import globalsCss from '@/assets/styles/globals.css?url';
 import ErrorBoundary from '@/components/errors/error-boundary'
 import Toaster from '@/components/feedback/toaster'
 

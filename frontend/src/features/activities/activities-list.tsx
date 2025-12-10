@@ -1,12 +1,14 @@
-import { useState, useMemo, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useState, useMemo, useCallback } from 'react'
+
 import DataTable, { type ColumnDefinition } from '@/components/layout/data-table'
-import type { Activity } from './types'
-import { getActivities } from './api'
-import useSortedData from '@/hooks/useSortedData'
 import { Badge } from '@/components/ui/badge'
-import { formatTimestamp } from '@/lib/date-utils'
+import useSortedData from '@/hooks/useSortedData'
 import { getActionColor } from '@/lib/badge-utils'
+import { formatTimestamp } from '@/lib/date-utils'
+
+import { getActivities } from './api'
+import type { Activity } from './types'
 
 // Format action type as a badge
 const formatActionType = (actionType: string) => {

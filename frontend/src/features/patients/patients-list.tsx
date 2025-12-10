@@ -1,19 +1,21 @@
-import type React from 'react'
-import { useMemo, useCallback, memo } from 'react'
+import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
+import { useMemo, useCallback, memo } from 'react'
+import type React from 'react'
+
 import DataTable, { type ColumnDefinition } from '@/components/layout/data-table'
-import type { PatientListItem } from './types'
-import { getPatients } from './api'
-import useSortedData from '@/hooks/useSortedData'
-import useDebounce from '@/hooks/useDebounce'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input, InputGroup } from '@/components/ui/input'
 import { TableRow, TableCell } from '@/components/ui/table'
-import { formatDate } from '@/lib/date-utils'
+import useDebounce from '@/hooks/useDebounce'
+import useSortedData from '@/hooks/useSortedData'
 import { getStatusColor } from '@/lib/badge-utils'
+import { formatDate } from '@/lib/date-utils'
+
+import { getPatients } from './api'
+import type { PatientListItem } from './types'
 
 // Format age for display - moved outside component for performance
 const formatAge = (age: number | undefined): string => {

@@ -2,11 +2,13 @@
 
 import clsx from 'clsx'
 import type React from 'react'
+
 import { Button } from '../ui/button'
 import { Table, TableBody, TableCell, TableHead, TableRow } from '../ui/table'
+
+import LoadingOverlay from './loading-overlay'
 import PaginationControls from './pagination-controls'
 import TableHeaderRow from './table-header-row'
-import LoadingOverlay from './loading-overlay'
 import TableSkeleton from './table-skeleton'
 
 // Types

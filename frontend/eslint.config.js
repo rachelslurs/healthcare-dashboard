@@ -29,6 +29,7 @@ export default [
     settings: {
       react: {
         version: 'detect',
+        runtime: 'automatic', // Use automatic JSX runtime (React 17+)
       },
       'import/resolver': {
         typescript: {

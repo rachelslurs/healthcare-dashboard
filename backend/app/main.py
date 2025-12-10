@@ -2,15 +2,18 @@ from fastapi import FastAPI, Depends, Query, HTTPException, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
+from sqlalchemy import func as sql_func
 from datetime import datetime, date
 import os
 import shutil
+import uuid
 from pathlib import Path
 from app.database import get_db, init_db
 from app.models import Patient, Activity
 from app.schemas import (
     PatientListResponse, PaginatedPatientsResponse, PatientResponse, 
-    PatientCreate, PatientUpdate, ActivityResponse, PaginatedActivitiesResponse
+    PatientCreate, PatientUpdate, ActivityResponse, PaginatedActivitiesResponse,
+    Address, EmergencyContact, MedicalInfo, InsuranceInfo, Document
 )
 
 app = FastAPI()
@@ -58,20 +61,24 @@ def health_check():
     return {"status": "healthy", "timestamp": datetime.now().isoformat()}
 
 
-def calculate_age(date_of_birth: date) -> int:
-    """Calculate age from date of birth."""
-    today = date.today()
-    age = today.year - date_of_birth.year
-    if (today.month, today.day) < (date_of_birth.month, date_of_birth.day):
-        age -= 1
-    return age
+def calculate_age(date_of_birth_str: str) -> int:
+    """Calculate age from date of birth (ISO format string)."""
+    try:
+        dob = datetime.fromisoformat(date_of_birth_str.replace('Z', '+00:00'))
+        today = datetime.now(dob.tzinfo) if dob.tzinfo else datetime.now()
+        age = today.year - dob.year
+        if (today.month, today.day) < (dob.month, dob.day):
+            age -= 1
+        return age
+    except (ValueError, AttributeError):
+        return None
 
 
 def log_activity(
     db: Session,
     action_type: str,
     description: str,
-    patient_id: int = None
+    patient_id: str = None
 ):
     """Log an activity to the database."""
     activity = Activity(
@@ -86,22 +93,46 @@ def log_activity(
 def patient_to_response(patient: Patient) -> PatientResponse:
     """Convert Patient model to PatientResponse schema."""
     age = calculate_age(patient.date_of_birth) if patient.date_of_birth else None
+    
+    # Parse nested objects through their models to ensure proper alias handling
+    address = Address(**patient.address) if patient.address else None
+    emergency_contact = EmergencyContact(**patient.emergency_contact) if patient.emergency_contact else None
+    medical_info = MedicalInfo(**patient.medical_info) if patient.medical_info else None
+    insurance = InsuranceInfo(**patient.insurance) if patient.insurance else None
+    documents = [Document(**doc) for doc in (patient.documents or [])]
+    
     return PatientResponse(
         id=patient.id,
         first_name=patient.first_name,
         last_name=patient.last_name,
         date_of_birth=patient.date_of_birth,
-        phone=patient.phone,
         email=patient.email,
+        phone=patient.phone,
         status=patient.status,
-        medical_history=patient.medical_history or {},
-        insurance_info=patient.insurance_info or {},
-        emergency_contacts=patient.emergency_contacts or [],
-        photo_url=patient.photo_url,
+        address=address,
+        emergency_contact=emergency_contact,
+        medical_info=medical_info,
+        insurance=insurance,
+        documents=documents,
         created_at=patient.created_at,
         updated_at=patient.updated_at,
-        last_visit=patient.last_visit,
         age=age
+    )
+
+
+def patient_to_list_response(patient: Patient) -> PatientListResponse:
+    """Convert Patient model to PatientListResponse schema."""
+    age = calculate_age(patient.date_of_birth) if patient.date_of_birth else None
+    # Get last_visit from medical_info (using snake_case key)
+    last_visit = patient.medical_info.get('last_visit') if patient.medical_info else None
+    
+    return PatientListResponse(
+        id=patient.id,
+        first_name=patient.first_name,
+        last_name=patient.last_name,
+        status=patient.status,  # Use separate patient status field
+        age=age,
+        last_visit=last_visit
     )
 
 
@@ -111,7 +142,7 @@ def get_patients(
     page_size: int = Query(10, ge=1, le=100, description="Items per page"),
     search: str = Query(None, description="Search by first name or last name"),
     status: str = Query(None, description="Filter by status (active, inactive, archived)"),
-    sort_by: str = Query("last_name", description="Sort by: last_name, age, status, last_visit"),
+    sort_by: str = Query("lastName", description="Sort by: lastName, status, lastVisit"),
     sort_order: str = Query("asc", description="Sort order: asc or desc"),
     db: Session = Depends(get_db)
 ):
@@ -127,7 +158,7 @@ def get_patients(
             (Patient.last_name.ilike(search_pattern))
         )
     
-    # Apply status filter if provided
+    # Apply status filter if provided (use separate patient status field)
     if status:
         if status not in ["active", "inactive", "archived"]:
             raise HTTPException(
@@ -143,31 +174,23 @@ def get_patients(
             detail="Invalid sort_order. Must be 'asc' or 'desc'"
         )
     
-    # Define sort field mappings to column attributes
-    sort_field_map = {
-        "last_name": Patient.last_name,
-        "status": Patient.status,
-        "last_visit": Patient.last_visit,
-        "age": Patient.date_of_birth,  # Special case: uses date_of_birth with reversed logic
-    }
-    
-    if sort_by not in sort_field_map:
+    # Define sort field mappings
+    if sort_by == "lastName":
+        sort_column = Patient.last_name
+        actual_order = sort_order
+    elif sort_by == "status":
+        # Sort by patient status field
+        sort_column = Patient.status
+        actual_order = sort_order
+    elif sort_by == "lastVisit":
+        # Sort by lastVisit in medical_info JSON using JSON_EXTRACT for SQLite compatibility
+        sort_column = sql_func.json_extract(Patient.medical_info, '$.last_visit')
+        actual_order = sort_order
+    else:
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid sort_by. Must be one of: {', '.join(sort_field_map.keys())}"
+            detail=f"Invalid sort_by. Must be one of: lastName, status, lastVisit"
         )
-    
-    # Get the column to sort by
-    sort_column = sort_field_map[sort_by]
-    
-    # Determine sort direction (age uses reversed logic)
-    if sort_by == "age":
-        # Age sorting: older patients have earlier date_of_birth
-        # For descending (oldest first): order by date_of_birth ASC (earliest dates first)
-        # For ascending (youngest first): order by date_of_birth DESC (latest dates first)
-        actual_order = "asc" if sort_order == "desc" else "desc"
-    else:
-        actual_order = sort_order
     
     # Apply sorting
     if actual_order == "desc":
@@ -175,8 +198,8 @@ def get_patients(
     else:
         order_expr = sort_column.asc()
     
-    # Handle NULL values for last_visit
-    if sort_by == "last_visit":
+    # Handle NULL values for lastVisit
+    if sort_by == "lastVisit":
         order_expr = order_expr.nulls_last()
     
     query = query.order_by(order_expr)
@@ -190,18 +213,8 @@ def get_patients(
     # Get patients for current page
     patients = query.offset(offset).limit(page_size).all()
     
-    # Convert to response format with age calculation
-    items = []
-    for patient in patients:
-        age = calculate_age(patient.date_of_birth) if patient.date_of_birth else None
-        items.append(PatientListResponse(
-            id=patient.id,
-            first_name=patient.first_name,
-            last_name=patient.last_name,
-            status=patient.status,
-            age=age,
-            last_visit=patient.last_visit
-        ))
+    # Convert to response format
+    items = [patient_to_list_response(patient) for patient in patients]
     
     # Calculate total pages
     total_pages = (total + page_size - 1) // page_size if total > 0 else 0
@@ -216,7 +229,7 @@ def get_patients(
 
 
 @app.get("/api/patients/{patient_id}", response_model=PatientResponse)
-def get_patient(patient_id: int, db: Session = Depends(get_db)):
+def get_patient(patient_id: str, db: Session = Depends(get_db)):
     """Get a single patient by ID."""
     patient = db.query(Patient).filter(Patient.id == patient_id).first()
     
@@ -229,17 +242,27 @@ def get_patient(patient_id: int, db: Session = Depends(get_db)):
 @app.post("/api/patients", response_model=PatientResponse, status_code=201)
 def create_patient(patient_data: PatientCreate, db: Session = Depends(get_db)):
     """Create a new patient."""
-    # Create patient from schema
+    # Generate UUID for patient ID
+    patient_id = str(uuid.uuid4())
+    now = datetime.now().isoformat()
+    
+    # Create patient from schema (using snake_case field names)
+    # model_dump() outputs field names (snake_case) by default, which is what we want for storage
     patient = Patient(
+        id=patient_id,
         first_name=patient_data.first_name,
         last_name=patient_data.last_name,
         date_of_birth=patient_data.date_of_birth,
         phone=patient_data.phone,
         email=patient_data.email,
         status=patient_data.status,
-        medical_history=patient_data.medical_history or {},
-        insurance_info=patient_data.insurance_info or {},
-        emergency_contacts=patient_data.emergency_contacts or []
+        address=patient_data.address.model_dump(by_alias=False),  # Use field names (snake_case)
+        emergency_contact=patient_data.emergency_contact.model_dump(by_alias=False),
+        medical_info=patient_data.medical_info.model_dump(by_alias=False),
+        insurance=patient_data.insurance.model_dump(by_alias=False),
+        documents=[doc.model_dump(by_alias=False) for doc in patient_data.documents],
+        created_at=now,
+        updated_at=now
     )
     
     db.add(patient)
@@ -260,7 +283,7 @@ def create_patient(patient_data: PatientCreate, db: Session = Depends(get_db)):
 
 @app.put("/api/patients/{patient_id}", response_model=PatientResponse)
 def update_patient(
-    patient_id: int,
+    patient_id: str,
     patient_data: PatientUpdate,
     db: Session = Depends(get_db)
 ):
@@ -270,10 +293,34 @@ def update_patient(
     if not patient:
         raise HTTPException(status_code=404, detail="Patient not found")
     
-    # Update only provided fields
-    update_data = patient_data.model_dump(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(patient, field, value)
+    # Update only provided fields (using snake_case)
+    update_data = patient_data.model_dump(exclude_unset=True, mode='json')
+    
+    if "first_name" in update_data:
+        patient.first_name = update_data["first_name"]
+    if "last_name" in update_data:
+        patient.last_name = update_data["last_name"]
+    if "date_of_birth" in update_data:
+        patient.date_of_birth = update_data["date_of_birth"]
+    if "phone" in update_data:
+        patient.phone = update_data["phone"]
+    if "email" in update_data:
+        patient.email = update_data["email"]
+    if "status" in update_data:
+        patient.status = update_data["status"]
+    if "address" in update_data:
+        patient.address = update_data["address"]
+    if "emergency_contact" in update_data:
+        patient.emergency_contact = update_data["emergency_contact"]
+    if "medical_info" in update_data:
+        patient.medical_info = update_data["medical_info"]
+    if "insurance" in update_data:
+        patient.insurance = update_data["insurance"]
+    if "documents" in update_data:
+        patient.documents = update_data["documents"]
+    
+    # Update timestamp
+    patient.updated_at = datetime.now().isoformat()
     
     db.commit()
     db.refresh(patient)
@@ -291,7 +338,7 @@ def update_patient(
 
 
 @app.delete("/api/patients/{patient_id}", status_code=204)
-def delete_patient(patient_id: int, db: Session = Depends(get_db)):
+def delete_patient(patient_id: str, db: Session = Depends(get_db)):
     """Delete a patient by ID."""
     patient = db.query(Patient).filter(Patient.id == patient_id).first()
     
@@ -362,77 +409,9 @@ def get_activities(
     )
 
 
-@app.post("/api/patients/{patient_id}/upload-photo", response_model=PatientResponse)
-def upload_patient_photo(
-    patient_id: int,
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db)
-):
-    """Upload a photo for a patient."""
-    # Check if patient exists
-    patient = db.query(Patient).filter(Patient.id == patient_id).first()
-    if not patient:
-        raise HTTPException(status_code=404, detail="Patient not found")
-    
-    # Validate file extension
-    file_ext = Path(file.filename).suffix.lower()
-    if file_ext not in ALLOWED_IMAGE_EXTENSIONS:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid file type. Allowed types: {', '.join(ALLOWED_IMAGE_EXTENSIONS)}"
-        )
-    
-    # Generate unique filename with timestamp
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"{timestamp}_{Path(file.filename).name}"
-    file_path = UPLOAD_DIR / filename
-    
-    # Store old photo path for cleanup (don't delete yet)
-    old_file_path = None
-    if patient.photo_url:
-        old_file_path = UPLOAD_DIR / Path(patient.photo_url).name
-    
-    try:
-        # Save the new file first
-        with open(file_path, "wb") as dest_file:
-            shutil.copyfileobj(file.file, dest_file)
-        
-        # Update patient photo_url
-        patient.photo_url = f"/uploads/{filename}"
-        db.commit()
-        db.refresh(patient)
-        
-        # Only delete old photo after successful save and database update
-        if old_file_path and old_file_path.exists():
-            old_file_path.unlink()
-            
-    except Exception as e:
-        # Rollback database changes
-        db.rollback()
-        # Clean up the new file if it was created
-        if file_path.exists():
-            file_path.unlink()
-        # Re-raise the exception
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to upload photo: {str(e)}"
-        )
-    
-    # Log activity
-    patient_name = f"{patient.first_name} {patient.last_name}"
-    log_activity(
-        db=db,
-        action_type="UPDATE",
-        description=f"Uploaded photo for {patient_name}",
-        patient_id=patient.id
-    )
-    
-    return patient_to_response(patient)
-
-
 @app.post("/api/patients/{patient_id}/upload-document", response_model=PatientResponse)
 def upload_patient_document(
-    patient_id: int,
+    patient_id: str,
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
@@ -459,18 +438,33 @@ def upload_patient_document(
     with open(file_path, "wb") as dest_file:
         shutil.copyfileobj(file.file, dest_file)
     
+    # Determine document type from filename or default to 'other'
+    doc_type = 'other'
+    if 'medical' in file.filename.lower() or 'record' in file.filename.lower():
+        doc_type = 'medical_record'
+    elif 'insurance' in file.filename.lower():
+        doc_type = 'insurance_card'
+    elif 'photo' in file.filename.lower() or 'id' in file.filename.lower():
+        doc_type = 'photo_id'
+    elif 'test' in file.filename.lower() or 'result' in file.filename.lower():
+        doc_type = 'test_result'
+    
     # Add document metadata to patient.documents array
     documents = patient.documents or []
     document_metadata = {
-        "filename": file.filename,
-        "url": f"/uploads/{filename}",
-        "uploaded_at": datetime.now().isoformat(),
-        "size": file_path.stat().st_size
+        "id": str(uuid.uuid4()),
+        "type": doc_type,
+        "name": file.filename,
+        "upload_date": datetime.now().isoformat(),
+        "file_size": file_path.stat().st_size,
+        "mime_type": file.content_type or "application/pdf",
+        "url": f"/uploads/{filename}"
     }
     documents.append(document_metadata)
     
     # Update patient documents
     patient.documents = documents
+    patient.updated_at = datetime.now().isoformat()
     db.commit()
     db.refresh(patient)
     

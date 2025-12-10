@@ -37,11 +37,12 @@ export const Link = forwardRef(function Link(
   // Use TanStack Router Link for internal routes
   // Type assertion needed because TanStack Router's `to` prop is strictly typed
   // but we're accepting dynamic href strings from Catalyst components
+  // Using 'as never' is type-safe here since we validate the href is internal at runtime
   return (
     <Headless.DataInteractive>
       <TanStackLink
         {...restProps}
-        to={href as any}
+        to={href as never}
         ref={ref}
       />
     </Headless.DataInteractive>

@@ -18,28 +18,33 @@ const styles = {
     '*:data-[slot=icon]:-mx-0.5 *:data-[slot=icon]:my-0.5 *:data-[slot=icon]:size-5 *:data-[slot=icon]:shrink-0 *:data-[slot=icon]:self-center *:data-[slot=icon]:text-(--btn-icon) sm:*:data-[slot=icon]:my-1 sm:*:data-[slot=icon]:size-4 forced-colors:[--btn-icon:ButtonText] forced-colors:data-hover:[--btn-icon:ButtonText]',
   ],
   solid: [
-    // Optical border, implemented as the button background to avoid corner artifacts
-    'border border-transparent bg-(--btn-border)',
-    // Button background, implemented as foreground layer to stack on top of pseudo-border layer
-    'before:absolute before:inset-0 before:-z-10 before:rounded-[calc(var(--radius-lg)-1px)] before:bg-(--btn-bg)',
-    // Shim/overlay, inset to match button foreground and used for hover state + highlight shadow
-    'after:absolute after:inset-0 after:-z-10 after:rounded-[calc(var(--radius-lg)-1px)]',
-    // Inner highlight shadow
-    'after:shadow-[inset_0_1px_--theme(--color-white/15%)]',
-    // White overlay on hover
-    'data-active:after:bg-(--btn-hover-overlay) data-hover:after:bg-(--btn-hover-overlay)',
-    // Disabled
-    'data-disabled:before:shadow-none data-disabled:after:shadow-none',
+    // Clean background
+    'border-0 bg-(--btn-bg)',
+    // Subtle hover overlay - Apple glass style with white overlay
+    'relative overflow-hidden',
+    'before:absolute before:inset-0 before:-z-10 before:bg-white/10 before:opacity-0 before:rounded-lg',
+    'data-hover:before:opacity-100 data-active:before:opacity-100',
+    // Smooth transitions
+    'transition-all duration-150 ease-out',
+    'before:transition-opacity before:duration-150',
   ],
   outline: [
     // Base
-    'border-zinc-950/10 text-zinc-950 data-active:bg-zinc-950/2.5 data-hover:bg-zinc-950/2.5',
+    'border-zinc-950/10 text-zinc-950',
+    // Subtle hover effects - Apple glass style
+    'data-hover:bg-zinc-950/5 data-active:bg-zinc-950/8',
+    // Smooth transitions
+    'transition-colors duration-150',
     // Icon
     '[--btn-icon:var(--color-zinc-500)] data-active:[--btn-icon:var(--color-zinc-700)] data-hover:[--btn-icon:var(--color-zinc-700)]',
   ],
   plain: [
     // Base
-    'border-transparent text-zinc-950 data-active:bg-zinc-950/5 data-hover:bg-zinc-950/5',
+    'border-transparent text-zinc-950',
+    // Subtle hover effects - Apple glass style
+    'data-hover:bg-zinc-950/5 data-active:bg-zinc-950/8',
+    // Smooth transitions
+    'transition-colors duration-150',
     // Icon
     '[--btn-icon:var(--color-zinc-500)] data-active:[--btn-icon:var(--color-zinc-700)] data-hover:[--btn-icon:var(--color-zinc-700)]',
   ],
@@ -77,7 +82,7 @@ const styles = {
       '[--btn-icon:var(--color-cyan-500)]',
     ],
     red: [
-      'text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-red-600)] [--btn-border:var(--color-red-700)]/90',
+      'text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-red-600)] [--btn-border:var(--color-red-600)]',
       '[--btn-icon:var(--color-red-300)] data-active:[--btn-icon:var(--color-red-200)] data-hover:[--btn-icon:var(--color-red-200)]',
     ],
     orange: [
@@ -97,7 +102,7 @@ const styles = {
       '[--btn-icon:var(--color-lime-600)] data-active:[--btn-icon:var(--color-lime-700)] data-hover:[--btn-icon:var(--color-lime-700)]',
     ],
     green: [
-      'text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-green-600)] [--btn-border:var(--color-green-700)]/90',
+      'text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-green-600)] [--btn-border:var(--color-green-600)]',
       '[--btn-icon:var(--color-white)]/60 data-active:[--btn-icon:var(--color-white)]/80 data-hover:[--btn-icon:var(--color-white)]/80',
     ],
     emerald: [
@@ -113,12 +118,12 @@ const styles = {
       '[--btn-icon:var(--color-white)]/60 data-active:[--btn-icon:var(--color-white)]/80 data-hover:[--btn-icon:var(--color-white)]/80',
     ],
     blue: [
-      'text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-blue-600)] [--btn-border:var(--color-blue-700)]/90',
+      'text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-blue-600)] [--btn-border:var(--color-blue-600)]',
       '[--btn-icon:var(--color-blue-400)] data-active:[--btn-icon:var(--color-blue-300)] data-hover:[--btn-icon:var(--color-blue-300)]',
     ],
     violet: [
-      'text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-violet-500)] [--btn-border:var(--color-violet-600)]/90',
-      '[--btn-icon:var(--color-violet-300)] data-active:[--btn-icon:var(--color-violet-200)] data-hover:[--btn-icon:var(--color-violet-200)]',
+      'text-ascertain-foreground [--btn-bg:var(--color-brand)] [--btn-border:var(--color-brand)]',
+      '[--btn-icon:var(--color-neutral-600)] data-active:[--btn-icon:var(--color-ascertain-foreground)] data-hover:[--btn-icon:var(--color-ascertain-foreground)]',
     ],
     purple: [
       'text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-purple-500)] [--btn-border:var(--color-purple-600)]/90',

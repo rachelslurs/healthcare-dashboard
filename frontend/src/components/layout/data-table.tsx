@@ -158,6 +158,50 @@ function TableSkeleton({ rows = 5, columns }: TableSkeletonProps) {
   )
 }
 
+interface TableHeaderRowProps<T> {
+  columns: ColumnDefinition<T>[]
+  onSort?: (sortKey: string) => void
+  currentSortBy?: string
+  currentSortOrder?: 'asc' | 'desc'
+}
+
+function TableHeaderRow<T>({
+  columns,
+  onSort,
+  currentSortBy,
+  currentSortOrder,
+}: TableHeaderRowProps<T>) {
+  return (
+    <TableRow>
+      {columns.map((column, index) => {
+        const isSorted = column.sortable && column.sortKey === currentSortBy
+        const sortIcon = isSorted 
+          ? currentSortOrder === 'asc' ? '↑' : '↓'
+          : column.sortable ? '⇅' : ''
+        
+        return (
+          <TableHeader
+            key={index}
+            className={clsx(
+              column.className,
+              column.sortable && 'cursor-pointer hover:bg-neutral-50 select-none'
+            )}
+            style={column.width ? { width: column.width } : undefined}
+            onClick={() => column.sortable && column.sortKey && onSort?.(column.sortKey)}
+          >
+            <div className="flex items-center gap-2">
+              <span>{column.header}</span>
+              {column.sortable && (
+                <span className="text-neutral-400 text-xs">{sortIcon}</span>
+              )}
+            </div>
+          </TableHeader>
+        )
+      })}
+    </TableRow>
+  )
+}
+
 interface DataTableProps<T> {
   columns: ColumnDefinition<T>[]
   data: PaginatedData<T> | undefined
@@ -215,33 +259,12 @@ export default function DataTable<T extends Record<string, any>>({
         <div className="overflow-x-auto">
           <Table>
             <TableHead>
-              <TableRow>
-                {columns.map((column, index) => {
-                  const isSorted = column.sortable && column.sortKey === currentSortBy
-                  const sortIcon = isSorted 
-                    ? currentSortOrder === 'asc' ? '↑' : '↓'
-                    : column.sortable ? '⇅' : ''
-                  
-                  return (
-                    <TableHeader
-                      key={index}
-                      className={clsx(
-                        column.className,
-                        column.sortable && 'cursor-pointer hover:bg-neutral-50 select-none'
-                      )}
-                      style={column.width ? { width: column.width } : undefined}
-                      onClick={() => column.sortable && column.sortKey && onSort?.(column.sortKey)}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span>{column.header}</span>
-                        {column.sortable && (
-                          <span className="text-neutral-400 text-xs">{sortIcon}</span>
-                        )}
-                      </div>
-                    </TableHeader>
-                  )
-                })}
-              </TableRow>
+              <TableHeaderRow
+                columns={columns}
+                onSort={onSort}
+                currentSortBy={currentSortBy}
+                currentSortOrder={currentSortOrder}
+              />
             </TableHead>
             <TableBody>
               <TableSkeleton rows={skeletonRows} columns={columns.length} />
@@ -259,33 +282,12 @@ export default function DataTable<T extends Record<string, any>>({
           <div className="overflow-x-auto">
             <Table>
             <TableHead>
-              <TableRow>
-                {columns.map((column, index) => {
-                  const isSorted = column.sortable && column.sortKey === currentSortBy
-                  const sortIcon = isSorted 
-                    ? currentSortOrder === 'asc' ? '↑' : '↓'
-                    : column.sortable ? '⇅' : ''
-                  
-                  return (
-                    <TableHeader
-                      key={index}
-                      className={clsx(
-                        column.className,
-                        column.sortable && 'cursor-pointer hover:bg-neutral-50 select-none'
-                      )}
-                      style={column.width ? { width: column.width } : undefined}
-                      onClick={() => column.sortable && column.sortKey && onSort?.(column.sortKey)}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span>{column.header}</span>
-                        {column.sortable && (
-                          <span className="text-neutral-400 text-xs">{sortIcon}</span>
-                        )}
-                      </div>
-                    </TableHeader>
-                  )
-                })}
-              </TableRow>
+              <TableHeaderRow
+                columns={columns}
+                onSort={onSort}
+                currentSortBy={currentSortBy}
+                currentSortOrder={currentSortOrder}
+              />
             </TableHead>
               <TableBody>
                 {renderRow

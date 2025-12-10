@@ -1,7 +1,18 @@
-import { useState, useEffect } from 'react'
-import DataTable, { type ColumnDefinition, type PaginatedData } from '@/components/layout/data-table'
+import { format } from 'date-fns'
+import DataTable, { type ColumnDefinition } from '@/components/layout/data-table'
 import type { PatientListItem } from './types'
 import { getPatients } from './api'
+import usePaginatedData from '@/hooks/usePaginatedData'
+
+// Format date for display
+const formatDate = (dateString: string | undefined): string => {
+  if (!dateString) return '—'
+  try {
+    return format(new Date(dateString), 'MMM d, yyyy')
+  } catch {
+    return dateString
+  }
+}
 
 // Define columns for the patients table
 const columns: ColumnDefinition<PatientListItem>[] = [
@@ -19,70 +30,15 @@ const columns: ColumnDefinition<PatientListItem>[] = [
   },
   {
     header: 'Last Visit',
-    accessor: 'lastVisit',
+    accessor: (row) => formatDate(row.lastVisit),
   },
 ]
 
 export default function PatientsList() {
-  const [data, setData] = useState<PaginatedData<PatientListItem> | undefined>(undefined)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
-
-  // Get page number from URL search params
-  const getPageFromUrl = () => {
-    if (typeof window === 'undefined') return 1
-    const params = new URLSearchParams(window.location.search)
-    const page = parseInt(params.get('page') || '1', 10)
-    return isNaN(page) || page < 1 ? 1 : page
-  }
-
-  // Fetch patients data
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true)
-      setError(null)
-      
-      try {
-        const page = getPageFromUrl()
-        const result = await getPatients({ page, pageSize: 10 })
-        setData(result)
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to fetch patients'))
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchData()
-
-    // Re-fetch when URL search params change (for pagination)
-    const handleLocationChange = () => {
-      fetchData()
-    }
-
-    // Listen for popstate (back/forward navigation)
-    window.addEventListener('popstate', handleLocationChange)
-    
-    // Also listen for pushstate/replacestate (TanStack Router navigation)
-    const originalPushState = history.pushState
-    const originalReplaceState = history.replaceState
-    
-    history.pushState = function(...args) {
-      originalPushState.apply(history, args)
-      setTimeout(handleLocationChange, 0)
-    }
-    
-    history.replaceState = function(...args) {
-      originalReplaceState.apply(history, args)
-      setTimeout(handleLocationChange, 0)
-    }
-
-    return () => {
-      window.removeEventListener('popstate', handleLocationChange)
-      history.pushState = originalPushState
-      history.replaceState = originalReplaceState
-    }
-  }, []) // Only run on mount
+  const { data, isLoading, error } = usePaginatedData({
+    fetchFn: ({ page, pageSize }) => getPatients({ page, pageSize }),
+    pageSize: 10,
+  })
 
   // Build pagination URL with query parameters
   const buildPageUrl = (page: number) => {

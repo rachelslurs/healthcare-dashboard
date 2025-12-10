@@ -1,9 +1,9 @@
 import { createRoute } from '@tanstack/react-router'
 import { baseRoute } from '../_base'
-import ActivityPage from '@/features/activity/activity-page'
+import ActivitiesList from '@/features/activities/activities-list'
 
 export const baseIndexRoute = createRoute({
   getParentRoute: () => baseRoute,
   path: '/',
-  component: ActivityPage,
+  component: ActivitiesList,
 })

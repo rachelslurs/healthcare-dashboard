@@ -1,8 +1,57 @@
-export default function ActivityPage() {
+import DataTable, { type ColumnDefinition, type PaginatedData } from '@/components/layout/data-table'
+
+// Define the Activity type for the table
+type Activity = {
+  id: string
+  type: string
+  description: string
+  timestamp: string
+  patientId?: string
+}
+
+// Define columns for the activities table
+const columns: ColumnDefinition<Activity>[] = [
+  {
+    header: 'Type',
+    accessor: 'type',
+  },
+  {
+    header: 'Description',
+    accessor: 'description',
+  },
+  {
+    header: 'Timestamp',
+    accessor: 'timestamp',
+  },
+  {
+    header: 'Patient ID',
+    accessor: 'patientId',
+  },
+]
+
+export default function ActivitiesList() {
+  // For now, empty data - will be replaced with API call later
+  const data: PaginatedData<Activity> | undefined = undefined
+  const isLoading = false
+  const error = null
+
+  // Build pagination URL with query parameters
+  const buildPageUrl = (page: number) => {
+    return `/?page=${page}`
+  }
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
-      <p className="text-gray-600">Welcome to the Healthcare Dashboard</p>
+      <DataTable
+        columns={columns}
+        data={data}
+        isLoading={isLoading}
+        error={error}
+        itemLabel="activities"
+        buildPageUrl={buildPageUrl}
+        emptyMessage="No activities found"
+      />
     </div>
   )
 }

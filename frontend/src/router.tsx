@@ -2,6 +2,7 @@ import { createRouter } from '@tanstack/react-router'
 import { rootRoute } from './routes/_root'
 import { baseRoute } from './routes/_base'
 import { baseIndexRoute } from './routes/_base/index'
+import { notFoundRoute } from './routes/_base/$'
 import { patientsIndexRoute } from './routes/patients/index'
 import { patientsNewRoute } from './routes/patients/new'
 import { patientIdLayoutRoute } from './routes/patients/$patientId/layout'
@@ -17,6 +18,7 @@ const routeTree = rootRoute.addChildren([
       patientIdIndexRoute,
       patientIdEditRoute,
     ]),
+    notFoundRoute,
   ]),
 ])
 

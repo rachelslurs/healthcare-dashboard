@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import type { PaginatedData } from '@/components/layout/data-table'
 
 interface UsePaginatedDataOptions<T> {
-  fetchFn: (params: { page: number; pageSize: number }) => Promise<PaginatedData<T>>
+  fetchFn: (params: { page: number; pageSize: number; sortBy?: string; sortOrder?: 'asc' | 'desc' }) => Promise<PaginatedData<T>>
   pageSize?: number
   getPageFromUrl?: () => number
 }
@@ -43,6 +43,15 @@ export default function usePaginatedData<T>({
     return getPageFromUrlRef.current ? getPageFromUrlRef.current() : defaultGetPageFromUrl()
   }
 
+  // Get sort parameters from URL
+  const getSortParams = () => {
+    if (typeof window === 'undefined') return { sortBy: undefined, sortOrder: undefined as 'asc' | 'desc' | undefined }
+    const params = new URLSearchParams(window.location.search)
+    const sortBy = params.get('sortBy') || undefined
+    const sortOrder = (params.get('sortOrder') || 'asc') as 'asc' | 'desc'
+    return { sortBy, sortOrder }
+  }
+
   // Fetch data
   useEffect(() => {
     const fetchData = async () => {
@@ -51,7 +60,8 @@ export default function usePaginatedData<T>({
       
       try {
         const page = getPage()
-        const result = await fetchFnRef.current({ page, pageSize })
+        const { sortBy, sortOrder } = getSortParams()
+        const result = await fetchFnRef.current({ page, pageSize, sortBy, sortOrder })
         setData(result)
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Failed to fetch data'))

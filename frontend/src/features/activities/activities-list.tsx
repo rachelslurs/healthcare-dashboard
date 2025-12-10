@@ -3,6 +3,7 @@ import DataTable, { type ColumnDefinition } from '@/components/layout/data-table
 import type { Activity } from './types'
 import { getActivities } from './api'
 import usePaginatedData from '@/hooks/usePaginatedData'
+import useSortedData from '@/hooks/useSortedData'
 
 // Format timestamp for display
 const formatTimestamp = (timestamp: string): string => {
@@ -14,35 +15,49 @@ const formatTimestamp = (timestamp: string): string => {
   }
 }
 
-// Define columns for the activities table
-const columns: ColumnDefinition<Activity>[] = [
-  {
-    header: 'Action',
-    accessor: 'actionType',
-  },
-  {
-    header: 'Description',
-    accessor: 'description',
-  },
-  {
-    header: 'Timestamp',
-    accessor: (row) => formatTimestamp(row.timestamp),
-  },
-  {
-    header: 'Patient ID',
-    accessor: 'patientId',
-  },
-]
-
 export default function ActivitiesList() {
+  const { currentSortBy, currentSortOrder, handleSort } = useSortedData({
+    defaultSortOrder: 'desc',
+    to: '/',
+  })
+
+  // Define columns for the activities table
+  const columns: ColumnDefinition<Activity>[] = [
+    {
+      header: 'Action',
+      accessor: 'actionType',
+    },
+    {
+      header: 'Description',
+      accessor: 'description',
+    },
+    {
+      header: 'Timestamp',
+      accessor: (row) => formatTimestamp(row.timestamp),
+      sortable: true,
+      sortKey: 'timestamp',
+    },
+    {
+      header: 'Patient ID',
+      accessor: 'patientId',
+    },
+  ]
+
   const { data, isLoading, error } = usePaginatedData({
-    fetchFn: ({ page, pageSize }) => getActivities({ page, pageSize }),
+    fetchFn: ({ page, pageSize, sortBy, sortOrder }) => getActivities({ 
+      page, 
+      pageSize, 
+      sortBy: sortBy as 'timestamp' | undefined, 
+      sortOrder 
+    }),
     pageSize: 10,
   })
 
   // Build pagination URL with query parameters
   const buildPageUrl = (page: number) => {
-    return `/?page=${page}`
+    const params = new URLSearchParams(window.location.search)
+    params.set('page', page.toString())
+    return `/?${params.toString()}`
   }
 
   return (
@@ -56,6 +71,9 @@ export default function ActivitiesList() {
         itemLabel="activities"
         buildPageUrl={buildPageUrl}
         emptyMessage="No activities found"
+        onSort={handleSort}
+        currentSortBy={currentSortBy}
+        currentSortOrder={currentSortOrder}
       />
     </div>
   )

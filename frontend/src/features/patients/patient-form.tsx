@@ -99,7 +99,6 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     control,
     formState: { errors, isSubmitting },
     setValue,
-    watch,
     reset,
   } = form
 

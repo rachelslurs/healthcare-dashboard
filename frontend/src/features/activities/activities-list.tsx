@@ -10,29 +10,25 @@ import { Badge } from '@/components/ui/badge'
 // Format timestamp for display (localized to user's timezone)
 const formatTimestamp = (timestamp: string): string => {
   try {
-    // Parse ISO timestamp - parseISO correctly handles timezone-aware dates
-    // The Date object created represents the moment in time, and format() 
-    // automatically displays it in the user's local timezone
-    const date = parseISO(timestamp)
+    // Parse the ISO timestamp - parseISO handles timezone-aware dates correctly
+    // If the timestamp has timezone info, it will be parsed correctly
+    // If it's naive (no timezone), parseISO treats it as local time
+    // To ensure UTC timestamps are handled correctly, check if it needs timezone info
+    let date: Date
     
-    // Validate the date is valid
-    if (isNaN(date.getTime())) {
-      return timestamp
+    // If timestamp doesn't have timezone indicator (Z or +/- offset), 
+    // assume it's UTC and append Z
+    if (timestamp && !timestamp.includes('Z') && !timestamp.match(/[+-]\d{2}:\d{2}$/)) {
+      // Treat naive datetime as UTC
+      date = parseISO(timestamp + 'Z')
+    } else {
+      date = parseISO(timestamp)
     }
     
-    // format() automatically converts to local timezone for display
+    // format uses the date's local time representation automatically
     return format(date, 'MMM d, yyyy h:mm a')
   } catch {
-    // If parsing fails, try with new Date() as fallback
-    try {
-      const date = new Date(timestamp)
-      if (isNaN(date.getTime())) {
-        return timestamp
-      }
-      return format(date, 'MMM d, yyyy h:mm a')
-    } catch {
-      return timestamp
-    }
+    return timestamp
   }
 }
 

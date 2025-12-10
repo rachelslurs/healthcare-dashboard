@@ -5,5 +5,9 @@ import PatientForm from '@/features/patients/patient-form'
 export const patientsNewRoute = createRoute({
   getParentRoute: () => baseRoute,
   path: '/patients/new',
-  component: () => <PatientForm isEdit={false} />,
+  component: NewPatient,
 })
+
+function NewPatient() {
+  return <PatientForm isEdit={false} />
+}

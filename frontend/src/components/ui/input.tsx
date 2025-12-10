@@ -82,7 +82,7 @@ export const Input = forwardRef(function Input(
           // Disabled state
           'data-disabled:border-neutral-800/20 data-disabled:bg-neutral-800/5',
           // System icons
-          'dark:scheme-dark',
+          // 'dark:scheme-dark', // Removed for single-theme consistency
         ])}
       />
     </span>

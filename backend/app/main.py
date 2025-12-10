@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, Query, HTTPException
+from fastapi import FastAPI, Depends, Query, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List
@@ -194,3 +194,29 @@ def update_patient(
     )
     
     return patient_to_response(patient)
+
+
+@app.delete("/api/patients/{patient_id}", status_code=204)
+def delete_patient(patient_id: int, db: Session = Depends(get_db)):
+    """Delete a patient by ID."""
+    patient = db.query(Patient).filter(Patient.id == patient_id).first()
+    
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
+    
+    # Log activity before deletion (so we have the patient name and ID)
+    patient_name = f"{patient.first_name} {patient.last_name}"
+    
+    # Log activity before deletion
+    log_activity(
+        db=db,
+        action_type="DELETE",
+        description=f"Removed patient {patient_name}",
+        patient_id=patient.id
+    )
+    
+    # Delete the patient
+    db.delete(patient)
+    db.commit()
+    
+    return Response(status_code=204)

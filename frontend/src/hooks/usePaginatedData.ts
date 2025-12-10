@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocation } from '@tanstack/react-router'
 import type { PaginatedData } from '@/components/layout/data-table'
+import { getSearchParams, getSearchString } from '@/lib/ssr'
 
 interface UsePaginatedDataOptions<T> {
   fetchFn: (params: { page: number; pageSize: number; sortBy?: string; sortOrder?: 'asc' | 'desc' }) => Promise<PaginatedData<T>>
@@ -39,8 +40,7 @@ export default function usePaginatedData<T>({
 
   // Default function to get page from URL search params
   const defaultGetPageFromUrl = () => {
-    if (typeof window === 'undefined') return 1
-    const params = new URLSearchParams(window.location.search)
+    const params = getSearchParams()
     const page = parseInt(params.get('page') || '1', 10)
     return isNaN(page) || page < 1 ? 1 : page
   }
@@ -51,8 +51,7 @@ export default function usePaginatedData<T>({
 
   // Get sort parameters from URL
   const getSortParams = () => {
-    if (typeof window === 'undefined') return { sortBy: undefined, sortOrder: undefined as 'asc' | 'desc' | undefined }
-    const params = new URLSearchParams(window.location.search)
+    const params = getSearchParams()
     const sortBy = params.get('sortBy') || undefined
     const sortOrder = (params.get('sortOrder') || 'asc') as 'asc' | 'desc'
     return { sortBy, sortOrder }
@@ -64,7 +63,7 @@ export default function usePaginatedData<T>({
   // - Browser back/forward navigation (popstate)
   // - Any other URL change
   // Extract search string for dependency tracking
-  const searchString = typeof window !== 'undefined' ? window.location.search : ''
+  const searchString = getSearchString()
   
   useEffect(() => {
     const fetchData = async () => {

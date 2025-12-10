@@ -90,6 +90,13 @@ The database is automatically seeded with 20 sample patients on first run. Can b
   - Native ESM support
   - Plugin ecosystem (React, TypeScript, Tailwind)
 
+#### Utilities
+- **date-fns**: 
+  - Modern JavaScript date utility library
+  - Immutable date operations
+  - Tree-shakeable functions for optimal bundle size
+  - Comprehensive formatting and manipulation utilities
+
 #### Testing
 - Testing framework to be determined (Jest, Vitest, or Playwright recommended)
 

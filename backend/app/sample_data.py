@@ -1,7 +1,8 @@
 """Sample data generation for development and testing."""
 
 import random
-from datetime import date, datetime, timedelta
+import uuid
+from datetime import datetime, timedelta
 from app.models import Patient
 from app.database import SessionLocal
 
@@ -42,8 +43,55 @@ def generate_sample_patients(count: int = 20):
             "Hall", "Rivera", "Campbell", "Mitchell", "Carter", "Roberts"
         ]
         
-        # Sample statuses
-        statuses = ["active", "inactive", "archived"]
+        # Sample patient statuses (separate from medical status)
+        patient_statuses = ["active", "inactive", "archived"]
+        
+        # Sample medical statuses (in medical_info)
+        medical_statuses = ["active", "inactive", "critical"]
+        
+        # Sample blood types
+        blood_types = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
+        
+        # Sample medications
+        medication_names = [
+            "Lisinopril", "Metformin", "Albuterol", "Ibuprofen", "Atorvastatin",
+            "Amlodipine", "Omeprazole", "Losartan", "Gabapentin", "Sertraline"
+        ]
+        
+        # Sample conditions
+        conditions = [
+            "Hypertension", "Diabetes", "Asthma", "Arthritis",
+            "High Cholesterol", "Migraine", "Anxiety", "Depression",
+            "COPD", "Heart Disease", "Osteoporosis", "Sleep Apnea"
+        ]
+        
+        # Sample allergies
+        allergies_list = [
+            ["Penicillin", "Peanuts"],
+            ["Latex"],
+            ["Shellfish"],
+            ["Dust", "Pollen"],
+            ["Aspirin"],
+            []
+        ]
+        
+        # Sample insurance providers
+        insurance_providers = [
+            "Blue Cross Blue Shield",
+            "Aetna",
+            "UnitedHealthcare",
+            "Cigna",
+            "Humana",
+            "Kaiser Permanente"
+        ]
+        
+        # Sample cities and states
+        cities_states = [
+            ("New York", "NY"), ("Los Angeles", "CA"), ("Chicago", "IL"),
+            ("Houston", "TX"), ("Phoenix", "AZ"), ("Philadelphia", "PA"),
+            ("San Antonio", "TX"), ("San Diego", "CA"), ("Dallas", "TX"),
+            ("San Jose", "CA"), ("Austin", "TX"), ("Jacksonville", "FL")
+        ]
         
         # Generate patients
         patients = []
@@ -53,10 +101,10 @@ def generate_sample_patients(count: int = 20):
             
             # Generate random date of birth (between 18 and 90 years ago)
             years_ago = random.randint(18, 90)
-            birth_year = date.today().year - years_ago
+            birth_year = datetime.now().year - years_ago
             birth_month = random.randint(1, 12)
             birth_day = random.randint(1, 28)  # Use 28 to avoid month-end issues
-            date_of_birth = date(birth_year, birth_month, birth_day)
+            date_of_birth = datetime(birth_year, birth_month, birth_day).isoformat()
             
             # Generate phone number
             phone = f"{random.randint(200, 999)}-{random.randint(200, 999)}-{random.randint(1000, 9999)}"
@@ -64,83 +112,113 @@ def generate_sample_patients(count: int = 20):
             # Generate email
             email = f"{first_name.lower()}.{last_name.lower()}@example.com"
             
-            # Random status (weighted towards active)
-            status = random.choices(
-                statuses,
+            # Random patient status (weighted towards active)
+            patient_status = random.choices(
+                patient_statuses,
                 weights=[70, 20, 10]  # 70% active, 20% inactive, 10% archived
             )[0]
             
-            # Generate medical history (some patients have it, some don't)
-            medical_history = {}
-            if random.random() < 0.6:  # 60% have medical history
-                conditions = [
-                    "Hypertension", "Diabetes", "Asthma", "Arthritis",
-                    "High Cholesterol", "Migraine", "Anxiety", "Depression"
-                ]
-                condition = random.choice(conditions)
-                medical_history = {
-                    "conditions": [condition],
-                    "allergies": random.choice([
-                        ["Penicillin", "Peanuts"],
-                        ["Latex"],
-                        ["Shellfish"],
-                        []
-                    ]),
-                    "medications": random.choice([
-                        ["Lisinopril", "Metformin"],
-                        ["Albuterol"],
-                        ["Ibuprofen"],
-                        []
-                    ])
-                }
+            # Random medical status (separate from patient status)
+            medical_status = random.choices(
+                medical_statuses,
+                weights=[60, 30, 10]  # 60% active, 30% inactive, 10% critical
+            )[0]
             
-            # Generate insurance info (some patients have it)
-            insurance_info = {}
-            if random.random() < 0.8:  # 80% have insurance
-                insurance_providers = [
-                    "Blue Cross Blue Shield",
-                    "Aetna",
-                    "UnitedHealthcare",
-                    "Cigna",
-                    "Humana"
-                ]
-                insurance_info = {
-                    "provider": random.choice(insurance_providers),
-                    "policy_number": f"P-{random.randint(100000, 999999)}",
-                    "group_number": f"G-{random.randint(1000, 9999)}"
-                }
+            # Generate address (using snake_case)
+            city, state = random.choice(cities_states)
+            street_number = random.randint(100, 9999)
+            street_names = ["Main St", "Oak Ave", "Park Blvd", "Elm St", "Maple Dr", "Cedar Ln"]
+            address = {
+                "street": f"{street_number} {random.choice(street_names)}",
+                "city": city,
+                "state": state,
+                "zip_code": f"{random.randint(10000, 99999)}",
+                "country": "USA"
+            }
             
-            # Generate emergency contacts (some patients have them)
-            emergency_contacts = []
-            if random.random() < 0.7:  # 70% have emergency contacts
-                contact_names = [
-                    f"{random.choice(first_names)} {last_name}",  # Family member
-                    f"{random.choice(first_names)} {random.choice(last_names)}"  # Friend
-                ]
-                for contact_name in random.sample(contact_names, random.randint(1, 2)):
-                    emergency_contacts.append({
-                        "name": contact_name,
-                        "relationship": random.choice(["Spouse", "Parent", "Sibling", "Friend", "Child"]),
-                        "phone": f"{random.randint(200, 999)}-{random.randint(200, 999)}-{random.randint(1000, 9999)}"
-                    })
+            # Generate emergency contact
+            contact_first = random.choice(first_names)
+            contact_relationship = random.choice(["Spouse", "Parent", "Sibling", "Friend", "Child"])
+            emergency_contact = {
+                "name": f"{contact_first} {last_name if contact_relationship in ['Spouse', 'Child'] else random.choice(last_names)}",
+                "relationship": contact_relationship,
+                "phone": f"{random.randint(200, 999)}-{random.randint(200, 999)}-{random.randint(1000, 9999)}",
+                "email": f"{contact_first.lower()}.{random.choice(last_names).lower()}@example.com" if random.random() < 0.7 else None
+            }
+            
+            # Generate medications (using snake_case)
+            num_medications = random.randint(0, 3)
+            medications = []
+            for _ in range(num_medications):
+                med_name = random.choice(medication_names)
+                start_date = (datetime.now() - timedelta(days=random.randint(30, 365))).isoformat()
+                is_active = random.random() < 0.8
+                end_date = None if is_active else (datetime.now() - timedelta(days=random.randint(1, 30))).isoformat()
+                
+                medications.append({
+                    "id": str(uuid.uuid4()),
+                    "name": med_name,
+                    "dosage": f"{random.randint(5, 50)}mg",
+                    "frequency": random.choice(["Once daily", "Twice daily", "Three times daily", "As needed"]),
+                    "prescribed_by": f"Dr. {random.choice(['Smith', 'Johnson', 'Williams', 'Brown', 'Davis'])}",
+                    "start_date": start_date,
+                    "end_date": end_date,
+                    "is_active": is_active
+                })
+            
+            # Generate medical info (using snake_case)
+            num_conditions = random.randint(0, 3)
+            patient_conditions = random.sample(conditions, min(num_conditions, len(conditions)))
+            allergies = random.choice(allergies_list)
             
             # Generate last visit date (some patients have recent visits, some don't)
             last_visit = None
             if random.random() < 0.6:  # 60% have a last visit
                 days_ago = random.randint(1, 365)
-                last_visit = datetime.now() - timedelta(days=days_ago)
+                last_visit = (datetime.now() - timedelta(days=days_ago)).isoformat()
+            
+            medical_info = {
+                "allergies": allergies,
+                "current_medications": medications,
+                "conditions": patient_conditions,
+                "blood_type": random.choice(blood_types),
+                "last_visit": last_visit or "",
+                "status": medical_status  # Medical status (separate from patient status)
+            }
+            
+            # Generate insurance info (using snake_case)
+            effective_date = (datetime.now() - timedelta(days=random.randint(30, 1095))).isoformat()
+            expiration_date = (datetime.now() + timedelta(days=random.randint(30, 365))).isoformat()
+            
+            insurance = {
+                "provider": random.choice(insurance_providers),
+                "policy_number": f"POL-{random.randint(100000, 999999)}",
+                "group_number": f"GRP-{random.randint(1000, 9999)}" if random.random() < 0.8 else None,
+                "effective_date": effective_date,
+                "expiration_date": expiration_date if random.random() < 0.9 else None,
+                "copay": round(random.uniform(10, 50), 2),
+                "deductible": round(random.uniform(500, 5000), 2)
+            }
+            
+            # Generate timestamps
+            created_at = (datetime.now() - timedelta(days=random.randint(1, 365))).isoformat()
+            updated_at = (datetime.now() - timedelta(days=random.randint(0, 30))).isoformat()
             
             patient = Patient(
+                id=str(uuid.uuid4()),
                 first_name=first_name,
                 last_name=last_name,
                 date_of_birth=date_of_birth,
                 phone=phone,
                 email=email,
-                status=status,
-                medical_history=medical_history,
-                insurance_info=insurance_info,
-                emergency_contacts=emergency_contacts,
-                last_visit=last_visit
+                status=patient_status,  # Separate patient status field
+                address=address,
+                emergency_contact=emergency_contact,
+                medical_info=medical_info,
+                insurance=insurance,
+                documents=[],
+                created_at=created_at,
+                updated_at=updated_at
             )
             
             patients.append(patient)
@@ -154,5 +232,6 @@ def generate_sample_patients(count: int = 20):
     except Exception as e:
         print(f"Error generating sample patients: {e}")
         db.rollback()
+        raise
     finally:
         db.close()

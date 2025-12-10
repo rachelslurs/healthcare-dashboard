@@ -1,6 +1,6 @@
 """SQLAlchemy database models."""
 
-from sqlalchemy import Column, Integer, String, Date, DateTime, JSON, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, JSON, Text, ForeignKey
 from sqlalchemy.sql import func
 from app.database import Base
 
@@ -10,27 +10,24 @@ class Patient(Base):
     
     __tablename__ = "patients"
     
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True)
     first_name = Column(String(100), nullable=False, index=True)
     last_name = Column(String(100), nullable=False, index=True)
-    date_of_birth = Column(Date, nullable=False)
-    phone = Column(String(20))
-    email = Column(String(255))
-    status = Column(String(20), nullable=False, default="active", index=True)
+    date_of_birth = Column(String, nullable=False)  # ISO format string
+    phone = Column(String(20), nullable=False)
+    email = Column(String(255), nullable=False)
+    status = Column(String(20), nullable=False, default="active", index=True)  # Patient status (separate from medical_info.status)
     
-    # JSON columns for complex data
-    medical_history = Column(JSON, default=dict)
-    insurance_info = Column(JSON, default=dict)
-    emergency_contacts = Column(JSON, default=list)
+    # JSON columns for complex nested data
+    address = Column(JSON, nullable=False)
+    emergency_contact = Column(JSON, nullable=False)
+    medical_info = Column(JSON, nullable=False)
+    insurance = Column(JSON, nullable=False)
     documents = Column(JSON, default=list)
     
-    # File uploads
-    photo_url = Column(String(500))
-    
-    # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-    last_visit = Column(DateTime(timezone=True))
+    # Timestamps (ISO format strings)
+    created_at = Column(String, nullable=False)
+    updated_at = Column(String, nullable=False)
 
 
 class Activity(Base):
@@ -42,7 +39,7 @@ class Activity(Base):
     timestamp = Column(DateTime(timezone=True), server_default=func.now(), index=True)
     action_type = Column(String(50), nullable=False)  # CREATE, UPDATE, DELETE, etc.
     description = Column(Text, nullable=False)
-    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=True, index=True)
+    patient_id = Column(String, ForeignKey("patients.id"), nullable=True, index=True)
     
     # Optional relationship (not always needed, but useful for queries)
     # patient = relationship("Patient", backref="activities")

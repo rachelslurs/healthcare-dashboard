@@ -7,7 +7,7 @@ export interface GetPatientsParams {
   pageSize?: number
   search?: string
   status?: 'active' | 'inactive' | 'archived'
-  sortBy?: 'lastName' | 'lastVisit'
+  sortBy?: 'lastName' | 'lastVisit' | 'status'
   sortOrder?: 'asc' | 'desc'
 }
 

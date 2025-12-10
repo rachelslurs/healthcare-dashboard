@@ -393,14 +393,10 @@ def get_activities(
     total = db.query(Activity).count()
     
     # Apply sorting
-    if sort_by == "timestamp":
-        if sort_order == "desc":
-            order_expr = Activity.timestamp.desc()
-        else:
-            order_expr = Activity.timestamp.asc()
-    else:
-        # Default to descending timestamp if invalid sort_by
+    if sort_order == "desc":
         order_expr = Activity.timestamp.desc()
+    else:
+        order_expr = Activity.timestamp.asc()
     
     # Get activities for current page
     activities = (

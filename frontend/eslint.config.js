@@ -116,7 +116,12 @@ export default [
           pathGroupsExcludedImportTypes: ['builtin'],
         },
       ],
-      'import/no-unresolved': 'error',
+      'import/no-unresolved': [
+        'error',
+        {
+          ignore: ['^\\..*/$'], // Allow directory imports (they resolve to index files)
+        },
+      ],
       'import/no-unused-modules': 'warn',
       'import/no-duplicates': 'error',
       'import/no-cycle': ['warn', { maxDepth: 10 }], // Downgrade to warning for now

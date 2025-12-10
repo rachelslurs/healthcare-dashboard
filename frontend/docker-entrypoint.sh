@@ -10,6 +10,16 @@ echo ""
 # for edge cases where the volume mount overrides node_modules or when the
 # container is started without a proper build. The /app/node_modules volume
 # should preserve build-time dependencies, but this provides a safety net.
+#
+# When does this install run?
+# - When node_modules is empty or missing (volume mount issue or first run)
+# - When package-lock.json changes but container wasn't rebuilt (rare edge case)
+# - When node_modules is out of sync with package-lock.json
+#
+# To avoid unnecessary installs:
+# - Ensure /app/node_modules volume is properly mounted (configured in docker-compose.yml)
+# - Let watch mode rebuild containers when package-lock.json changes
+# - Don't manually delete node_modules inside the container
 
 NEED_INSTALL=false
 

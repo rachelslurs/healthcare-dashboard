@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import type { Patient, Address, EmergencyContact, Medication, InsuranceInfo } from './types'
-import { getPatient, createPatient, updatePatient } from './api'
+import { getPatient, createPatient, updatePatient, uploadPatientPhoto } from './api'
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
@@ -108,6 +110,10 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
   const [error, setError] = useState<string | null>(null)
   const [allergyInput, setAllergyInput] = useState('')
   const [conditionInput, setConditionInput] = useState('')
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+  const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string | undefined>(undefined)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Fetch patient data for edit mode
   useEffect(() => {
@@ -139,6 +145,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
             },
             documents: data.documents,
           })
+          setCurrentPhotoUrl(data.photoUrl)
         } catch (err) {
           setError(err instanceof Error ? err.message : 'Failed to load patient data')
         } finally {
@@ -170,6 +177,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
         },
         documents: patient.documents,
       })
+      setCurrentPhotoUrl(patient.photoUrl)
       setIsLoading(false)
     }
   }, [isEdit, patientId, patient])
@@ -260,6 +268,42 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     }))
   }
 
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png']
+    if (!validTypes.includes(file.type)) {
+      setError('Please select a valid image file (JPEG or PNG)')
+      return
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image file size must be less than 5MB')
+      return
+    }
+
+    setPhotoFile(file)
+    setError(null)
+
+    // Create preview
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setPhotoPreview(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleRemovePhoto = () => {
+    setPhotoFile(null)
+    setPhotoPreview(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
@@ -306,6 +350,12 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
 
       if (isEdit && patientId) {
         await updatePatient(patientId, submitData)
+        
+        // Upload photo if a new one was selected
+        if (photoFile) {
+          await uploadPatientPhoto(patientId, photoFile)
+        }
+        
         navigate({ to: `/patients/${patientId}` })
       } else {
         const newPatient = await createPatient(submitData)
@@ -436,6 +486,61 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
             </Field>
           </FieldGroup>
         </Fieldset>
+
+        {/* Photo Upload - Edit Mode Only */}
+        {isEdit && (
+          <Fieldset>
+            <Legend>Patient Photo</Legend>
+            <FieldGroup>
+              <Field>
+                <Label>Photo</Label>
+                <div className="space-y-4">
+                  {/* Photo Preview */}
+                  {(photoPreview || currentPhotoUrl) && (
+                    <div className="flex items-center gap-4">
+                      <div className="relative">
+                        <img
+                          src={photoPreview || (currentPhotoUrl ? `${API_BASE_URL}${currentPhotoUrl.startsWith('/') ? currentPhotoUrl : `/${currentPhotoUrl}`}` : '')}
+                          alt="Patient photo preview"
+                          className="w-32 h-32 rounded-full object-cover border-2 border-neutral-200"
+                        />
+                      </div>
+                      {photoFile && (
+                        <Button
+                          type="button"
+                          onClick={handleRemovePhoto}
+                          outline
+                        >
+                          Remove New Photo
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* File Input */}
+                  <div className="flex items-center gap-4">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png"
+                      onChange={handlePhotoChange}
+                      className="block w-full text-sm text-neutral-600
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-lg file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-neutral-100 file:text-neutral-700
+                        hover:file:bg-neutral-200
+                        file:cursor-pointer"
+                    />
+                  </div>
+                  <Description>
+                    Upload a patient photo (JPEG or PNG, max 5MB). This will replace any existing photo.
+                  </Description>
+                </div>
+              </Field>
+            </FieldGroup>
+          </Fieldset>
+        )}
 
         {/* Address */}
         <Fieldset>

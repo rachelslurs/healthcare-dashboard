@@ -127,6 +127,7 @@ class PatientResponse(PatientBase):
     created_at: str = Field(..., alias="createdAt")
     updated_at: str = Field(..., alias="updatedAt")
     age: Optional[int] = None  # Calculated field
+    photo_url: Optional[str] = Field(None, alias="photoUrl")  # Photo URL stored in medical_info
     
     model_config = ConfigDict(populate_by_name=True, from_attributes=True)
 

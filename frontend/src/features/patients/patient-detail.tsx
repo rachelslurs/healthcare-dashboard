@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogTitle, DialogDescription, DialogBody, DialogActions } from '@/components/ui/dialog'
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+
 // Format date for display
 const formatDate = (dateString: string | undefined): string => {
   if (!dateString) return '—'
@@ -140,21 +142,65 @@ export default function PatientDetail() {
     setDeleteDialogOpen(false)
   }
 
+  // Generate initials for avatar fallback
+  const getInitials = (firstName: string, lastName: string) => {
+    const first = firstName?.charAt(0).toUpperCase() || ''
+    const last = lastName?.charAt(0).toUpperCase() || ''
+    return `${first}${last}` || '?'
+  }
+
+  const photoUrl = patient.photoUrl 
+    ? `${API_BASE_URL}${patient.photoUrl.startsWith('/') ? patient.photoUrl : `/${patient.photoUrl}`}`
+    : null
+
   return (
     <div className="p-6">
       <div className="mb-6">
         <div className="flex items-start justify-between mb-2">
-          <div>
-            <h1 className="text-2xl font-bold mb-2">
-              {patient.firstName} {patient.lastName}
-            </h1>
-            <div className="flex items-center gap-2">
-              <Badge color={getStatusColor(patient.status)}>
-                {patient.status.charAt(0).toUpperCase() + patient.status.slice(1)}
-              </Badge>
-              {patient.age && (
-                <span className="text-sm text-gray-600">Age: {patient.age}</span>
+          <div className="flex items-start gap-4">
+            {/* Patient Photo or Avatar */}
+            <div className="flex-shrink-0 relative">
+              {photoUrl ? (
+                <>
+                  <img
+                    src={photoUrl}
+                    alt={`${patient.firstName} ${patient.lastName}`}
+                    className="w-24 h-24 rounded-full object-cover border-2 border-neutral-200 shadow-sm"
+                    onError={(e) => {
+                      // Fallback to avatar if image fails to load
+                      const target = e.target as HTMLImageElement
+                      target.style.display = 'none'
+                      const avatar = target.nextElementSibling as HTMLElement
+                      if (avatar) avatar.style.display = 'flex'
+                    }}
+                  />
+                  <div
+                    className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold shadow-sm hidden"
+                  >
+                    {getInitials(patient.firstName, patient.lastName)}
+                  </div>
+                </>
+              ) : (
+                <div
+                  className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold shadow-sm"
+                >
+                  {getInitials(patient.firstName, patient.lastName)}
+                </div>
               )}
+            </div>
+            
+            <div>
+              <h1 className="text-2xl font-bold mb-2">
+                {patient.firstName} {patient.lastName}
+              </h1>
+              <div className="flex items-center gap-2">
+                <Badge color={getStatusColor(patient.status)}>
+                  {patient.status.charAt(0).toUpperCase() + patient.status.slice(1)}
+                </Badge>
+                {patient.age && (
+                  <span className="text-sm text-gray-600">Age: {patient.age}</span>
+                )}
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-2">

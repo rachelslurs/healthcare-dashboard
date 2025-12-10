@@ -35,19 +35,6 @@ const getStatusColor = (status: 'active' | 'inactive' | 'archived'): 'green' | '
   }
 }
 
-// Get badge color based on medical status
-const getMedicalStatusColor = (status: 'active' | 'inactive' | 'critical'): 'green' | 'orange' | 'red' => {
-  switch (status) {
-    case 'active':
-      return 'green'
-    case 'inactive':
-      return 'orange'
-    case 'critical':
-      return 'red'
-    default:
-      return 'orange'
-  }
-}
 
 export default function PatientDetail() {
   const { patientId } = useParams({ strict: false })
@@ -298,13 +285,6 @@ export default function PatientDetail() {
         <section>
           <h2 className="text-lg font-semibold mb-4">Medical Information</h2>
           <DescriptionList>
-            <DescriptionTerm>Medical Status</DescriptionTerm>
-            <DescriptionDetails>
-              <Badge color={getMedicalStatusColor(patient.medicalInfo.status)}>
-                {patient.medicalInfo.status.charAt(0).toUpperCase() + patient.medicalInfo.status.slice(1)}
-              </Badge>
-            </DescriptionDetails>
-
             <DescriptionTerm>Blood Type</DescriptionTerm>
             <DescriptionDetails>{patient.medicalInfo.bloodType || '—'}</DescriptionDetails>
 

@@ -162,7 +162,7 @@ frontend/
 │   │       ├── patient-detail.tsx
 │   │       └── patient-form.tsx
 │   ├── routes/          # Route configuration files (thin wrappers)
-│   │   ├── _root.tsx    # Root layout
+│   │   ├── __root.tsx    # Root layout
 │   │   ├── _base.tsx    # Base layout wrapper
 │   │   ├── _base/
 │   │   │   └── index.tsx

@@ -63,6 +63,11 @@ export default function usePaginatedData<T>({
   // - TanStack Router navigates (pushState/replaceState)
   // - Browser back/forward navigation (popstate)
   // - Any other URL change
+  // Serialize search params to string for reliable dependency comparison
+  const searchString = typeof location.search === 'string' 
+    ? location.search 
+    : new URLSearchParams(location.search as any).toString()
+  
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true)
@@ -81,7 +86,7 @@ export default function usePaginatedData<T>({
     }
 
     fetchData()
-  }, [pageSize, location.search]) // Re-run when pageSize or search params change
+  }, [pageSize, searchString]) // Re-run when pageSize or search params change
 
   return { data, isLoading, error }
 }

@@ -1,4 +1,4 @@
-import { Patient } from '@/types/patient'
+import type { Patient } from './types'
 
 interface PatientFormProps {
   patient?: Patient

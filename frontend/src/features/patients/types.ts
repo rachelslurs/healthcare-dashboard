@@ -1,3 +1,5 @@
+// Patient-related types
+
 export interface Address {
   street: string;
   city: string;
@@ -44,6 +46,7 @@ export interface Document {
   url: string;
 }
 
+// Full patient type (for detail/edit views)
 export interface Patient {
   id: string;
   firstName: string;
@@ -58,7 +61,7 @@ export interface Patient {
     allergies: string[];
     currentMedications: Medication[];
     conditions: string[];
-    bloodType: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
+    bloodType: 'A+' | 'A-' | 'B+' | 'AB+' | 'AB-' | 'O+' | 'O-';
     lastVisit: string;
     status: 'active' | 'inactive' | 'critical';  // Medical status
   };
@@ -67,4 +70,14 @@ export interface Patient {
   createdAt: string;
   updatedAt: string;
   age?: number;  // Calculated field from backend
+}
+
+// Patient list item type (for list views)
+export interface PatientListItem {
+  id: string;
+  firstName: string;
+  lastName: string;
+  status: 'active' | 'inactive' | 'archived';
+  age?: number;
+  lastVisit?: string;
 }

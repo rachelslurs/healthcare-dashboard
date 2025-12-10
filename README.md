@@ -407,83 +407,34 @@ setValue('medicalInfo.allergies', [...allergies, newAllergy], {
 
 </details>
 
-### Backend Architecture
+<details>
+<summary><strong>Backend Architecture</strong></summary>
 
-#### API Design
+**API Design:**
 - RESTful API with FastAPI
-- Automatic API documentation via OpenAPI/Swagger at `/docs`
-- SQLite database (default) with PostgreSQL support via `DATABASE_URL` env variable
+- OpenAPI/Swagger documentation at `/docs`
+- SQLite database (default), PostgreSQL supported via `DATABASE_URL`
 
-#### Setup
-- Python 3.11+ required
-- Install dependencies: `pip install -r requirements.txt`
-- Run server: `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`
-- Database file (`healthcare.db`) created automatically on first run
-
-#### Environment Variables
-- `SEED_PATIENT_COUNT`: Number of sample patients to generate on first startup (default: 0)
-  - Set to `20` for development with sample data
-  - Set to `1000+` for stress testing performance
-  - Only generates if database is empty
+**Environment Variables:**
+- `SEED_PATIENT_COUNT`: Sample patients to generate (default: 0)
 - `DATABASE_URL`: Database connection string (default: `sqlite:///./healthcare.db`)
-- `UPLOAD_DIR`: Directory for file uploads (default: `./uploads`)
+- `UPLOAD_DIR`: File upload directory (default: `./uploads`)
 
-#### Database Management
-
-**Running Migrations:**
-Migrations now run automatically on application startup. However, you can also run them manually:
-- **Docker**: 
-  ```bash
-  docker-compose exec backend python -m app.migrations
-  ```
-  Or use the helper script:
-  ```bash
-  chmod +x backend/run_migration.sh
-  ./backend/run_migration.sh
-  ```
-- **Local development**: 
-  ```bash
-  cd backend
-  python -m app.migrations
-  ```
-
-**Note:** 
-- Migrations run automatically on startup to ensure schema consistency
-- For SQLite: If columns are NOT NULL, the migration will log a warning (SQLite doesn't support ALTER COLUMN). For development, you can delete the database file to recreate it with the correct schema.
-- For PostgreSQL: The migration will automatically alter columns to be nullable if needed.
-
-**Running Other Python Scripts in Docker:**
-To run any Python script or command in the backend container:
-```bash
-# Run a Python module
-docker-compose exec backend python -m app.module_name
-
-# Run a Python script
-docker-compose exec backend python path/to/script.py
-
-# Open an interactive Python shell
-docker-compose exec backend python
-
-# Run a one-off command
-docker-compose exec backend python -c "print('Hello from container')"
-```
+**Database Management:**
+- Migrations run automatically on startup
+- Manual migration: `docker-compose exec backend python -m app.migrations` or `./backend/run_migration.sh`
 
 **Reset/Delete Database:**
-To regenerate sample data or start fresh, delete the database file:
+To regenerate sample data or start fresh:
 - **Local development**: Delete `backend/healthcare.db`
-- **Docker**: Delete the database file in the `backend-data` volume or run:
-  ```bash
-  docker-compose down -v  # Removes volumes (database + uploads)
-  ```
-  Or manually delete: `docker volume rm healthcare-dash_backend-data`
+- **Docker**: Run `docker-compose down -v` (removes volumes: database + uploads)
+  - Or manually delete: `docker volume rm healthcare-dash_backend-data`
+- **Note**: Sample data only generates when the database is empty. After deleting, restart the backend to regenerate sample data (if `SEED_PATIENT_COUNT > 0`)
 
-**Note:** Sample data only generates when the database is empty. After deleting the database, restart the backend to regenerate sample data (if `SEED_PATIENT_COUNT > 0`).
-
-#### Project Structure
+**Project Structure:**
 ```
 backend/
 ├── app/
-│   ├── __init__.py
 │   ├── [main.py](https://github.com/rachelslurs/healthcare-dashboard/blob/main/backend/app/main.py)          # FastAPI application and endpoints
 │   ├── [database.py](https://github.com/rachelslurs/healthcare-dashboard/blob/main/backend/app/database.py)      # Database configuration and session management
 │   ├── [models.py](https://github.com/rachelslurs/healthcare-dashboard/blob/main/backend/app/models.py)        # SQLAlchemy models
@@ -491,7 +442,12 @@ backend/
 ├── requirements.txt
 ├── Dockerfile
 └── README.md
+```
 
+</details>
+
+#### Project Structure
+```
 frontend/
 ├── src/
 │   ├── features/        # Feature-based components

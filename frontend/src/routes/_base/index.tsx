@@ -1,7 +1,9 @@
 import { createRoute } from '@tanstack/react-router'
-import { baseRoute } from '../_base'
-import ActivitiesList from '@/features/activities/activities-list'
+
 import QueryErrorDisplay from '@/components/errors/query-error-display'
+import ActivitiesList from '@/features/activities/activities-list'
+
+import { baseRoute } from '../_base'
 
 export const baseIndexRoute = createRoute({
   getParentRoute: () => baseRoute,

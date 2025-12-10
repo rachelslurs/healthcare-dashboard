@@ -1,8 +1,10 @@
 import { createRoute } from '@tanstack/react-router'
 import { z } from 'zod'
-import { baseRoute } from '../_base'
-import PatientsList from '@/features/patients/patients-list'
+
 import QueryErrorDisplay from '@/components/errors/query-error-display'
+import PatientsList from '@/features/patients/patients-list'
+
+import { baseRoute } from '../_base'
 
 const patientsRouteSearchSchema = z.object({
   page: z.number().optional().default(1),

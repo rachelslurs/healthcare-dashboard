@@ -1,4 +1,10 @@
 import {
+  ArrowRightStartOnRectangleIcon,
+  LightBulbIcon,
+  UserIcon,
+} from '@heroicons/react/16/solid'
+
+import {
   Dropdown,
   DropdownButton,
   DropdownDivider,
@@ -7,11 +13,6 @@ import {
   DropdownMenu,
 } from '../ui/dropdown'
 import { Navbar, NavbarItem, NavbarSection, NavbarSpacer } from '../ui/navbar'
-import {
-  ArrowRightStartOnRectangleIcon,
-  LightBulbIcon,
-  UserIcon,
-} from '@heroicons/react/16/solid'
 
 export default function Header() {
 

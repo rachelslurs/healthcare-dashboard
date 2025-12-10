@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+
 import type { PaginatedData } from '@/components/layout/data-table'
 
 interface UsePaginatedDataOptions<T> {

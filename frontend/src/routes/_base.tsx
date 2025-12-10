@@ -1,6 +1,8 @@
 import { createRoute } from '@tanstack/react-router'
-import { rootRoute } from './__root'
+
 import MainLayout from '@/components/layout/main-layout'
+
+import { rootRoute } from './__root'
 
 export const baseRoute = createRoute({
   getParentRoute: () => rootRoute,

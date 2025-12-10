@@ -1,7 +1,9 @@
 import { createRoute } from '@tanstack/react-router'
-import { baseRoute } from '../_base'
-import PatientForm from '@/features/patients/patient-form'
+
 import QueryErrorDisplay from '@/components/errors/query-error-display'
+import PatientForm from '@/features/patients/patient-form'
+
+import { baseRoute } from '../_base'
 
 export const patientsNewRoute = createRoute({
   getParentRoute: () => baseRoute,

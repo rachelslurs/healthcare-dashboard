@@ -1,4 +1,5 @@
 import { createRoute, Outlet } from '@tanstack/react-router'
+
 import { baseRoute } from '../../_base'
 
 export const patientIdLayoutRoute = createRoute({

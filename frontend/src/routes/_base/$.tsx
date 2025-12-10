@@ -1,6 +1,8 @@
 import { createRoute } from '@tanstack/react-router'
-import { baseRoute } from '../_base'
+
 import { Button } from '@/components/ui/button'
+
+import { baseRoute } from '../_base'
 
 export const notFoundRoute = createRoute({
   getParentRoute: () => baseRoute,

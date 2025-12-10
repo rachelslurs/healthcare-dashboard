@@ -1,4 +1,5 @@
 import { useMemo, memo, useCallback } from 'react'
+
 import {
   PaginationGap,
   PaginationList,
@@ -6,6 +7,7 @@ import {
   PaginationPage,
   PaginationPrevious,
 } from '../ui/pagination'
+
 import { formatShowingText } from './data-table'
 
 interface PaginationControlsProps {

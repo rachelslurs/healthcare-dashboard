@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+
 import { getToastState, subscribe, toast as toastFn, dismissToast, type Toast } from '@/lib/toast'
 
 export type UseToastReturn = {

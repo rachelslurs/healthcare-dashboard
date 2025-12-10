@@ -1,7 +1,9 @@
 import type { PaginatedData } from '@/components/layout/data-table'
-import type { Activity } from './types'
-import { API_BASE_URL } from '@/lib/constants'
 import { transformPaginatedResponse, handleApiError } from '@/lib/api-utils'
+import { API_BASE_URL } from '@/lib/constants'
+
+import type { Activity } from './types'
+
 
 // API parameter types
 export interface GetActivitiesParams {

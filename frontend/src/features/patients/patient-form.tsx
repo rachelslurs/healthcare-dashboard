@@ -1,21 +1,26 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { useNavigate } from '@tanstack/react-router'
-import { useQueryClient } from '@tanstack/react-query'
-import { useForm, Controller, useWatch, type SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import type { Patient } from './types'
-import { getPatient, createPatient, updatePatient, uploadPatientPhoto } from './api'
-import { toast } from '@/lib/toast'
-import { patientFormSchema, type PatientFormData } from './patient-form-schema'
+import { useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { useForm, Controller, useWatch, type SubmitHandler } from 'react-hook-form'
+
+import LoadingSpinner from '@/components/feedback/loading-spinner'
+import { Button } from '@/components/ui/button'
+import { Fieldset, Legend, FieldGroup, Field, Label, Description, ErrorMessage } from '@/components/ui/fieldset'
+import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
 import { API_BASE_URL } from '@/lib/constants'
 import { formatDateForInput } from '@/lib/date-utils'
 import { getErrorMessage } from '@/lib/error-utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Select } from '@/components/ui/select'
-import { Fieldset, Legend, FieldGroup, Field, Label, Description, ErrorMessage } from '@/components/ui/fieldset'
+import { toast } from '@/lib/toast'
+import { getPatient, createPatient, updatePatient, uploadPatientPhoto } from './api'
+import type { Patient } from './types'
+
+import { patientFormSchema, type PatientFormData } from './patient-form-schema'
+
+
 import PhotoPreview from './photo-preview'
-import LoadingSpinner from '@/components/feedback/loading-spinner'
+
 
 interface PatientFormProps {
   patient?: Patient

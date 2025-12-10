@@ -1,6 +1,6 @@
 import { format } from 'date-fns'
-import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import DataTable, { type ColumnDefinition } from '@/components/layout/data-table'
 import type { PatientListItem } from './types'
@@ -49,22 +49,35 @@ const formatStatus = (status: 'active' | 'inactive' | 'archived') => {
 }
 
 export default function PatientsList() {
-  const [page, setPage] = useState(1)
-  const [searchTerm, setSearchTerm] = useState('')
+  const navigate = useNavigate()
+  // Get search params from current route
+  const search = (useSearch({ strict: false }) || {}) as {
+    page?: number
+    search?: string
+    sortBy?: string
+    sortOrder?: 'asc' | 'desc'
+  }
+
+  const page = search.page || 1
+  const searchTerm = search.search ?? ''
   const debouncedSearch = useDebounce(searchTerm, 300)
 
   const { currentSortBy, currentSortOrder, handleSort } = useSortedData({
     defaultSortOrder: 'asc',
-    onSortChange: () => {
-      // Reset to first page when sorting changes
-      setPage(1)
-    },
+    routePath: '/patients',
   })
 
-  // Reset to page 1 when search changes
-  useEffect(() => {
-    setPage(1)
-  }, [debouncedSearch])
+  // Update URL when search changes (URL updates immediately, API call is debounced via query key)
+  const handleSearchChange = (value: string) => {
+    navigate({
+      to: '/patients',
+      search: {
+        ...search,
+        search: value || undefined,
+        page: 1, // Reset to first page when search changes
+      },
+    })
+  }
 
   // Define columns for the patients table
   const columns: ColumnDefinition<PatientListItem>[] = [
@@ -113,7 +126,13 @@ export default function PatientsList() {
   })
 
   const goToPage = (newPage: number) => {
-    setPage(newPage)
+    navigate({
+      to: '/patients',
+      search: {
+        ...search,
+        page: newPage,
+      },
+    })
   }
 
   return (
@@ -131,7 +150,7 @@ export default function PatientsList() {
             type="search"
             placeholder="Search by name..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="w-full max-w-md"
           />
         </InputGroup>

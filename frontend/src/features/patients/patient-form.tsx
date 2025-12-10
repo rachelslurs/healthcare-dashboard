@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
-import { useForm, Controller, type SubmitHandler } from 'react-hook-form'
+import { useForm, Controller, useWatch, type SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { Patient } from './types'
 import { getPatient, createPatient, updatePatient, uploadPatientPhoto } from './api'
@@ -30,6 +30,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { Fieldset, Legend, FieldGroup, Field, Label, Description, ErrorMessage } from '@/components/ui/fieldset'
+import PhotoPreview from './photo-preview'
 
 interface PatientFormProps {
   patient?: Patient
@@ -104,7 +105,11 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
   } = form
 
   // Watch emergency contact to show conditional required fields
-  const emergencyContact = watch('emergencyContact')
+  const emergencyContact = useWatch({ control, name: 'emergencyContact' })
+  
+  // Watch allergies and conditions to avoid multiple watch calls
+  const allergies = useWatch({ control, name: 'medicalInfo.allergies' }) || []
+  const conditions = useWatch({ control, name: 'medicalInfo.conditions' }) || []
 
   // Fetch patient data for edit mode
   useEffect(() => {
@@ -198,45 +203,41 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     }
   }, [isEdit, patientId, patient, reset])
 
-  const handleAddAllergy = () => {
+  const handleAddAllergy = useCallback(() => {
     if (allergyInput.trim()) {
-      const currentAllergies = watch('medicalInfo.allergies') || []
-      setValue('medicalInfo.allergies', [...currentAllergies, allergyInput.trim()], {
+      setValue('medicalInfo.allergies', [...allergies, allergyInput.trim()], {
         shouldValidate: true,
       })
       setAllergyInput('')
     }
-  }
+  }, [allergyInput, allergies, setValue])
 
-  const handleRemoveAllergy = (index: number) => {
-    const currentAllergies = watch('medicalInfo.allergies') || []
+  const handleRemoveAllergy = useCallback((index: number) => {
     setValue(
       'medicalInfo.allergies',
-      currentAllergies.filter((_, i) => i !== index),
+      allergies.filter((_, i) => i !== index),
       { shouldValidate: true }
     )
-  }
+  }, [allergies, setValue])
 
-  const handleAddCondition = () => {
+  const handleAddCondition = useCallback(() => {
     if (conditionInput.trim()) {
-      const currentConditions = watch('medicalInfo.conditions') || []
-      setValue('medicalInfo.conditions', [...currentConditions, conditionInput.trim()], {
+      setValue('medicalInfo.conditions', [...conditions, conditionInput.trim()], {
         shouldValidate: true,
       })
       setConditionInput('')
     }
-  }
+  }, [conditionInput, conditions, setValue])
 
-  const handleRemoveCondition = (index: number) => {
-    const currentConditions = watch('medicalInfo.conditions') || []
+  const handleRemoveCondition = useCallback((index: number) => {
     setValue(
       'medicalInfo.conditions',
-      currentConditions.filter((_, i) => i !== index),
+      conditions.filter((_, i) => i !== index),
       { shouldValidate: true }
     )
-  }
+  }, [conditions, setValue])
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -269,15 +270,15 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
       setPhotoPreview(reader.result as string)
     }
     reader.readAsDataURL(file)
-  }
+  }, [])
 
-  const handleRemovePhoto = () => {
+  const handleRemovePhoto = useCallback(() => {
     setPhotoFile(null)
     setPhotoPreview(null)
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
-  }
+  }, [])
 
   const onSubmit: SubmitHandler<PatientFormData> = async (formData) => {
     try {
@@ -357,13 +358,13 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     }
   }
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     if (isEdit && patientId) {
       navigate({ to: `/patients/${patientId}` })
     } else {
       navigate({ to: '/patients' })
     }
-  }
+  }, [isEdit, patientId, navigate])
 
   if (isLoading) {
     return (
@@ -486,10 +487,10 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                   {(photoPreview || currentPhotoUrl) && (
                     <div className="flex items-center gap-4">
                       <div className="relative">
-                        <img
-                          src={photoPreview || (currentPhotoUrl ? `${API_BASE_URL}${currentPhotoUrl.startsWith('/') ? currentPhotoUrl : `/${currentPhotoUrl}`}` : '')}
-                          alt="Patient photo preview"
-                          className="w-32 h-32 rounded-full object-cover border-2 border-neutral-200"
+                        <PhotoPreview 
+                          photoPreview={photoPreview}
+                          currentPhotoUrl={currentPhotoUrl}
+                          apiBaseUrl={API_BASE_URL}
                         />
                       </div>
                       {photoFile && (
@@ -688,9 +689,9 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                     Add
                   </Button>
                 </div>
-                {(watch('medicalInfo.allergies') || []).length > 0 && (
+                {allergies.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {(watch('medicalInfo.allergies') || []).map((allergy, index) => (
+                    {allergies.map((allergy, index) => (
                       <span
                         key={index}
                         className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
@@ -730,9 +731,9 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                     Add
                   </Button>
                 </div>
-                {(watch('medicalInfo.conditions') || []).length > 0 && (
+                {conditions.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {(watch('medicalInfo.conditions') || []).map((condition, index) => (
+                    {conditions.map((condition, index) => (
                       <span
                         key={index}
                         className="inline-flex items-center gap-1 px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm"

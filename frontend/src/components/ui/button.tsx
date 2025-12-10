@@ -184,7 +184,7 @@ export function TouchTarget({ children }: { children: React.ReactNode }) {
         className="absolute top-1/2 left-1/2 size-[max(100%,2.75rem)] -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden pointer-events-none"
         aria-hidden="true"
       />
-      <span className="relative z-10">{children}</span>
+      {children}
     </>
   )
 }

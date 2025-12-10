@@ -182,7 +182,7 @@ def generate_sample_patients(count: int = 20):
                 "current_medications": medications,
                 "conditions": patient_conditions,
                 "blood_type": random.choice(blood_types),
-                "last_visit": last_visit or "",
+                "last_visit": last_visit,
                 "status": medical_status  # Medical status (separate from patient status)
             }
             

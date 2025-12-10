@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from sqlalchemy import func as sql_func
-from datetime import datetime, date
+from datetime import datetime
 from typing import Optional
 import os
 import shutil
@@ -295,30 +295,20 @@ def update_patient(
         raise HTTPException(status_code=404, detail="Patient not found")
     
     # Update only provided fields (using snake_case)
+    # All fields can be updated directly - simple fields and nested JSON objects
+    # are handled the same way since nested objects are already dictionaries from model_dump()
     update_data = patient_data.model_dump(exclude_unset=True, mode='json')
     
-    if "first_name" in update_data:
-        patient.first_name = update_data["first_name"]
-    if "last_name" in update_data:
-        patient.last_name = update_data["last_name"]
-    if "date_of_birth" in update_data:
-        patient.date_of_birth = update_data["date_of_birth"]
-    if "phone" in update_data:
-        patient.phone = update_data["phone"]
-    if "email" in update_data:
-        patient.email = update_data["email"]
-    if "status" in update_data:
-        patient.status = update_data["status"]
-    if "address" in update_data:
-        patient.address = update_data["address"]
-    if "emergency_contact" in update_data:
-        patient.emergency_contact = update_data["emergency_contact"]
-    if "medical_info" in update_data:
-        patient.medical_info = update_data["medical_info"]
-    if "insurance" in update_data:
-        patient.insurance = update_data["insurance"]
-    if "documents" in update_data:
-        patient.documents = update_data["documents"]
+    # List of updatable fields (excludes id, created_at, updated_at which are managed separately)
+    updatable_fields = [
+        "first_name", "last_name", "date_of_birth", "phone", "email", "status",
+        "address", "emergency_contact", "medical_info", "insurance", "documents"
+    ]
+    
+    # Update fields using setattr for better maintainability
+    for field_name in updatable_fields:
+        if field_name in update_data:
+            setattr(patient, field_name, update_data[field_name])
     
     # Update timestamp
     patient.updated_at = datetime.now().isoformat()

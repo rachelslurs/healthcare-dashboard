@@ -21,8 +21,11 @@ export default function useSortedData({
   let searchParams: { sortBy?: string; sortOrder?: 'asc' | 'desc' } | undefined
   try {
     searchParams = useSearch({ strict: false }) as { sortBy?: string; sortOrder?: 'asc' | 'desc' }
-  } catch {
+  } catch (error) {
     // Not in a route context, will use local state fallback
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('useSortedData: useSearch failed (not in route context):', error)
+    }
     searchParams = undefined
   }
 

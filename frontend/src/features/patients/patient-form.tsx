@@ -92,7 +92,15 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
   } = form
 
   // Watch emergency contact to show conditional required fields
+  // Memoize the computed boolean to prevent unnecessary re-renders when value doesn't change
   const emergencyContact = useWatch({ control, name: 'emergencyContact' })
+  const hasEmergencyContact = useMemo(() => {
+    if (!emergencyContact) return false
+    return !!(emergencyContact.name?.trim() || 
+              emergencyContact.relationship?.trim() || 
+              emergencyContact.phone?.trim() || 
+              emergencyContact.email?.trim())
+  }, [emergencyContact])
   
   // Watch allergies and conditions to avoid multiple watch calls
   const rawAllergies = useWatch({ control, name: 'medicalInfo.allergies' })
@@ -227,6 +235,10 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
       { shouldValidate: true }
     )
   }, [conditions, setValue])
+
+  // Memoize itemLabel functions to prevent Tags component re-renders
+  const allergyItemLabel = useCallback((allergy: string) => `Remove ${allergy}`, [])
+  const conditionItemLabel = useCallback((condition: string) => `Remove ${condition}`, [])
 
   const handlePhotoChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -605,7 +617,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           <FieldGroup>
             <Field>
               <Label>
-                Name {emergencyContact && <span className='text-red-500'>*</span>}
+                Name {hasEmergencyContact && <span className='text-red-500'>*</span>}
               </Label>
               <Input
                 type='text'
@@ -619,7 +631,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
 
             <Field>
               <Label>
-                Relationship {emergencyContact && <span className='text-red-500'>*</span>}
+                Relationship {hasEmergencyContact && <span className='text-red-500'>*</span>}
               </Label>
               <Input
                 type='text'
@@ -634,7 +646,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
               <Field>
                 <Label>
-                  Phone {emergencyContact && <span className='text-red-500'>*</span>}
+                  Phone {hasEmergencyContact && <span className='text-red-500'>*</span>}
                 </Label>
                 <Input
                   type='tel'
@@ -692,7 +704,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                   items={allergies}
                   onRemove={handleRemoveAllergy}
                   color='blue'
-                  itemLabel={(allergy) => `Remove ${allergy}`}
+                  itemLabel={allergyItemLabel}
                 />
               </div>
             </Field>
@@ -721,7 +733,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                   items={conditions}
                   onRemove={handleRemoveCondition}
                   color='blue'
-                  itemLabel={(condition) => `Remove ${condition}`}
+                  itemLabel={conditionItemLabel}
                 />
               </div>
             </Field>

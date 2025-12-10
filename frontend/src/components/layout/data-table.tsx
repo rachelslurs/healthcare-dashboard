@@ -23,6 +23,18 @@ export interface PaginatedData<T> {
   total_pages: number
 }
 
+// Helper function to format the "Showing" text
+export function formatShowingText(
+  page: number,
+  pageSize: number,
+  total: number,
+  itemLabel: string
+): string {
+  const start = (page - 1) * pageSize + 1
+  const end = Math.min(page * pageSize, total)
+  return `Showing ${start} to ${end} of ${total} ${itemLabel}`
+}
+
 export interface ColumnDefinition<T> {
   header: string
   accessor?: keyof T | ((row: T) => React.ReactNode)
@@ -38,7 +50,8 @@ interface PaginationControlsProps {
   pageSize: number
   total: number
   itemLabel: string
-  buildPageUrl: (page: number) => string
+  onPageChange: (page: number) => void
+  showShowingText?: boolean
 }
 
 function PaginationControls({
@@ -47,14 +60,15 @@ function PaginationControls({
   pageSize,
   total,
   itemLabel,
-  buildPageUrl,
+  onPageChange,
+  showShowingText = false,
 }: PaginationControlsProps) {
-  if (totalPages <= 1) {
-    return null
-  }
-
   const start = (page - 1) * pageSize + 1
   const end = Math.min(page * pageSize, total)
+
+  if (totalPages <= 1 && !showShowingText) {
+    return null
+  }
 
   // Generate page numbers with smart ellipsis
   const pageNumbers = useMemo(() => {
@@ -89,34 +103,44 @@ function PaginationControls({
   }, [page, totalPages])
 
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center text-sm text-neutral-500">
-        Showing {start} to {end} of {total} {itemLabel}
-      </div>
-      <Pagination>
-        <PaginationPrevious
-          href={page > 1 ? buildPageUrl(page - 1) : null}
-        />
-        <PaginationList>
-          {pageNumbers.map((pageNum, index) => {
-            if (pageNum === 'ellipsis') {
-              return <PaginationGap key={`ellipsis-${index}`} />
-            }
-            return (
-              <PaginationPage
-                key={pageNum}
-                href={buildPageUrl(pageNum)}
-                current={pageNum === page}
-              >
-                {pageNum}
-              </PaginationPage>
-            )
-          })}
-        </PaginationList>
-        <PaginationNext
-          href={page < totalPages ? buildPageUrl(page + 1) : null}
-        />
-      </Pagination>
+    <div className="flex flex-col gap-2">
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center">
+          <div className="flex items-center gap-x-2 w-full max-w-md">
+            <PaginationPrevious
+              onClick={page > 1 ? () => onPageChange(page - 1) : undefined}
+              disabled={page <= 1}
+            />
+            <div className="flex-1 flex justify-center">
+              <PaginationList>
+                {pageNumbers.map((pageNum, index) => {
+                  if (pageNum === 'ellipsis') {
+                    return <PaginationGap key={`ellipsis-${index}`} />
+                  }
+                  return (
+                    <PaginationPage
+                      key={pageNum}
+                      onClick={() => onPageChange(pageNum)}
+                      current={pageNum === page}
+                    >
+                      {pageNum}
+                    </PaginationPage>
+                  )
+                })}
+              </PaginationList>
+            </div>
+            <PaginationNext
+              onClick={page < totalPages ? () => onPageChange(page + 1) : undefined}
+              disabled={page >= totalPages}
+            />
+          </div>
+        </div>
+      )}
+      {showShowingText && (
+        <div className="flex justify-center text-sm text-neutral-500">
+          {formatShowingText(page, pageSize, total, itemLabel)}
+        </div>
+      )}
     </div>
   )
 }
@@ -211,13 +235,14 @@ interface DataTableProps<T> {
   refetch?: () => void
   emptyMessage?: string
   itemLabel: string
-  buildPageUrl: (page: number) => string
+  onPageChange: (page: number) => void
   renderRow?: (row: T, index: number) => React.ReactNode
   className?: string
   skeletonRows?: number
   onSort?: (sortKey: string) => void
   currentSortBy?: string
   currentSortOrder?: 'asc' | 'desc'
+  showShowingText?: boolean
 }
 
 export default function DataTable<T extends Record<string, any>>({
@@ -229,13 +254,14 @@ export default function DataTable<T extends Record<string, any>>({
   refetch,
   emptyMessage = 'No items found',
   itemLabel,
-  buildPageUrl,
+  onPageChange,
   renderRow,
   className,
   skeletonRows = 5,
   onSort,
   currentSortBy,
   currentSortOrder,
+  showShowingText = false,
 }: DataTableProps<T>) {
   const hasData = !!(data && data.items.length > 0)
   const showOverlay = isFetching && hasData
@@ -257,7 +283,7 @@ export default function DataTable<T extends Record<string, any>>({
         </div>
       ) : isLoading && !hasData ? (
         <div className="overflow-x-auto">
-          <Table>
+          <Table striped={true}>
             <TableHead>
               <TableHeaderRow
                 columns={columns}
@@ -327,7 +353,8 @@ export default function DataTable<T extends Record<string, any>>({
                 pageSize={data.page_size}
                 total={data.total}
                 itemLabel={itemLabel}
-                buildPageUrl={buildPageUrl}
+                onPageChange={onPageChange}
+                showShowingText={showShowingText}
               />
             </div>
           )}

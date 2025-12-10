@@ -1,11 +1,12 @@
 import { format } from 'date-fns'
+import { useRef, useEffect } from 'react'
 import DataTable, { type ColumnDefinition } from '@/components/layout/data-table'
 import type { PatientListItem } from './types'
 import { getPatients } from './api'
 import usePaginatedData from '@/hooks/usePaginatedData'
 import useSortedData from '@/hooks/useSortedData'
 import { Badge } from '@/components/ui/badge'
-import { getSearchParams } from '@/lib/ssr'
+import { Button } from '@/components/ui/button'
 
 // Format date for display
 const formatDate = (dateString: string | undefined): string => {
@@ -45,23 +46,22 @@ const formatStatus = (status: 'active' | 'inactive' | 'archived') => {
 }
 
 export default function PatientsList() {
+  const goToPageRef = useRef<((page: number) => void) | null>(null)
+
   const { currentSortBy, currentSortOrder, handleSort } = useSortedData({
     defaultSortOrder: 'asc',
-    to: '/patients',
+    onSortChange: () => {
+      // Reset to first page when sorting changes
+      goToPageRef.current?.(1)
+    },
   })
 
   // Define columns for the patients table
   const columns: ColumnDefinition<PatientListItem>[] = [
     {
-      header: 'First Name',
-      accessor: 'firstName',
+      header: 'Name',
+      accessor: (row) => `${row.firstName || ''} ${row.lastName || ''}`.trim() || '—',
       sortable: false,
-    },
-    {
-      header: 'Last Name',
-      accessor: 'lastName',
-      sortable: true,
-      sortKey: 'lastName',
     },
     {
       header: 'Age',
@@ -82,7 +82,7 @@ export default function PatientsList() {
     },
   ]
 
-  const { data, isLoading, error } = usePaginatedData({
+  const { data, isLoading, error, goToPage, isFetching } = usePaginatedData({
     fetchFn: ({ page, pageSize, sortBy, sortOrder }) => {
       return getPatients({ 
         page, 
@@ -92,29 +92,33 @@ export default function PatientsList() {
       })
     },
     pageSize: 10,
+    sortBy: currentSortBy,
+    sortOrder: currentSortOrder,
   })
 
-  // Build pagination URL with query parameters
-  const buildPageUrl = (page: number) => {
-    const params = getSearchParams()
-    params.set('page', page.toString())
-    return `/patients?${params.toString()}`
-  }
+  useEffect(() => {
+    goToPageRef.current = goToPage
+  }, [goToPage])
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Patients</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold">Patients</h1>
+        <Button href="/patients/new">Add New Patient</Button>
+      </div>
       <DataTable
         columns={columns}
         data={data}
         isLoading={isLoading}
+        isFetching={isFetching}
         error={error}
         itemLabel="patients"
-        buildPageUrl={buildPageUrl}
+        onPageChange={goToPage}
         emptyMessage="No patients found"
         onSort={handleSort}
         currentSortBy={currentSortBy}
         currentSortOrder={currentSortOrder}
+        showShowingText={true}
       />
     </div>
   )

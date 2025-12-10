@@ -184,7 +184,7 @@
   h5,
   h6 {
     font-family: var(--font-family-serif);
-    /* Generous letter spacing for headings */
+    /* Subtle letter spacing for headings */
     letter-spacing: 0.01em;
   }
   

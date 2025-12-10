@@ -36,8 +36,24 @@ def startup_event():
     """Initialize database on startup."""
     init_db()
     
-    # Note: Database migrations are now run in docker-entrypoint.sh
-    # before the server starts, providing better visibility and feedback.
+    # Run migrations if not already run by Docker entrypoint
+    # The entrypoint script sets MIGRATIONS_RUN_BY_ENTRYPOINT=1 to indicate migrations were handled.
+    # If this env var is not set, we're likely running outside Docker (e.g., local development
+    # with `uvicorn app.main:app --reload`), so run migrations here as a fallback.
+    if not os.getenv("MIGRATIONS_RUN_BY_ENTRYPOINT"):
+        try:
+            from app.migrations import make_columns_nullable
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.info("Running database migrations (not in Docker or entrypoint didn't run them)...")
+            make_columns_nullable()
+            logger.info("Database migrations completed.")
+        except Exception as e:
+            # Log but don't fail startup if migration fails
+            # This allows the app to start even if migration has issues
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Database migration warning (non-Docker run): {e}")
     
     # Generate sample data if configured
     seed_count = int(os.getenv("SEED_PATIENT_COUNT", "0"))

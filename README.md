@@ -521,15 +521,18 @@ setValue('medicalInfo.allergies', [...allergies, newAllergy], {
 - `UPLOAD_DIR`: File upload directory (default: `./uploads`)
 
 **Database Management:**
-- **Automatic Migrations**: Database migrations run automatically when the backend container starts via the `docker-entrypoint.sh` script. You'll see clear feedback in the terminal:
-  ```
-  🗄️  Running Database Migrations
-  🔄 Running migrations...
-  ✅ Database migrations completed successfully!
-  ```
+- **Automatic Migrations**: Database migrations run automatically:
+  - **In Docker**: Migrations run via the `docker-entrypoint.sh` script before the server starts. You'll see clear feedback in the terminal:
+    ```
+    🗄️  Running Database Migrations
+    🔄 Running migrations...
+    ✅ Database migrations completed successfully!
+    ```
+  - **Outside Docker**: If running the application directly (e.g., `uvicorn app.main:app --reload`), migrations run automatically in the `startup_event()` as a fallback. The entrypoint script sets `MIGRATIONS_RUN_BY_ENTRYPOINT=1` to prevent duplicate runs.
 - **Manual Migration**: If needed, you can run migrations manually:
   - `docker compose exec backend python -m app.migrations`
   - Or use the helper script: `./backend/run_migration.sh`
+  - Or directly: `python -m app.migrations`
 - **Migration Behavior**: Migrations are idempotent and safe to run multiple times. They check the current database state before making changes.
 
 **Reset/Delete Database:**

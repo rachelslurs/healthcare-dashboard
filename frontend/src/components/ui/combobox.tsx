@@ -83,7 +83,7 @@ export function Combobox<T>({
         />
         <Headless.ComboboxButton className="group absolute inset-y-0 right-0 flex items-center px-2">
           <svg
-            className="size-5 stroke-zinc-500 group-data-disabled:stroke-zinc-600 group-data-hover:stroke-zinc-700 sm:size-4 dark:stroke-zinc-400 dark:group-data-hover:stroke-zinc-300 forced-colors:stroke-[CanvasText]"
+            className="size-5 stroke-zinc-500 group-data-disabled:stroke-zinc-600 group-data-hover:stroke-zinc-700 sm:size-4 forced-colors:stroke-[CanvasText]"
             viewBox="0 0 16 16"
             aria-hidden="true"
             fill="none"
@@ -106,9 +106,9 @@ export function Combobox<T>({
           // Handle scrolling when menu won't fit in viewport
           'overflow-y-scroll overscroll-contain',
           // Popover background
-          'bg-white/75 backdrop-blur-xl dark:bg-zinc-800/75',
+          'bg-white/75 backdrop-blur-xl',
           // Shadows
-          'shadow-lg ring-1 ring-zinc-950/10 dark:ring-white/10 dark:ring-inset',
+          'shadow-lg ring-1 ring-zinc-950/10',
           // Transitions
           'transition-opacity duration-100 ease-in data-closed:data-leave:opacity-0 data-transition:pointer-events-none'
         )}
@@ -132,7 +132,7 @@ export function ComboboxOption<T>({
     'flex min-w-0 items-center',
     // Icons
     '*:data-[slot=icon]:size-5 *:data-[slot=icon]:shrink-0 sm:*:data-[slot=icon]:size-4',
-    '*:data-[slot=icon]:text-zinc-500 group-data-focus/option:*:data-[slot=icon]:text-white dark:*:data-[slot=icon]:text-zinc-400',
+    '*:data-[slot=icon]:text-zinc-500 group-data-focus/option:*:data-[slot=icon]:text-white',
     'forced-colors:*:data-[slot=icon]:text-[CanvasText] forced-colors:group-data-focus/option:*:data-[slot=icon]:text-[Canvas]',
     // Avatars
     '*:data-[slot=avatar]:-mx-0.5 *:data-[slot=avatar]:size-6 sm:*:data-[slot=avatar]:size-5'
@@ -145,7 +145,7 @@ export function ComboboxOption<T>({
         // Basic layout
         'group/option grid w-full cursor-default grid-cols-[1fr_--spacing(5)] items-baseline gap-x-2 rounded-lg py-2.5 pr-2 pl-3.5 sm:grid-cols-[1fr_--spacing(4)] sm:py-1.5 sm:pr-2 sm:pl-3',
         // Typography
-        'text-base/6 text-zinc-950 sm:text-sm/6 dark:text-white forced-colors:text-[CanvasText]',
+        'text-base/6 text-zinc-950 sm:text-sm/6 forced-colors:text-[CanvasText]',
         // Focus
         'outline-hidden data-focus:bg-blue-500 data-focus:text-white',
         // Forced colors mode

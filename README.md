@@ -549,25 +549,25 @@ To regenerate sample data or start fresh:
 ### 1. Developer Experience & Architecture
 
 #### ✅ Code Quality
-- [ ] Run `docker compose exec frontend npm run lint` → **Zero** linting errors (ESLint).
-- [ ] Run type check: `docker compose exec frontend npx tsc --noEmit` → **Zero** TypeScript errors.
-- [ ] Run `docker compose exec frontend npm run build` → Build completes without warnings.
-- [ ] Folder structure clearly separates `features`, `components`, and `hooks`.
+- [x] Run `docker compose exec frontend npm run lint` → **Zero** linting errors (ESLint).
+- [x] Run type check: `docker compose exec frontend npx tsc --noEmit` → **Zero** TypeScript errors.
+- [x] Run `docker compose exec frontend npm run build` → Build completes without warnings.
+- [x] Folder structure clearly separates `features`, `components`, and `hooks`.
 
 #### ✅ Docker & Setup
-- [ ] `docker compose up` starts both Frontend (Vite) and Backend (FastAPI/Python).
-- [ ] Frontend accessible at `http://localhost:5173`.
-- [ ] Backend accessible at `http://localhost:8000`.
-- [ ] `README.md` contains clear start instructions.
+- [x] `docker compose up` starts both Frontend (Vite) and Backend (FastAPI/Python).
+- [x] Frontend accessible at `http://localhost:5173`.
+- [x] Backend accessible at `http://localhost:8000`.
+- [x] `README.md` contains clear start instructions.
 
 ### 2. Navigation & Routing
 
 #### ✅ Route Structure
-- [ ] Navigate to `/` → Loads **Dashboard Home** (Welcome/Activity).
+- [ ] Navigate to `/` → Loads **Activity** (Activity).
 - [ ] Navigate to `/patients` → Loads **Patient List**.
 - [ ] Navigate to `/patients/:id` → Loads **Patient Detail**.
 - [ ] Navigate to `/random-url-xyz` → Loads **404 Page** with a link back home.
-- [ ] Clicking Sidebar "Home" → Updates URL to `/` and highlights icon.
+- [ ] Clicking Sidebar "Activities" → Updates URL to `/` and highlights icon.
 - [ ] Clicking Sidebar "Patients" → Updates URL to `/patients` and highlights icon.
 
 

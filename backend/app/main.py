@@ -31,6 +31,12 @@ ALLOWED_DOCUMENT_EXTENSIONS = {".pdf"}
 def startup_event():
     """Initialize database on startup."""
     init_db()
+    
+    # Generate sample data if configured
+    seed_count = int(os.getenv("SEED_PATIENT_COUNT", "0"))
+    if seed_count > 0:
+        from app.sample_data import generate_sample_patients
+        generate_sample_patients(count=seed_count)
 
 # CORS middleware configuration
 app.add_middleware(

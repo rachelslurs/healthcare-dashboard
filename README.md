@@ -104,8 +104,34 @@ The database is automatically seeded with 20 sample patients on first run. Can b
 
 #### API Design
 - RESTful API with FastAPI
-- Automatic API documentation via OpenAPI/Swagger
-- SQLite database
+- Automatic API documentation via OpenAPI/Swagger at `/docs`
+- SQLite database (default) with PostgreSQL support via `DATABASE_URL` env variable
+
+#### Setup
+- Python 3.11+ required
+- Install dependencies: `pip install -r requirements.txt`
+- Run server: `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`
+- Database file (`healthcare.db`) created automatically on first run
+
+#### Project Structure
+```
+backend/
+├── app/
+│   ├── __init__.py
+│   ├── main.py          # FastAPI application and endpoints
+│   ├── database.py      # Database configuration and session management
+│   ├── models.py        # SQLAlchemy models
+│   └── schemas.py       # Pydantic schemas for validation
+├── requirements.txt
+├── Dockerfile
+└── README.md
+```
+
+#### Development Practices
+- Type hints for all functions
+- Pydantic schemas for request/response validation
+- SQLAlchemy ORM for database operations
+- Error handling with appropriate HTTP status codes
 
 ## Test Plan
 

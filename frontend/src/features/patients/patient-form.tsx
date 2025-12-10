@@ -1,9 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
+import { useForm, Controller, type SubmitHandler } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import type { Patient, Address, EmergencyContact, Medication, InsuranceInfo } from './types'
 import { getPatient, createPatient, updatePatient, uploadPatientPhoto } from './api'
 import { toast } from '@/lib/toast'
+import { patientFormSchema, type PatientFormData } from './patient-form-schema'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
@@ -35,42 +38,27 @@ interface PatientFormProps {
   isEdit?: boolean
 }
 
-// Default form values
-const defaultFormData: {
-  firstName: string
-  lastName: string
-  dateOfBirth: string
-  email: string
-  phone: string
-  status: 'active' | 'inactive' | 'archived'
-  address: Address | undefined
-  emergencyContact: EmergencyContact | undefined
-  medicalInfo: {
-    allergies: string[]
-    currentMedications: Medication[]
-    conditions: string[]
-    bloodType: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-' | undefined
-    lastVisit: string
-  }
-  insurance: {
-    provider: string
-    policyNumber: string
-    groupNumber: string
-    effectiveDate: string | undefined
-    expirationDate: string
-    copay: number
-    deductible: number | undefined
-  }
-  documents: Patient['documents']
-} = {
+// Default form values - must match PatientFormData structure exactly
+const defaultFormValues: PatientFormData = {
   firstName: '',
   lastName: '',
   dateOfBirth: '',
   email: '',
   phone: '',
   status: 'active',
-  address: undefined,
-  emergencyContact: undefined,
+  address: {
+    street: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    country: 'USA',
+  },
+  emergencyContact: {
+    name: '',
+    relationship: '',
+    phone: '',
+    email: '',
+  },
   medicalInfo: {
     allergies: [],
     currentMedications: [],
@@ -81,7 +69,7 @@ const defaultFormData: {
   insurance: {
     provider: '',
     policyNumber: '',
-    groupNumber: '',
+    groupNumber: undefined,
     effectiveDate: undefined,
     expirationDate: '',
     copay: 0,
@@ -90,41 +78,10 @@ const defaultFormData: {
   documents: [],
 }
 
-type FormData = {
-  firstName: string
-  lastName: string
-  dateOfBirth: string
-  email: string
-  phone: string
-  status: 'active' | 'inactive' | 'archived'
-  address: Address | undefined
-  emergencyContact: EmergencyContact | undefined
-  medicalInfo: {
-    allergies: string[]
-    currentMedications: Medication[]
-    conditions: string[]
-    bloodType: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-' | undefined
-    lastVisit: string
-  }
-  insurance: {
-    provider: string
-    policyNumber: string
-    groupNumber: string
-    effectiveDate: string | undefined
-    expirationDate: string
-    copay: number
-    deductible: number | undefined
-  }
-  documents: Patient['documents']
-}
-
 export default function PatientForm({ patient, patientId, isEdit = false }: PatientFormProps) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const [formData, setFormData] = useState<FormData>(defaultFormData)
   const [isLoading, setIsLoading] = useState(isEdit && !patient)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [allergyInput, setAllergyInput] = useState('')
   const [conditionInput, setConditionInput] = useState('')
   const [photoFile, setPhotoFile] = useState<File | null>(null)
@@ -132,39 +89,73 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
   const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string | undefined>(undefined)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const form = useForm<PatientFormData>({
+    resolver: zodResolver(patientFormSchema),
+    defaultValues: defaultFormValues,
+    mode: 'onBlur', // Validate on blur for better UX
+  })
+
+  const {
+    register,
+    handleSubmit: formHandleSubmit,
+    control,
+    formState: { errors, isSubmitting },
+    setValue,
+    watch,
+    reset,
+  } = form
+
+  // Watch emergency contact to show conditional required fields
+  const emergencyContact = watch('emergencyContact')
+
   // Fetch patient data for edit mode
   useEffect(() => {
     if (isEdit && patientId && !patient) {
       const fetchPatientData = async () => {
         setIsLoading(true)
-        setError(null)
         try {
           const data = await getPatient(patientId)
-          setFormData({
+          reset({
             firstName: data.firstName,
             lastName: data.lastName,
             dateOfBirth: formatDateForInput(data.dateOfBirth),
             email: data.email,
             phone: data.phone,
             status: data.status,
-            address: data.address,
-            emergencyContact: data.emergencyContact,
+            address: data.address || {
+              street: '',
+              city: '',
+              state: '',
+              zipCode: '',
+              country: 'USA',
+            },
+            emergencyContact: data.emergencyContact || {
+              name: '',
+              relationship: '',
+              phone: '',
+              email: '',
+            },
             medicalInfo: {
               ...data.medicalInfo,
               bloodType: data.medicalInfo.bloodType ?? undefined,
             },
             insurance: {
               ...data.insurance,
-              groupNumber: data.insurance.groupNumber ?? '',
+              groupNumber: data.insurance.groupNumber ?? undefined,
               effectiveDate: data.insurance.effectiveDate ?? undefined,
               expirationDate: data.insurance.expirationDate ?? '',
+              copay: data.insurance.copay,
               deductible: data.insurance.deductible ?? undefined,
             },
             documents: data.documents,
           })
           setCurrentPhotoUrl(data.photoUrl)
         } catch (err) {
-          setError(err instanceof Error ? err.message : 'Failed to load patient data')
+          toast({
+            title: 'Error',
+            description: err instanceof Error ? err.message : 'Failed to load patient data',
+            variant: 'destructive',
+          })
         } finally {
           setIsLoading(false)
         }
@@ -172,24 +163,36 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
       fetchPatientData()
     } else if (isEdit && patient) {
       // If patient data is passed as prop, use it directly
-      setFormData({
+      reset({
         firstName: patient.firstName,
         lastName: patient.lastName,
         dateOfBirth: formatDateForInput(patient.dateOfBirth),
         email: patient.email,
         phone: patient.phone,
         status: patient.status,
-        address: patient.address,
-        emergencyContact: patient.emergencyContact,
+        address: patient.address || {
+          street: '',
+          city: '',
+          state: '',
+          zipCode: '',
+          country: 'USA',
+        },
+        emergencyContact: patient.emergencyContact || {
+          name: '',
+          relationship: '',
+          phone: '',
+          email: '',
+        },
         medicalInfo: {
           ...patient.medicalInfo,
           bloodType: patient.medicalInfo.bloodType ?? undefined,
         },
         insurance: {
           ...patient.insurance,
-          groupNumber: patient.insurance.groupNumber ?? '',
+          groupNumber: patient.insurance.groupNumber ?? undefined,
           effectiveDate: patient.insurance.effectiveDate ?? undefined,
           expirationDate: patient.insurance.expirationDate ?? '',
+          copay: patient.insurance.copay,
           deductible: patient.insurance.deductible ?? undefined,
         },
         documents: patient.documents,
@@ -197,92 +200,44 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
       setCurrentPhotoUrl(patient.photoUrl)
       setIsLoading(false)
     }
-  }, [isEdit, patientId, patient])
-
-  const handleInputChange = (field: string, value: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }))
-  }
-
-  const handleNestedChange = (section: string, field: string, value: any) => {
-    setFormData((prev) => {
-      const sectionValue = prev[section as keyof typeof prev]
-      return {
-        ...prev,
-        [section]: {
-          ...(sectionValue && typeof sectionValue === 'object' ? sectionValue : {}),
-          [field]: value,
-        },
-      }
-    })
-  }
-
-  const handleAddressChange = (field: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      address: {
-        ...(prev.address || { street: '', city: '', state: '', zipCode: '', country: 'USA' }),
-        [field]: value,
-      },
-    }))
-  }
-
-  const handleEmergencyContactChange = (field: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      emergencyContact: {
-        ...(prev.emergencyContact || { name: '', relationship: '', phone: '', email: '' }),
-        [field]: value,
-      },
-    }))
-  }
+  }, [isEdit, patientId, patient, reset])
 
   const handleAddAllergy = () => {
     if (allergyInput.trim()) {
-      setFormData((prev) => ({
-        ...prev,
-        medicalInfo: {
-          ...prev.medicalInfo,
-          allergies: [...prev.medicalInfo.allergies, allergyInput.trim()],
-        },
-      }))
+      const currentAllergies = watch('medicalInfo.allergies') || []
+      setValue('medicalInfo.allergies', [...currentAllergies, allergyInput.trim()], {
+        shouldValidate: true,
+      })
       setAllergyInput('')
     }
   }
 
   const handleRemoveAllergy = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      medicalInfo: {
-        ...prev.medicalInfo,
-        allergies: prev.medicalInfo.allergies.filter((_, i) => i !== index),
-      },
-    }))
+    const currentAllergies = watch('medicalInfo.allergies') || []
+    setValue(
+      'medicalInfo.allergies',
+      currentAllergies.filter((_, i) => i !== index),
+      { shouldValidate: true }
+    )
   }
 
   const handleAddCondition = () => {
     if (conditionInput.trim()) {
-      setFormData((prev) => ({
-        ...prev,
-        medicalInfo: {
-          ...prev.medicalInfo,
-          conditions: [...prev.medicalInfo.conditions, conditionInput.trim()],
-        },
-      }))
+      const currentConditions = watch('medicalInfo.conditions') || []
+      setValue('medicalInfo.conditions', [...currentConditions, conditionInput.trim()], {
+        shouldValidate: true,
+      })
       setConditionInput('')
     }
   }
 
   const handleRemoveCondition = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      medicalInfo: {
-        ...prev.medicalInfo,
-        conditions: prev.medicalInfo.conditions.filter((_, i) => i !== index),
-      },
-    }))
+    const currentConditions = watch('medicalInfo.conditions') || []
+    setValue(
+      'medicalInfo.conditions',
+      currentConditions.filter((_, i) => i !== index),
+      { shouldValidate: true }
+    )
   }
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -292,18 +247,25 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     // Validate file type
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png']
     if (!validTypes.includes(file.type)) {
-      setError('Please select a valid image file (JPEG or PNG)')
+      toast({
+        title: 'Invalid file type',
+        description: 'Please select a valid image file (JPEG or PNG)',
+        variant: 'destructive',
+      })
       return
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      setError('Image file size must be less than 5MB')
+      toast({
+        title: 'File too large',
+        description: 'Image file size must be less than 5MB',
+        variant: 'destructive',
+      })
       return
     }
 
     setPhotoFile(file)
-    setError(null)
 
     // Create preview
     const reader = new FileReader()
@@ -321,48 +283,30 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setError(null)
-
+  const onSubmit: SubmitHandler<PatientFormData> = async (formData) => {
     try {
-      // Validate emergency contact if provided
-      if (formData.emergencyContact) {
-        if (!formData.emergencyContact.name?.trim()) {
-          setError('Emergency contact name is required if emergency contact is provided')
-          setIsSubmitting(false)
-          return
-        }
-        if (!formData.emergencyContact.relationship?.trim()) {
-          setError('Emergency contact relationship is required if emergency contact is provided')
-          setIsSubmitting(false)
-          return
-        }
-        if (!formData.emergencyContact.phone?.trim()) {
-          setError('Emergency contact phone is required if emergency contact is provided')
-          setIsSubmitting(false)
-          return
-        }
-      }
-
       // Prepare form data, converting empty address to undefined
       const submitData = {
         ...formData,
         address: formData.address && 
-          formData.address.street && 
-          formData.address.city && 
-          formData.address.state && 
-          formData.address.zipCode
+          formData.address.street?.trim() && 
+          formData.address.city?.trim() && 
+          formData.address.state?.trim() && 
+          formData.address.zipCode?.trim()
           ? formData.address
           : undefined,
         // Convert empty emergency contact to undefined
         emergencyContact: formData.emergencyContact &&
-          formData.emergencyContact.name &&
-          formData.emergencyContact.relationship &&
-          formData.emergencyContact.phone
+          formData.emergencyContact.name?.trim() &&
+          formData.emergencyContact.relationship?.trim() &&
+          formData.emergencyContact.phone?.trim()
           ? formData.emergencyContact
           : undefined,
+        // Ensure lastVisit is a string (not undefined)
+        medicalInfo: {
+          ...formData.medicalInfo,
+          lastVisit: formData.medicalInfo.lastVisit || '',
+        },
       }
 
       if (isEdit && patientId) {
@@ -406,8 +350,6 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to save patient'
-      setError(errorMessage)
-      setIsSubmitting(false)
       
       toast({
         title: isEdit ? 'Failed to update patient' : 'Failed to create patient',
@@ -442,14 +384,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">{isEdit ? 'Edit Patient' : 'New Patient'}</h1>
 
-      {error && (
-        <div className="mb-6 rounded-lg bg-red-50 border border-red-200 p-4">
-          <p className="text-red-800 font-medium">Error</p>
-          <p className="text-red-600 text-sm mt-1">{error}</p>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={formHandleSubmit(onSubmit)} className="space-y-8">
         {/* Basic Information */}
         <Fieldset>
           <Legend>Basic Information</Legend>
@@ -460,11 +395,12 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
               </Label>
               <Input
                 type="text"
-                value={formData.firstName}
-                onChange={(e) => handleInputChange('firstName', e.target.value)}
-                required
+                {...register('firstName')}
                 placeholder="John"
               />
+              {errors.firstName && (
+                <ErrorMessage>{errors.firstName.message}</ErrorMessage>
+              )}
             </Field>
 
             <Field>
@@ -473,11 +409,12 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
               </Label>
               <Input
                 type="text"
-                value={formData.lastName}
-                onChange={(e) => handleInputChange('lastName', e.target.value)}
-                required
+                {...register('lastName')}
                 placeholder="Doe"
               />
+              {errors.lastName && (
+                <ErrorMessage>{errors.lastName.message}</ErrorMessage>
+              )}
             </Field>
 
             <Field>
@@ -486,10 +423,11 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
               </Label>
               <Input
                 type="date"
-                value={formData.dateOfBirth}
-                onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
-                required
+                {...register('dateOfBirth')}
               />
+              {errors.dateOfBirth && (
+                <ErrorMessage>{errors.dateOfBirth.message}</ErrorMessage>
+              )}
             </Field>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -499,11 +437,12 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                 </Label>
                 <Input
                   type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  required
+                  {...register('email')}
                   placeholder="john.doe@example.com"
                 />
+                {errors.email && (
+                  <ErrorMessage>{errors.email.message}</ErrorMessage>
+                )}
               </Field>
 
               <Field>
@@ -512,11 +451,12 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                 </Label>
                 <Input
                   type="tel"
-                  value={formData.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
-                  required
+                  {...register('phone')}
                   placeholder="(555) 123-4567"
                 />
+                {errors.phone && (
+                  <ErrorMessage>{errors.phone.message}</ErrorMessage>
+                )}
               </Field>
             </div>
 
@@ -524,15 +464,14 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
               <Label>
                 Status <span className="text-red-500">*</span>
               </Label>
-              <Select
-                value={formData.status}
-                onChange={(e) => handleInputChange('status', e.target.value)}
-                required
-              >
+              <Select {...register('status')}>
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
                 <option value="archived">Archived</option>
               </Select>
+              {errors.status && (
+                <ErrorMessage>{errors.status.message}</ErrorMessage>
+              )}
             </Field>
           </FieldGroup>
         </Fieldset>
@@ -600,10 +539,12 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
               <Label>Street</Label>
               <Input
                 type="text"
-                value={formData.address?.street || ''}
-                onChange={(e) => handleAddressChange('street', e.target.value)}
+                {...register('address.street')}
                 placeholder="123 Main St"
               />
+              {errors.address?.street && (
+                <ErrorMessage>{errors.address.street.message}</ErrorMessage>
+              )}
             </Field>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -611,20 +552,24 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                 <Label>City</Label>
                 <Input
                   type="text"
-                  value={formData.address?.city || ''}
-                  onChange={(e) => handleAddressChange('city', e.target.value)}
+                  {...register('address.city')}
                   placeholder="New York"
                 />
+                {errors.address?.city && (
+                  <ErrorMessage>{errors.address.city.message}</ErrorMessage>
+                )}
               </Field>
 
               <Field>
                 <Label>State</Label>
                 <Input
                   type="text"
-                  value={formData.address?.state || ''}
-                  onChange={(e) => handleAddressChange('state', e.target.value)}
+                  {...register('address.state')}
                   placeholder="NY"
                 />
+                {errors.address?.state && (
+                  <ErrorMessage>{errors.address.state.message}</ErrorMessage>
+                )}
               </Field>
             </div>
 
@@ -633,22 +578,26 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                 <Label>ZIP Code</Label>
                 <Input
                   type="text"
-                  value={formData.address?.zipCode || ''}
-                  onChange={(e) => handleAddressChange('zipCode', e.target.value)}
+                  {...register('address.zipCode')}
                   placeholder="10001"
                 />
+                {errors.address?.zipCode && (
+                  <ErrorMessage>{errors.address.zipCode.message}</ErrorMessage>
+                )}
               </Field>
 
               <Field>
                 <Label>Country</Label>
                 <Input
                   type="text"
-                  value={formData.address?.country || 'USA'}
-                  onChange={(e) => handleAddressChange('country', e.target.value)}
+                  {...register('address.country')}
                   placeholder="USA"
                 />
               </Field>
             </div>
+            {errors.address && typeof errors.address.message === 'string' && (
+              <ErrorMessage>{errors.address.message}</ErrorMessage>
+            )}
           </FieldGroup>
         </Fieldset>
 
@@ -658,54 +607,62 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           <FieldGroup>
             <Field>
               <Label>
-                Name {formData.emergencyContact && <span className="text-red-500">*</span>}
+                Name {emergencyContact && <span className="text-red-500">*</span>}
               </Label>
               <Input
                 type="text"
-                value={formData.emergencyContact?.name || ''}
-                onChange={(e) => handleEmergencyContactChange('name', e.target.value)}
-                required={!!formData.emergencyContact}
+                {...register('emergencyContact.name')}
                 placeholder="Jane Doe"
               />
+              {errors.emergencyContact?.name && (
+                <ErrorMessage>{errors.emergencyContact.name.message}</ErrorMessage>
+              )}
             </Field>
 
             <Field>
               <Label>
-                Relationship {formData.emergencyContact && <span className="text-red-500">*</span>}
+                Relationship {emergencyContact && <span className="text-red-500">*</span>}
               </Label>
               <Input
                 type="text"
-                value={formData.emergencyContact?.relationship || ''}
-                onChange={(e) => handleEmergencyContactChange('relationship', e.target.value)}
-                required={!!formData.emergencyContact}
+                {...register('emergencyContact.relationship')}
                 placeholder="Spouse"
               />
+              {errors.emergencyContact?.relationship && (
+                <ErrorMessage>{errors.emergencyContact.relationship.message}</ErrorMessage>
+              )}
             </Field>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <Field>
                 <Label>
-                  Phone {formData.emergencyContact && <span className="text-red-500">*</span>}
+                  Phone {emergencyContact && <span className="text-red-500">*</span>}
                 </Label>
                 <Input
                   type="tel"
-                  value={formData.emergencyContact?.phone || ''}
-                  onChange={(e) => handleEmergencyContactChange('phone', e.target.value)}
-                  required={!!formData.emergencyContact}
+                  {...register('emergencyContact.phone')}
                   placeholder="(555) 123-4567"
                 />
+                {errors.emergencyContact?.phone && (
+                  <ErrorMessage>{errors.emergencyContact.phone.message}</ErrorMessage>
+                )}
               </Field>
 
               <Field>
                 <Label>Email</Label>
                 <Input
                   type="email"
-                  value={formData.emergencyContact?.email || ''}
-                  onChange={(e) => handleEmergencyContactChange('email', e.target.value)}
+                  {...register('emergencyContact.email')}
                   placeholder="jane.doe@example.com"
                 />
+                {errors.emergencyContact?.email && (
+                  <ErrorMessage>{errors.emergencyContact.email.message}</ErrorMessage>
+                )}
               </Field>
             </div>
+            {errors.emergencyContact && typeof errors.emergencyContact.message === 'string' && (
+              <ErrorMessage>{errors.emergencyContact.message}</ErrorMessage>
+            )}
           </FieldGroup>
         </Fieldset>
 
@@ -733,9 +690,9 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                     Add
                   </Button>
                 </div>
-                {formData.medicalInfo.allergies.length > 0 && (
+                {(watch('medicalInfo.allergies') || []).length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {formData.medicalInfo.allergies.map((allergy, index) => (
+                    {(watch('medicalInfo.allergies') || []).map((allergy, index) => (
                       <span
                         key={index}
                         className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
@@ -775,9 +732,9 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                     Add
                   </Button>
                 </div>
-                {formData.medicalInfo.conditions.length > 0 && (
+                {(watch('medicalInfo.conditions') || []).length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {formData.medicalInfo.conditions.map((condition, index) => (
+                    {(watch('medicalInfo.conditions') || []).map((condition, index) => (
                       <span
                         key={index}
                         className="inline-flex items-center gap-1 px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm"
@@ -799,30 +756,33 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
 
             <Field>
               <Label>Blood Type</Label>
-              <Select
-                value={formData.medicalInfo.bloodType || ''}
-                onChange={(e) =>
-                  handleNestedChange('medicalInfo', 'bloodType', e.target.value || undefined)
-                }
-              >
-                <option value="">Not specified</option>
-                <option value="A+">A+</option>
-                <option value="A-">A-</option>
-                <option value="B+">B+</option>
-                <option value="B-">B-</option>
-                <option value="AB+">AB+</option>
-                <option value="AB-">AB-</option>
-                <option value="O+">O+</option>
-                <option value="O-">O-</option>
-              </Select>
+              <Controller
+                name="medicalInfo.bloodType"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value || ''}
+                    onChange={(e) => field.onChange(e.target.value || undefined)}
+                  >
+                    <option value="">Not specified</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                  </Select>
+                )}
+              />
             </Field>
 
             <Field>
               <Label>Last Visit</Label>
               <Input
                 type="date"
-                value={formData.medicalInfo.lastVisit}
-                onChange={(e) => handleNestedChange('medicalInfo', 'lastVisit', e.target.value)}
+                {...register('medicalInfo.lastVisit')}
               />
             </Field>
 
@@ -843,11 +803,12 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
               </Label>
               <Input
                 type="text"
-                value={formData.insurance.provider}
-                onChange={(e) => handleNestedChange('insurance', 'provider', e.target.value)}
-                required
+                {...register('insurance.provider')}
                 placeholder="Blue Cross Blue Shield"
               />
+              {errors.insurance?.provider && (
+                <ErrorMessage>{errors.insurance.provider.message}</ErrorMessage>
+              )}
             </Field>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -857,19 +818,19 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                 </Label>
                 <Input
                   type="text"
-                  value={formData.insurance.policyNumber}
-                  onChange={(e) => handleNestedChange('insurance', 'policyNumber', e.target.value)}
-                  required
+                  {...register('insurance.policyNumber')}
                   placeholder="POL123456"
                 />
+                {errors.insurance?.policyNumber && (
+                  <ErrorMessage>{errors.insurance.policyNumber.message}</ErrorMessage>
+                )}
               </Field>
 
               <Field>
                 <Label>Group Number</Label>
                 <Input
                   type="text"
-                  value={formData.insurance.groupNumber || ''}
-                  onChange={(e) => handleNestedChange('insurance', 'groupNumber', e.target.value)}
+                  {...register('insurance.groupNumber')}
                   placeholder="GRP789"
                 />
               </Field>
@@ -880,8 +841,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                 <Label>Effective Date</Label>
                 <Input
                   type="date"
-                  value={formData.insurance.effectiveDate || ''}
-                  onChange={(e) => handleNestedChange('insurance', 'effectiveDate', e.target.value || undefined)}
+                  {...register('insurance.effectiveDate')}
                 />
               </Field>
 
@@ -889,8 +849,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                 <Label>Expiration Date</Label>
                 <Input
                   type="date"
-                  value={formData.insurance.expirationDate || ''}
-                  onChange={(e) => handleNestedChange('insurance', 'expirationDate', e.target.value)}
+                  {...register('insurance.expirationDate')}
                 />
               </Field>
             </div>
@@ -900,27 +859,44 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                 <Label>
                   Copay ($) <span className="text-red-500">*</span>
                 </Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.insurance.copay}
-                  onChange={(e) => handleNestedChange('insurance', 'copay', parseFloat(e.target.value) || 0)}
-                  required
-                  placeholder="25.00"
+                <Controller
+                  name="insurance.copay"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={field.value}
+                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                      placeholder="25.00"
+                    />
+                  )}
                 />
+                {errors.insurance?.copay && (
+                  <ErrorMessage>{errors.insurance.copay.message}</ErrorMessage>
+                )}
               </Field>
 
               <Field>
                 <Label>Deductible ($)</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.insurance.deductible ?? ''}
-                  onChange={(e) => handleNestedChange('insurance', 'deductible', e.target.value ? parseFloat(e.target.value) : undefined)}
-                  placeholder="1000.00"
+                <Controller
+                  name="insurance.deductible"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={field.value ?? ''}
+                      onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                      placeholder="1000.00"
+                    />
+                  )}
                 />
+                {errors.insurance?.deductible && (
+                  <ErrorMessage>{errors.insurance.deductible.message}</ErrorMessage>
+                )}
               </Field>
             </div>
           </FieldGroup>

@@ -25,7 +25,12 @@ class PatientCreate(PatientBase):
 
 
 class PatientUpdate(BaseModel):
-    """Schema for updating a patient (all fields optional)."""
+    """Schema for updating a patient (all fields optional).
+    
+    Note:
+        The `last_visit` field is included here and can be updated,
+        but is not present in `PatientBase`/`PatientCreate` and thus cannot be set when creating a patient.
+    """
     
     first_name: Optional[str] = Field(None, min_length=1, max_length=100)
     last_name: Optional[str] = Field(None, min_length=1, max_length=100)

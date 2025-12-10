@@ -79,7 +79,7 @@ export default [
       'react/prop-types': 'off', // Using TypeScript for prop validation
       
       // Quote preferences: prefer single quotes (warn, not error)
-      '@typescript-eslint/quotes': [
+      quotes: [
         'warn',
         'single',
         {

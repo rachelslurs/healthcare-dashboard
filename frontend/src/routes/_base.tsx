@@ -1,10 +1,6 @@
-import { Outlet, createFileRoute } from '@tanstack/react-router'
-import MainLayout from '../components/layout/MainLayout'
+import { createFileRoute } from '@tanstack/react-router'
+import MainLayout from '../components/layout/main-layout'
 
 export const Route = createFileRoute('/_base')({
-  component: BaseLayout,
+  component: MainLayout,
 })
-
-function BaseLayout() {
-  return <MainLayout />
-}

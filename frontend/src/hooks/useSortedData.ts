@@ -19,8 +19,7 @@ export default function useSortedData({
 
   // Get current sort params from URL
   const getSortParams = () => {
-    if (typeof window === 'undefined') return { sortBy: undefined, sortOrder: undefined as 'asc' | 'desc' | undefined }
-    const params = new URLSearchParams(window.location.search)
+    const params = getSearchParams()
     const sortBy = params.get('sortBy') || undefined
     const sortOrder = (params.get('sortOrder') || defaultSortOrder) as 'asc' | 'desc'
     return { sortBy, sortOrder }

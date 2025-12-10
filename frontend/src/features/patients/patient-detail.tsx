@@ -95,8 +95,9 @@ export default function PatientDetail() {
     try {
       await deletePatient(patientId)
       
-      // Invalidate activities query cache to refresh the activities list
+      // Invalidate both activities and patients query caches to refresh the lists
       queryClient.invalidateQueries({ queryKey: ['activities'] })
+      queryClient.invalidateQueries({ queryKey: ['patients'] })
       
       toast({
         title: 'Patient deleted',

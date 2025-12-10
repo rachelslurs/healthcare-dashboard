@@ -71,6 +71,28 @@ Both services use entrypoint scripts that provide clear, formatted feedback duri
 - **Frontend**: Shows dependency installation status and Vite server startup
 - **Backend**: Shows dependency checks, database migrations, and Uvicorn server startup
 
+**Docker Compose Watch Mode:**
+The project is configured with Docker Compose's watch feature for improved development workflow:
+
+- **Automatic Rebuilds**: Containers automatically rebuild when dependencies change:
+  - **Frontend**: Rebuilds when `package.json` changes (new dependencies added/removed)
+  - **Backend**: Rebuilds when `requirements.txt` changes (new Python packages added/removed)
+  
+- **Hot Reload**: Both services support hot reload during development:
+  - **Frontend**: Vite HMR (Hot Module Replacement) automatically updates the browser when you save files
+  - **Backend**: Uvicorn's `--reload` flag automatically restarts the server when Python files change
+  
+- **Dependency Management**:
+  - **Frontend**: The entrypoint script automatically installs missing dependencies on container start, ensuring `node_modules` is always up to date
+  - **Backend**: Dependencies are installed during the Docker build, but the entrypoint verifies they're available
+  
+- **Usage**: Simply run `docker compose up --watch` and the watch system handles the rest. When you add a new dependency:
+  1. Update `package.json` (frontend) or `requirements.txt` (backend)
+  2. Save the file
+  3. Watch mode detects the change and automatically rebuilds the container
+  4. The entrypoint script ensures dependencies are installed
+  5. Your changes are ready to use!
+
 #### Environment Variables
 
 **Frontend:**

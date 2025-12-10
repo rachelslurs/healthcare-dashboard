@@ -380,7 +380,7 @@ export default function PatientDetail() {
       <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
         <DialogTitle>Delete Patient</DialogTitle>
         <DialogDescription>
-          Are you sure you want to delete {patient ? `${patient.firstName} ${patient.lastName}` : 'this patient'}? This action cannot be undone.
+        Are you sure you want to delete {`${patient?.firstName} ${patient?.lastName}`}? This action cannot be undone.
         </DialogDescription>
         <DialogBody>
           <p className="text-sm text-neutral-600">

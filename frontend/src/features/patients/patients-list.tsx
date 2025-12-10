@@ -29,6 +29,7 @@ const StatusBadge = memo(({ status }: { status: 'active' | 'inactive' | 'archive
   const capitalizedStatus = status.charAt(0).toUpperCase() + status.slice(1)
   return <Badge color={color}>{capitalizedStatus}</Badge>
 })
+StatusBadge.displayName = 'StatusBadge'
 
 // Format status as a badge - wrapper function
 const formatStatus = (status: 'active' | 'inactive' | 'archived') => {
@@ -38,12 +39,16 @@ const formatStatus = (status: 'active' | 'inactive' | 'archived') => {
 export default function PatientsList() {
   const navigate = useNavigate()
   // Get search params from current route
-  const search = (useSearch({ strict: false }) || {}) as {
-    page?: number
-    search?: string
-    sortBy?: string
-    sortOrder?: 'asc' | 'desc'
-  }
+  const rawSearch = useSearch({ strict: false })
+  // Memoize search object to prevent unnecessary re-renders in useCallback dependencies
+  const search = useMemo(() => {
+    return (rawSearch || {}) as {
+      page?: number
+      search?: string
+      sortBy?: string
+      sortOrder?: 'asc' | 'desc'
+    }
+  }, [rawSearch])
 
   const page = search.page || 1
   const searchTerm = search.search ?? ''

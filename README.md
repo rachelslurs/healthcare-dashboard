@@ -12,34 +12,84 @@ The database is automatically seeded with 20 sample patients on first run. Can b
 ## Architecture Decisions
 
 ### UX/Performance Patterns
+- **Server-Side Rendering (SSR)**: Using TanStack Start for improved initial load performance and SEO
+- **Responsive Design**: Mobile-first approach with Tailwind CSS breakpoints
+- **Custom Typography**: Brand fonts (Neue Montreal for body, Rhetorik Serif for headings) loaded with `font-display: swap` for performance
 
 ### Route Structure
+- **File-Based Routing**: TanStack Router with file-based route generation
+- **Layout Nesting**: Base layout (`_base.tsx`) wraps all routes with MainLayout (Header + Sidebar)
+- **Route Organization**:
+  - `/` - Dashboard/Activity feed
+  - `/patients` - Patient list
+  - `/patients/:id` - Patient detail view
+  - `/patients/:id/edit` - Patient edit form
+- **404 Handling**: Automatic 404 pages for unmatched routes
 
 ### API Client Architecture
+- **Environment-Based Configuration**: API URL configured via `VITE_API_URL` environment variable
+- **RESTful Communication**: Standard HTTP methods (GET, POST, PUT, DELETE) to FastAPI backend
+- **Base URL**: `http://localhost:8000/api`
+- **Health Checks**: Backend health endpoint (`/api/health`) for service monitoring
 
 ### Error Handling Strategy
 
 ### Known Issues
 
 ### Component Architecture
+- **Separation of Concerns**:
+  - `components/ui/` - Reusable, unstyled UI primitives using [Catalyst](https://tailwindcss.com/plus/ui-kit)
+  - `components/layout/` - Layout-specific components (Header, Sidebar, MainLayout)
+  - `components/feedback/` - User feedback components (Toast notifications)
 
 ### Form Validation & Management
+- **Headless UI Forms**: Using `Fieldset`, `Label`, and `ErrorMessage` components
+- **Client-Side Validation**: Real-time validation with error display
+- **Dirty State Tracking**: Browser-based unsaved changes warnings
+- **File Upload Support**: Image upload with preview and validation (image types only)
 
 ### State Management
+- **React State**: Local component state for UI interactions
+- **Server State**: TanStack Query (when implemented) for server data caching and synchronization
+- **URL State**: TanStack Router for route-based state (filters, pagination)
 
 #### Form State
 
 ### Library Choices & Rationale
 
 #### Routing
+- **TanStack Router**: 
+  - Type-safe routing with full TypeScript support
+  - File-based routing for intuitive organization
+  - Built-in data loading and SSR support
+  - Excellent developer experience
 
 #### UI Components
+- **Headless UI**: 
+  - Unstyled, accessible components
+  - Full keyboard navigation and ARIA support
+  - Composable and customizable
+- **Heroicons**: 
+  - Consistent icon system
+  - Tree-shakeable SVG icons
+  - Multiple sizes (16/solid, 20/solid)
 
 #### Styling
+- **Tailwind CSS**: 
+  - Utility-first CSS framework
+  - Custom theme via `@theme` directive
+  - Brand colors and typography configured
+  - Responsive design utilities
+  - Dark mode support via CSS variables
+- **Custom Fonts**: Neue Montreal (sans-serif) and Rhetorik Serif (serif) for brand identity
 
 #### Build Tool
+- **Vite**: 
+  - Native ESM support
+  - Plugin ecosystem (React, TypeScript, Tailwind)
 
 #### Testing
+- Testing framework to be determined (Jest, Vitest, or Playwright recommended)
 
 ### Backend Architecture
 

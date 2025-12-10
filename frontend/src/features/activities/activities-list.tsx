@@ -1,19 +1,11 @@
 import DataTable, { type ColumnDefinition, type PaginatedData } from '@/components/layout/data-table'
-
-// Define the Activity type for the table
-type Activity = {
-  id: string
-  type: string
-  description: string
-  timestamp: string
-  patientId?: string
-}
+import type { Activity } from './types'
 
 // Define columns for the activities table
 const columns: ColumnDefinition<Activity>[] = [
   {
-    header: 'Type',
-    accessor: 'type',
+    header: 'Action',
+    accessor: 'actionType',
   },
   {
     header: 'Description',

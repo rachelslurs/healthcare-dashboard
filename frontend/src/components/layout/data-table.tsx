@@ -90,7 +90,7 @@ function PaginationControls({
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div className="text-sm text-neutral-500">
+      <div className="flex items-center text-sm text-neutral-500">
         Showing {start} to {end} of {total} {itemLabel}
       </div>
       <Pagination>

@@ -24,7 +24,7 @@ export default function useSortedData({
   } catch (error) {
     // Not in a route context, will use local state fallback
     if (process.env.NODE_ENV === 'development') {
-      console.warn('useSortedData: useSearch failed (not in route context):', error)
+      console.debug('useSearch not available, falling back to local state')
     }
     searchParams = undefined
   }

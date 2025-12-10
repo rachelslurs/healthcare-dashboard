@@ -194,7 +194,11 @@
   }
   
   /* Smooth transitions for interactive elements */
-  * {
+  button,
+  a,
+  input,
+  select,
+  textarea {
     transition: var(--transition-default);
   }
 

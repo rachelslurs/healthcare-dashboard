@@ -136,3 +136,26 @@ export async function deletePatient(id: string): Promise<void> {
     throw new Error(`Failed to delete patient: ${response.statusText}`)
   }
 }
+
+/**
+ * Upload a photo for a patient
+ */
+export async function uploadPatientPhoto(id: string, file: File): Promise<Patient> {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  const response = await fetch(`${API_BASE_URL}/api/patients/${id}/upload-photo`, {
+    method: 'POST',
+    body: formData,
+  })
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error(`Patient with ID ${id} not found`)
+    }
+    const errorData = await response.json().catch(() => ({}))
+    throw new Error(errorData.detail || `Failed to upload photo: ${response.statusText}`)
+  }
+
+  return await response.json()
+}

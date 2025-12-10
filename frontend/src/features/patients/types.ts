@@ -67,6 +67,7 @@ export interface Patient {
   };
   insurance: InsuranceInfo;
   documents: Document[];
+  photoUrl?: string;  // URL to patient photo
   createdAt: string;
   updatedAt: string;
   age?: number;  // Calculated field from backend

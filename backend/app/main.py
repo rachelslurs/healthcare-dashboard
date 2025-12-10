@@ -102,6 +102,11 @@ def patient_to_response(patient: Patient) -> PatientResponse:
     insurance = InsuranceInfo(**patient.insurance) if patient.insurance else None
     documents = [Document(**doc) for doc in (patient.documents or [])]
     
+    # Extract photo_url from medical_info if it exists
+    photo_url = None
+    if patient.medical_info and isinstance(patient.medical_info, dict):
+        photo_url = patient.medical_info.get('photo_url')
+    
     return PatientResponse(
         id=patient.id,
         first_name=patient.first_name,
@@ -117,7 +122,8 @@ def patient_to_response(patient: Patient) -> PatientResponse:
         documents=documents,
         created_at=patient.created_at,
         updated_at=patient.updated_at,
-        age=age
+        age=age,
+        photo_url=photo_url
     )
 
 
@@ -362,6 +368,57 @@ def delete_patient(patient_id: str, db: Session = Depends(get_db)):
     db.commit()
     
     return
+
+
+@app.post("/api/patients/{patient_id}/upload-photo", response_model=PatientResponse)
+def upload_patient_photo(
+    patient_id: str,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    """Upload a photo for a patient."""
+    # Check if patient exists
+    patient = db.query(Patient).filter(Patient.id == patient_id).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
+    
+    # Validate file extension
+    file_ext = Path(file.filename).suffix.lower()
+    if file_ext not in ALLOWED_IMAGE_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file type. Allowed types: {', '.join(ALLOWED_IMAGE_EXTENSIONS)}"
+        )
+    
+    # Generate unique filename with timestamp
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"photo_{patient_id}_{timestamp}{file_ext}"
+    file_path = UPLOAD_DIR / filename
+    
+    # Save the file
+    with open(file_path, "wb") as dest_file:
+        shutil.copyfileobj(file.file, dest_file)
+    
+    # Store photo URL in medical_info for now
+    # If there's a dedicated photo_url field in the model, use that instead
+    medical_info = patient.medical_info or {}
+    medical_info['photo_url'] = f"/uploads/{filename}"
+    patient.medical_info = medical_info
+    
+    patient.updated_at = datetime.now().isoformat()
+    db.commit()
+    db.refresh(patient)
+    
+    # Log activity
+    patient_name = f"{patient.first_name} {patient.last_name}"
+    log_activity(
+        db=db,
+        action_type="UPDATE",
+        description=f"Uploaded photo for {patient_name}",
+        patient_id=patient.id
+    )
+    
+    return patient_to_response(patient)
 
 
 @app.get("/api/activities", response_model=PaginatedActivitiesResponse)

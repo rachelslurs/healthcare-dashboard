@@ -5,7 +5,7 @@ from typing import List
 from datetime import datetime, date
 from app.database import get_db, init_db
 from app.models import Patient, Activity
-from app.schemas import PatientListResponse, PaginatedPatientsResponse, PatientResponse, PatientCreate
+from app.schemas import PatientListResponse, PaginatedPatientsResponse, PatientResponse, PatientCreate, PatientUpdate, PatientUpdate
 
 app = FastAPI()
 
@@ -158,6 +158,38 @@ def create_patient(patient_data: PatientCreate, db: Session = Depends(get_db)):
         db=db,
         action_type="CREATE",
         description=f"Added new patient {patient_name}",
+        patient_id=patient.id
+    )
+    
+    return patient_to_response(patient)
+
+
+@app.put("/api/patients/{patient_id}", response_model=PatientResponse)
+def update_patient(
+    patient_id: int,
+    patient_data: PatientUpdate,
+    db: Session = Depends(get_db)
+):
+    """Update an existing patient."""
+    patient = db.query(Patient).filter(Patient.id == patient_id).first()
+    
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
+    
+    # Update only provided fields
+    update_data = patient_data.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(patient, field, value)
+    
+    db.commit()
+    db.refresh(patient)
+    
+    # Log activity
+    patient_name = f"{patient.first_name} {patient.last_name}"
+    log_activity(
+        db=db,
+        action_type="UPDATE",
+        description=f"Updated details for {patient_name}",
         patient_id=patient.id
     )
     

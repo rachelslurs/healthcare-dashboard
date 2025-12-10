@@ -58,6 +58,9 @@ export default [
       },
     },
     rules: {
+      // Note: Rules defined here override the recommended configs spread above.
+      // In flat config, later config objects override earlier ones.
+      
       // Override TypeScript recommended: more lenient unused vars
       '@typescript-eslint/no-unused-vars': [
         'error',
@@ -74,6 +77,17 @@ export default [
       // Override React recommended: disable rules not needed with TypeScript
       'react/react-in-jsx-scope': 'off', // Not needed in React 17+
       'react/prop-types': 'off', // Using TypeScript for prop validation
+      
+      // Quote preferences: prefer single quotes (warn, not error)
+      '@typescript-eslint/quotes': [
+        'warn',
+        'single',
+        {
+          avoidEscape: true, // Allow single quotes inside double-quoted strings
+          allowTemplateLiterals: true, // Allow template literals
+        },
+      ],
+      'jsx-quotes': ['warn', 'prefer-single'], // Prefer single quotes in JSX attributes
       
       // Import rules
       'import/order': [
@@ -115,7 +129,7 @@ export default [
       ],
       'import/first': 'error',
       'import/exports-last': 'off',
-      'import/newline-after-import': 'error',
+      'import/newline-after-import': 'off', // Allow flexible blank lines after imports
       'import/no-absolute-path': 'error',
       'import/no-relative-packages': 'warn',
       

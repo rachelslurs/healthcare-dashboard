@@ -21,8 +21,6 @@ const colors = {
   cyan: 'bg-cyan-400/20 text-cyan-700 group-data-hover:bg-cyan-400/30',
   sky: 'bg-sky-500/15 text-sky-700 group-data-hover:bg-sky-500/25',
   blue: 'bg-blue-500/15 text-blue-700 group-data-hover:bg-blue-500/25',
-  indigo:
-    'bg-indigo-500/15 text-indigo-700 group-data-hover:bg-indigo-500/25',
   violet:
     'bg-violet-500/15 text-violet-700 group-data-hover:bg-violet-500/25',
   purple:
@@ -36,7 +34,7 @@ const colors = {
 
 type BadgeProps = { color?: keyof typeof colors }
 
-export function Badge({ color = 'zinc', className, ...props }: BadgeProps & React.ComponentPropsWithoutRef<'span'>) {
+export function Badge({ color = 'violet', className, ...props }: BadgeProps & React.ComponentPropsWithoutRef<'span'>) {
   return (
     <span
       {...props}
@@ -51,7 +49,7 @@ export function Badge({ color = 'zinc', className, ...props }: BadgeProps & Reac
 
 export const BadgeButton = forwardRef(function BadgeButton(
   {
-    color = 'zinc',
+    color = 'violet',
     className,
     children,
     ...props

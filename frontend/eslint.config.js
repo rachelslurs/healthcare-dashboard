@@ -8,12 +8,12 @@ import globals from 'globals'
 
 export default [
   js.configs.recommended,
-  // TypeScript recommended configs
-  ...tseslint.configs.recommended,
-  // React recommended configs
-  ...react.configs.recommended,
-  // React hooks recommended configs
-  ...reactHooks.configs.recommended,
+  // TypeScript recommended configs (using flat config format)
+  ...tseslint.configs['flat/recommended'],
+  // React recommended configs (using flat config format)
+  react.configs.flat.recommended,
+  // React hooks recommended configs (using flat config format)
+  reactHooks.configs.flat.recommended,
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
     languageOptions: {

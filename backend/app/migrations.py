@@ -75,7 +75,6 @@ def make_columns_nullable():
         
         else:
             # PostgreSQL and other databases support ALTER TABLE
-            conn.execute(text("BEGIN"))
             try:
                 # Check and alter address column
                 address_col = columns.get('address')

@@ -343,7 +343,7 @@ toastInstance.update({ title: "Complete!" })
 #### Database Management
 
 **Running Migrations:**
-Before deploying changes that modify the database schema, run migrations:
+Migrations now run automatically on application startup. However, you can also run them manually:
 - **Docker**: 
   ```bash
   docker-compose exec backend python -m app.migrations
@@ -358,6 +358,11 @@ Before deploying changes that modify the database schema, run migrations:
   cd backend
   python -m app.migrations
   ```
+
+**Note:** 
+- Migrations run automatically on startup to ensure schema consistency
+- For SQLite: If columns are NOT NULL, the migration will log a warning (SQLite doesn't support ALTER COLUMN). For development, you can delete the database file to recreate it with the correct schema.
+- For PostgreSQL: The migration will automatically alter columns to be nullable if needed.
 
 **Running Other Python Scripts in Docker:**
 To run any Python script or command in the backend container:

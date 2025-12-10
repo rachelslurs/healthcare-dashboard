@@ -43,6 +43,13 @@ The easiest way to run the entire application:
    ```bash
    docker-compose up
    ```
+   
+   **With watch mode (recommended for development):**
+   ```bash
+   docker compose up --watch
+   ```
+   - Automatically rebuilds containers when dependencies change (`package.json`, `requirements.txt`)
+   - Provides clear feedback during startup (dependency installation, migrations, etc.)
 
 2. **Access the application:**
    - Frontend: http://localhost:5173
@@ -58,6 +65,11 @@ The easiest way to run the entire application:
    ```bash
    docker-compose logs -f
    ```
+
+**Startup Feedback:**
+Both services use entrypoint scripts that provide clear, formatted feedback during startup:
+- **Frontend**: Shows dependency installation status and Vite server startup
+- **Backend**: Shows dependency checks, database migrations, and Uvicorn server startup
 
 #### Environment Variables
 
@@ -452,8 +464,16 @@ setValue('medicalInfo.allergies', [...allergies, newAllergy], {
 - `UPLOAD_DIR`: File upload directory (default: `./uploads`)
 
 **Database Management:**
-- Migrations run automatically on startup
-- Manual migration: `docker-compose exec backend python -m app.migrations` or `./backend/run_migration.sh`
+- **Automatic Migrations**: Database migrations run automatically when the backend container starts via the `docker-entrypoint.sh` script. You'll see clear feedback in the terminal:
+  ```
+  🗄️  Running Database Migrations
+  🔄 Running migrations...
+  ✅ Database migrations completed successfully!
+  ```
+- **Manual Migration**: If needed, you can run migrations manually:
+  - `docker-compose exec backend python -m app.migrations`
+  - Or use the helper script: `./backend/run_migration.sh`
+- **Migration Behavior**: Migrations are idempotent and safe to run multiple times. They check the current database state before making changes.
 
 **Reset/Delete Database:**
 To regenerate sample data or start fresh:

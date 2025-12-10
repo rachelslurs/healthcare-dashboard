@@ -43,7 +43,11 @@ export default function Sidebar() {
   return (
     <SidebarComponent>
       <SidebarHeader>
-        <SidebarHeading className='text-xl'>Ascertain</SidebarHeading>
+        <img
+          src='/ascertain.png'
+          alt='Ascertain'
+          className='h-6 w-auto max-w-full object-contain'
+        />
       </SidebarHeader>
       <SidebarBody>
         <SidebarSection>

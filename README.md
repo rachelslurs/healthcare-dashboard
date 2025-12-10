@@ -6,6 +6,7 @@
   - [Launch Application](#launch-application)
   - [Environment Variables](#environment-variables)
   - [Seed Data](#seed-data)
+- [Project Structure](#project-structure)
 - [Architecture Decisions](#architecture-decisions)
   - [UX/Performance Patterns](#uxperformance-patterns)
   - [Performance Optimizations](#performance-optimizations)
@@ -107,6 +108,40 @@ The project is configured with Docker Compose's watch feature for improved devel
 
 The database is automatically seeded with 20 sample patients on first run. Can be overridden using env variable SEED_PATIENT_COUNT.
 
+## Project Structure
+
+```
+healthcare-dashboard/
+├── frontend/
+│   ├── src/
+│   │   ├── features/        # Feature-based components
+│   │   │   ├── activities/
+│   │   │   └── patients/
+│   │   ├── routes/          # Route configuration files (thin wrappers)
+│   │   ├── components/      # Shared UI components
+│   │   ├── hooks/           # Custom React hooks
+│   │   ├── lib/             # Utility functions and helpers
+│   │   └── assets/          # Static assets
+│   ├── package.json
+│   ├── tsconfig.json        # TypeScript config with @ alias
+│   ├── vite.config.ts      # Vite config with @ alias
+│   ├── Dockerfile
+│   └── docker-entrypoint.sh # Entrypoint script for dependency management
+├── backend/
+│   ├── app/
+│   │   ├── main.py          # FastAPI application and endpoints
+│   │   ├── database.py      # Database configuration and session management
+│   │   ├── models.py        # SQLAlchemy models
+│   │   ├── schemas.py       # Pydantic schemas for validation
+│   │   ├── migrations.py    # Database migration scripts
+│   │   └── sample_data.py   # Sample data generation
+│   ├── requirements.txt
+│   ├── Dockerfile
+│   ├── docker-entrypoint.sh # Entrypoint script for migrations and startup
+│   └── run_migration.sh     # Helper script for manual migrations
+├── docker-compose.yml       # Docker Compose configuration with watch mode
+└── README.md
+```
 
 ## Architecture Decisions
 
@@ -504,60 +539,7 @@ To regenerate sample data or start fresh:
   - Or manually delete: `docker volume rm healthcare-dash_backend-data`
 - **Note**: Sample data only generates when the database is empty. After deleting, restart the backend to regenerate sample data (if `SEED_PATIENT_COUNT > 0`)
 
-**Project Structure:**
-```
-backend/
-├── app/
-│   ├── [main.py](https://github.com/rachelslurs/healthcare-dashboard/blob/main/backend/app/main.py)          # FastAPI application and endpoints
-│   ├── [database.py](https://github.com/rachelslurs/healthcare-dashboard/blob/main/backend/app/database.py)      # Database configuration and session management
-│   ├── [models.py](https://github.com/rachelslurs/healthcare-dashboard/blob/main/backend/app/models.py)        # SQLAlchemy models
-│   └── [schemas.py](https://github.com/rachelslurs/healthcare-dashboard/blob/main/backend/app/schemas.py)       # Pydantic schemas for validation
-├── requirements.txt
-├── Dockerfile
-└── README.md
-```
-
 </details>
-
-#### Project Structure
-```
-frontend/
-├── src/
-│   ├── features/        # Feature-based components
-│   │   ├── activity/
-│   │   │   └── activity-page.tsx
-│   │   └── patients/
-│   │       ├── patients-list.tsx
-│   │       ├── patient-detail.tsx
-│   │       └── patient-form.tsx
-│   ├── routes/          # Route configuration files (thin wrappers)
-│   │   ├── [__root.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/__root.tsx)    # Root layout
-│   │   ├── [_base.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/_base.tsx)    # Base layout wrapper
-│   │   ├── _base/
-│   │   │   ├── [index.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/_base/index.tsx)
-│   │   │   └── [$.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/_base/$.tsx)
-│   │   └── patients/
-│   │       ├── [index.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/patients/index.tsx)
-│   │       ├── [new.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/patients/new.tsx)
-│   │       └── $patientId/
-│   │           ├── [layout.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/patients/$patientId/layout.tsx)
-│   │           ├── [index.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/patients/$patientId/index.tsx)
-│   │           └── [edit.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/routes/patients/$patientId/edit.tsx)
-│   ├── [router.tsx](https://github.com/rachelslurs/healthcare-dashboard/blob/main/frontend/src/router.tsx)       # Manual route tree configuration
-│   ├── components/      # Shared UI components
-│   ├── types/           # TypeScript type definitions
-│   └── assets/          # Static assets
-├── package.json
-├── tsconfig.json        # TypeScript config with @ alias
-├── vite.config.ts       # Vite config with @ alias
-└── README.md
-```
-
-#### Development Practices
-- Type hints for all functions
-- Pydantic schemas for request/response validation
-- SQLAlchemy ORM for database operations
-- Error handling with appropriate HTTP status codes
 
 ## Test Plan
 

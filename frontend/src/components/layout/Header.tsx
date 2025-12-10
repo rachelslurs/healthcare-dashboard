@@ -1,4 +1,3 @@
-import { Avatar } from '../ui/avatar'
 import {
   Dropdown,
   DropdownButton,

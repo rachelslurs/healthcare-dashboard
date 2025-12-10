@@ -6,6 +6,10 @@
       "target": "ES2022",
       "skipLibCheck": true,
       "strictNullChecks": true,
-      "resolvePackageJsonExports": true
+      "resolvePackageJsonExports": true,
+      "baseUrl": ".",
+      "paths": {
+        "@/*": ["src/*"]
+      }
     }
   }

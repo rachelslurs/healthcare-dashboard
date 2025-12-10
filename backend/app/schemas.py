@@ -67,6 +67,16 @@ class PatientListResponse(BaseModel):
         from_attributes = True
 
 
+class PaginatedPatientsResponse(BaseModel):
+    """Schema for paginated patient list response."""
+    
+    items: List[PatientListResponse]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int
+
+
 class ActivityResponse(BaseModel):
     """Schema for activity response."""
     

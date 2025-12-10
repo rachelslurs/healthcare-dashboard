@@ -113,6 +113,26 @@ The database is automatically seeded with 20 sample patients on first run. Can b
 - Run server: `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`
 - Database file (`healthcare.db`) created automatically on first run
 
+#### Environment Variables
+- `SEED_PATIENT_COUNT`: Number of sample patients to generate on first startup (default: 0)
+  - Set to `20` for development with sample data
+  - Set to `1000+` for stress testing performance
+  - Only generates if database is empty
+- `DATABASE_URL`: Database connection string (default: `sqlite:///./healthcare.db`)
+- `UPLOAD_DIR`: Directory for file uploads (default: `./uploads`)
+
+#### Database Management
+**Reset/Delete Database:**
+To regenerate sample data or start fresh, delete the database file:
+- **Local development**: Delete `backend/healthcare.db`
+- **Docker**: Delete the database file in the `backend-data` volume or run:
+  ```bash
+  docker-compose down -v  # Removes volumes (database + uploads)
+  ```
+  Or manually delete: `docker volume rm healthcare-dash_backend-data`
+
+**Note:** Sample data only generates when the database is empty. After deleting the database, restart the backend to regenerate sample data (if `SEED_PATIENT_COUNT > 0`).
+
 #### Project Structure
 ```
 backend/

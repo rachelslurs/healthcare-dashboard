@@ -43,7 +43,7 @@ export function SidebarFooter({ className, ...props }: React.ComponentPropsWitho
       {...props}
       className={clsx(
         className,
-        'flex flex-col border-t border-neutral-800/10 px-4 pt-4 pb-4 [&>[data-slot=section]+[data-slot=section]]:mt-2.5'
+        'flex flex-col border-t border-neutral-800/10 px-4 py-4 [&>[data-slot=section]+[data-slot=section]]:mt-2.5'
       )}
     />
   )

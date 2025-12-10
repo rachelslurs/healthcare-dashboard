@@ -61,9 +61,6 @@ function PaginationControls({
     const alwaysShow = new Set([1, totalPages, page])
     const showRange = 1 // Show pages within ±1 of current
 
-    // Always show first page
-    pages.push(1)
-
     // Determine which pages to show
     const pagesToShow = new Set<number>()
     for (let i = 1; i <= totalPages; i++) {

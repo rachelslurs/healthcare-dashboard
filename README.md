@@ -55,10 +55,10 @@ The database is automatically seeded with 20 sample patients on first run. Can b
 - **Callback Memoization**: Event handlers memoized with `useCallback` to maintain stable references and prevent child re-renders
 - **Value Memoization**: Computed values memoized with `useMemo` (e.g., pagination page numbers, photo URLs, column definitions)
 - **Optimized Form Rendering**: Using `useWatch` from React Hook Form instead of `watch()` to subscribe only to specific fields, reducing re-renders
-- **Component Extraction**: Large components extracted into separate files for better code splitting and maintainability
+- **Component Extraction**: Large components extracted into separate files for code splitting and maintainability
 - **Stable References**: Column definitions and render functions memoized in list components to prevent table re-renders on every state change
 - **Debounced Search Input**: Search queries debounced with 300ms delay to reduce API calls while typing (URL updates immediately for shareable/bookmarkable links, but API requests only fire after user stops typing)
-- **Pagination for Large Datasets**: Server-side pagination (10 items per page) prevents rendering performance issues with large datasets. For infinite scrolling, consider using [TanStack Virtual](https://tanstack.com/virtual) for efficient virtualization of large lists
+- **Pagination for Large Datasets**: Server-side pagination (10 items per page) prevents rendering performance issues with large datasets. For infinite scrolling, consider using [TanStack Virtual](https://tanstack.com/virtual) for virtualization of large lists
 
 ### Route Structure
 - **File-Based Routing**: TanStack Router with file-based route generation
@@ -145,7 +145,7 @@ We use a **hybrid approach** based on the complexity and use case of each data t
 
 **Activities List (React State):**
 - Uses **React local state** (`useState`) for pagination and sorting
-- Simpler implementation for tables without search functionality
+- Implementation for tables without search functionality
 - No need for URL sync when sharing/bookmarking isn't required
 - Page state managed with `useState`, sorting handled by `useSortedData` hook with local state fallback
 
@@ -159,10 +159,10 @@ We use a **hybrid approach** based on the complexity and use case of each data t
 - State should persist on page refresh
 
 **Use React State when:**
-- Simple tables without search
+- Tables without search
 - No sharing/bookmarking requirements
 - Temporary UI state that shouldn't be persisted
-- Faster interactions are prioritized over URL sync
+- Interactions are prioritized over URL sync
 
 **Current Implementation:**
 - **Patients List**: URL state via TanStack Router with Zod validation
@@ -288,6 +288,67 @@ toastInstance.update({ title: "Complete!" })
 
 #### Form State
 
+**React Hook Form State Management:**
+
+Forms use React Hook Form for state management, providing re-render control and type-safe form handling.
+
+**State Architecture:**
+- **Form State**: Managed by React Hook Form via `useForm()` hook
+  - Type-safe with TypeScript generics (`useForm<PatientFormData>`)
+  - Integrated with Zod validation via `zodResolver`
+  - Validation mode: `onBlur` (validates after user leaves field)
+- **Nested Form State**: Nested objects (address, emergencyContact, medicalInfo, insurance) supported
+- **Selective Watching**: Uses `useWatch()` to subscribe only to specific fields, reducing unnecessary re-renders
+  - Example: `useWatch({ control, name: 'emergencyContact' })` only re-renders when emergency contact changes
+- **Programmatic Updates**: `setValue()` used for dynamic field updates (e.g., adding/removing allergies, conditions)
+  - Includes `shouldValidate: true` to trigger validation after updates
+
+**Local Component State:**
+- UI-specific state managed with `useState`:
+  - Photo file and preview (`photoFile`, `photoPreview`)
+  - Input fields for dynamic lists (`allergyInput`, `conditionInput`)
+  - Loading states (`isLoading`)
+  - Current photo URL for edit mode (`currentPhotoUrl`)
+
+**Form Initialization:**
+- **Create Mode**: Form initialized with `defaultFormValues` (empty form)
+- **Edit Mode**: Form populated via `reset()` after fetching patient data
+  - Data transformation: Dates converted from ISO to YYYY-MM-DD format for date inputs
+  - Optional fields handled: `undefined` values converted appropriately
+  - Nested objects defaulted if missing (address, emergencyContact)
+
+**Form Submission:**
+- Type-safe submission handler with `SubmitHandler<PatientFormData>`
+- Data transformation before submission:
+  - Empty nested objects converted to `undefined` if all fields are empty
+  - Conditional validation: Emergency contact required fields validated only if any field is filled
+- Error handling: Uses `getErrorMessage()` utility for consistent error messages
+- Success handling: Invalidates TanStack Query cache and navigates to detail page
+
+**Implementation Details:**
+- **Re-render Control**: Selective watching and memoization reduce re-renders
+- **Type Safety**: TypeScript support with Zod schema validation
+- **Validation**: Real-time validation on blur with error messages
+- **Reusability**: Single form component used for both create and edit modes
+
+**Example Pattern:**
+```typescript
+// Form setup
+const form = useForm<PatientFormData>({
+  resolver: zodResolver(patientFormSchema),
+  defaultValues: defaultFormValues,
+  mode: 'onBlur',
+})
+
+// Selective watching (only re-renders when this field changes)
+const emergencyContact = useWatch({ control, name: 'emergencyContact' })
+
+// Programmatic update with validation
+setValue('medicalInfo.allergies', [...allergies, newAllergy], {
+  shouldValidate: true,
+})
+```
+
 <details>
 <summary><strong>Library Choices & Rationale</strong></summary>
 
@@ -297,8 +358,7 @@ toastInstance.update({ title: "Complete!" })
   - Manual route configuration for explicit control
   - Feature-based organization: route files import from `features/` directory
   - Built-in data loading and SSR support
-  - Path aliases (`@/`) for cleaner imports
-  - Excellent developer experience
+  - Path aliases (`@/`) for imports
 
 #### Server State Management
 - **TanStack Query**:
@@ -309,7 +369,7 @@ toastInstance.update({ title: "Complete!" })
   - Query invalidation and refetching based on query keys
   - Used for all server data fetching (patients list, search, sorting, pagination)
   - Query keys include all dependencies (page, sortBy, sortOrder, search) ensuring proper cache management
-  - 5-minute default stale time for optimal performance
+  - 5-minute default stale time
 
 #### UI Components
 - **Headless UI**: 
@@ -337,10 +397,10 @@ toastInstance.update({ title: "Complete!" })
 
 #### Utilities
 - **date-fns**: 
-  - Modern JavaScript date utility library
+  - JavaScript date utility library
   - Immutable date operations
-  - Tree-shakeable functions for optimal bundle size
-  - Comprehensive formatting and manipulation utilities
+  - Tree-shakeable functions for bundle size
+  - Formatting and manipulation utilities
 
 #### Testing
 - Testing framework to be determined (Jest, Vitest, or Playwright recommended)

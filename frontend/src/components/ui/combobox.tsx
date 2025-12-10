@@ -144,7 +144,7 @@ export function ComboboxOption<T>({
         'group/option grid w-full cursor-default grid-cols-[1fr_--spacing(5)] items-baseline gap-x-2 rounded-lg py-2.5 pr-2 pl-3.5 sm:grid-cols-[1fr_--spacing(4)] sm:py-1.5 sm:pr-2 sm:pl-3',
         // Typography
         'text-base/6 text-zinc-950 sm:text-sm/6 forced-colors:text-[CanvasText]',
-        // Focus  
+        // Focus
         'outline-hidden data-focus:bg-violet-500 data-focus:text-white',
         // Forced colors mode
         'forced-color-adjust-none forced-colors:data-focus:bg-[Highlight] forced-colors:data-focus:text-[HighlightText]',

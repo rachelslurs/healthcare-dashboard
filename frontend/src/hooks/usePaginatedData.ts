@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useLocation } from '@tanstack/react-router'
 import type { PaginatedData } from '@/components/layout/data-table'
 
 interface UsePaginatedDataOptions<T> {
@@ -9,6 +10,7 @@ interface UsePaginatedDataOptions<T> {
 
 /**
  * Reusable hook for fetching paginated data with URL-based pagination
+ * Uses TanStack Router's useLocation to reactively respond to URL changes
  */
 export default function usePaginatedData<T>({
   fetchFn,
@@ -18,6 +20,10 @@ export default function usePaginatedData<T>({
   const [data, setData] = useState<PaginatedData<T> | undefined>(undefined)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
+  
+  // useLocation automatically triggers re-renders when the location changes
+  // This includes changes via TanStack Router navigation and browser back/forward
+  const location = useLocation()
 
   // Store fetchFn in ref to avoid dependency issues
   const fetchFnRef = useRef(fetchFn)
@@ -52,7 +58,11 @@ export default function usePaginatedData<T>({
     return { sortBy, sortOrder }
   }
 
-  // Fetch data
+  // Fetch data whenever location.search changes
+  // This will automatically trigger when:
+  // - TanStack Router navigates (pushState/replaceState)
+  // - Browser back/forward navigation (popstate)
+  // - Any other URL change
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true)
@@ -71,35 +81,7 @@ export default function usePaginatedData<T>({
     }
 
     fetchData()
-
-    // Re-fetch when URL search params change (for pagination)
-    const handleLocationChange = () => {
-      fetchData()
-    }
-
-    // Listen for popstate (back/forward navigation)
-    window.addEventListener('popstate', handleLocationChange)
-    
-    // Also listen for pushstate/replacestate (TanStack Router navigation)
-    const originalPushState = history.pushState
-    const originalReplaceState = history.replaceState
-    
-    history.pushState = function(...args) {
-      originalPushState.apply(history, args)
-      setTimeout(handleLocationChange, 0)
-    }
-    
-    history.replaceState = function(...args) {
-      originalReplaceState.apply(history, args)
-      setTimeout(handleLocationChange, 0)
-    }
-
-    return () => {
-      window.removeEventListener('popstate', handleLocationChange)
-      history.pushState = originalPushState
-      history.replaceState = originalReplaceState
-    }
-  }, [pageSize]) // Only pageSize as dependency, fetchFn is in ref
+  }, [pageSize, location.search]) // Re-run when pageSize or search params change
 
   return { data, isLoading, error }
 }

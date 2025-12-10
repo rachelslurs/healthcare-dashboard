@@ -5,7 +5,10 @@ from typing import List
 from datetime import datetime, date
 from app.database import get_db, init_db
 from app.models import Patient, Activity
-from app.schemas import PatientListResponse, PaginatedPatientsResponse, PatientResponse, PatientCreate, PatientUpdate, PatientUpdate
+from app.schemas import (
+    PatientListResponse, PaginatedPatientsResponse, PatientResponse, 
+    PatientCreate, PatientUpdate, ActivityResponse, PaginatedActivitiesResponse
+)
 
 app = FastAPI()
 
@@ -220,3 +223,49 @@ def delete_patient(patient_id: int, db: Session = Depends(get_db)):
     db.commit()
     
     return Response(status_code=204)
+
+
+@app.get("/api/activities", response_model=PaginatedActivitiesResponse)
+def get_activities(
+    page: int = Query(1, ge=1, description="Page number"),
+    page_size: int = Query(10, ge=1, le=100, description="Items per page"),
+    db: Session = Depends(get_db)
+):
+    """Get paginated list of activities, sorted by most recent first."""
+    # Calculate offset
+    offset = (page - 1) * page_size
+    
+    # Get total count
+    total = db.query(Activity).count()
+    
+    # Get activities for current page, sorted by timestamp (most recent first)
+    activities = (
+        db.query(Activity)
+        .order_by(Activity.timestamp.desc())
+        .offset(offset)
+        .limit(page_size)
+        .all()
+    )
+    
+    # Convert to response format
+    items = [
+        ActivityResponse(
+            id=activity.id,
+            timestamp=activity.timestamp,
+            action_type=activity.action_type,
+            description=activity.description,
+            patient_id=activity.patient_id
+        )
+        for activity in activities
+    ]
+    
+    # Calculate total pages
+    total_pages = (total + page_size - 1) // page_size if total > 0 else 0
+    
+    return PaginatedActivitiesResponse(
+        items=items,
+        total=total,
+        page=page,
+        page_size=page_size,
+        total_pages=total_pages
+    )

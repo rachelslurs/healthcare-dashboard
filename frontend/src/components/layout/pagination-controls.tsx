@@ -97,32 +97,32 @@ export default memo(function PaginationControls({
     <div className='flex flex-col gap-2'>
       {totalPages > 1 && (
         <div className='flex items-center justify-center'>
-          <div className='flex items-center gap-x-2 w-full max-w-md'>
+          <div className='flex items-center gap-x-2'>
             <PaginationPrevious
               onClick={handlePrevious}
               disabled={page <= 1}
+              className='w-24'
             />
-            <div className='flex-1 flex justify-center'>
-              <PaginationList>
-                {pageNumbers.map((pageNum, index) => {
-                  if (pageNum === 'ellipsis') {
-                    return <PaginationGap key={`ellipsis-${index}`} />
-                  }
-                  return (
-                    <PaginationPage
-                      key={pageNum}
-                      onClick={() => handlePageClick(pageNum)}
-                      current={pageNum === page}
-                    >
-                      {pageNum}
-                    </PaginationPage>
-                  )
-                })}
-              </PaginationList>
-            </div>
+            <PaginationList>
+              {pageNumbers.map((pageNum, index) => {
+                if (pageNum === 'ellipsis') {
+                  return <PaginationGap key={`ellipsis-${index}`} />
+                }
+                return (
+                  <PaginationPage
+                    key={pageNum}
+                    onClick={() => handlePageClick(pageNum)}
+                    current={pageNum === page}
+                  >
+                    {pageNum}
+                  </PaginationPage>
+                )
+              })}
+            </PaginationList>
             <PaginationNext
               onClick={handleNext}
               disabled={page >= totalPages}
+              className='w-24'
             />
           </div>
         </div>

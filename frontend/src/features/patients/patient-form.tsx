@@ -13,13 +13,11 @@ import { API_BASE_URL } from '@/lib/constants'
 import { formatDateForInput } from '@/lib/date-utils'
 import { getErrorMessage } from '@/lib/error-utils'
 import { toast } from '@/lib/toast'
+
 import { getPatient, createPatient, updatePatient, uploadPatientPhoto } from './api'
-import type { Patient } from './types'
-
 import { patientFormSchema, type PatientFormData } from './patient-form-schema'
-
-
 import PhotoPreview from './photo-preview'
+import type { Patient } from './types'
 
 
 interface PatientFormProps {

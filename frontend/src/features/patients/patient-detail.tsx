@@ -12,6 +12,7 @@ import { API_BASE_URL } from '@/lib/constants'
 import { formatDate } from '@/lib/date-utils'
 import { getErrorMessage } from '@/lib/error-utils'
 import { toast } from '@/lib/toast'
+
 import { getPatient, deletePatient } from './api'
 import type { Patient } from './types'
 

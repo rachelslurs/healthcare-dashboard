@@ -139,6 +139,115 @@ We use a **hybrid approach** based on the complexity and use case of each data t
 - **Activities List**: React local state with `useState`
 - Both use **TanStack Query** for data fetching with automatic caching
 - Query keys include all state dependencies for proper cache invalidation
+
+#### Toast Notification System
+**Global State Pattern for User Feedback**
+
+The application uses a custom toast notification system that works outside React's normal state flow, allowing toasts to be triggered from anywhere (components, hooks, mutations, utilities).
+
+**Architecture:**
+- **Global State Management**: In-memory state stored outside React components
+- **Listener Pattern**: Components subscribe to state changes via listeners array
+- **Reducer Pattern**: Four action types: `ADD_TOAST`, `UPDATE_TOAST`, `DISMISS_TOAST`, `REMOVE_TOAST`
+- **No React Context**: Uses a global listener pattern instead of Context API for simplicity
+
+**Core Components:**
+
+1. **State Management** (`lib/toast.ts`):
+   - Reducer function for managing toast state
+   - In-memory state and listener array
+   - Dispatch function that updates state and notifies all listeners
+   - Standalone `toast()` function for creating toasts from anywhere
+   - `dismissToast()` function for programmatic dismissal
+
+2. **useToast Hook** (`hooks/use-toast.ts`):
+   - Subscribes to global state on mount
+   - Unsubscribes on unmount
+   - Returns current toast array and helper functions
+   - Uses `useState` initialized with current memory state
+   - Uses `useEffect` to add/remove component's state setter from listeners array
+
+3. **Toast Component** (`components/ui/toast.tsx`):
+   - Presentation component for individual toast
+   - Supports title, description, variant (default/destructive), and custom actions
+   - Handles open/close state and animations
+
+4. **Toaster Component** (`components/feedback/toaster.tsx`):
+   - Renders all active toasts
+   - Uses `useToast` hook to get current toast array
+   - Maps over toasts and renders them with proper positioning
+   - Integrated once at app root level
+
+**Toast Configuration:**
+- **Maximum Toasts**: Limited to 1 toast at a time (configurable via `TOAST_LIMIT`)
+- **Auto-dismiss**: Default duration of 5 seconds (configurable via `TOAST_DURATION`)
+- **Removal Delay**: 100ms delay before actual removal from state (configurable via `TOAST_REMOVAL_DELAY`)
+- **Variants**: `default` (success/info) and `destructive` (errors)
+
+**Usage Patterns:**
+
+```typescript
+// Import the standalone toast function
+import { toast } from '@/lib/toast'
+
+// Success toast (default variant)
+toast({
+  title: "Patient created",
+  description: "The patient has been successfully added to the system."
+})
+
+// Error toast (destructive variant)
+toast({
+  title: "Error",
+  description: "Failed to save patient data.",
+  variant: "destructive"
+})
+
+// Toast with custom action
+toast({
+  title: "Patient updated",
+  description: "Changes have been saved.",
+  action: {
+    altText: "View",
+    onClick: () => navigate(`/patients/${id}`)
+  }
+})
+
+// In React Query mutations
+const mutation = useMutation({
+  mutationFn: createPatient,
+  onSuccess: () => {
+    toast({ title: "Success", description: "Patient created successfully" })
+  },
+  onError: (error) => {
+    toast({
+      title: "Error",
+      description: error.message,
+      variant: "destructive"
+    })
+  }
+})
+
+// Programmatic control
+const toastInstance = toast({ title: "Processing..." })
+// Later...
+toastInstance.dismiss()
+toastInstance.update({ title: "Complete!" })
+```
+
+**Toast Lifecycle:**
+1. **Add**: Toast is created with `open: true` and added to state array
+2. **Display**: Toaster component renders the toast
+3. **Auto-dismiss**: After `TOAST_DURATION`, `onOpenChange` fires with `false`
+4. **Dismiss**: Sets `open: false` and queues removal after `TOAST_REMOVAL_DELAY`
+5. **Remove**: Toast is actually removed from state array after delay
+
+**Key Features:**
+- Can be called from anywhere (not just React components)
+- Automatic cleanup of timeouts to prevent memory leaks
+- New toasts replace old ones (newest first, limited by `TOAST_LIMIT`)
+- State synchronization across all components using `useToast`
+- SSR-safe (works with TanStack Start)
 - State resets appropriately (e.g., page resets to 1 when sort or search changes)
 
 #### Form State

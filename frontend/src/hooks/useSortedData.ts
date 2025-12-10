@@ -1,53 +1,35 @@
-import { useNavigate } from '@tanstack/react-router'
-import { getSearchParams } from '@/lib/ssr'
+import { useState } from 'react'
 
 interface UseSortedDataOptions {
   defaultSortOrder?: 'asc' | 'desc'
-  to?: string // Optional route path, defaults to current pathname
   onSortChange?: () => void // Optional callback when sort changes (e.g., to reset page)
 }
 
 /**
- * Reusable hook for managing sort state via URL parameters
+ * Reusable hook for managing sort state with local state
  */
 export default function useSortedData({ 
   defaultSortOrder = 'asc',
-  to,
   onSortChange,
 }: UseSortedDataOptions = {}) {
-  const navigate = useNavigate()
-
-  // Get current sort params from URL
-  const getSortParams = () => {
-    const params = getSearchParams()
-    const sortBy = params.get('sortBy') || undefined
-    const sortOrder = (params.get('sortOrder') || defaultSortOrder) as 'asc' | 'desc'
-    return { sortBy, sortOrder }
-  }
-
-  const { sortBy: currentSortBy, sortOrder: currentSortOrder } = getSortParams()
+  const [sortBy, setSortBy] = useState<string | undefined>(undefined)
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(defaultSortOrder)
 
   // Handle column sort
   const handleSort = (columnKey: string) => {
-    const params = getSearchParams()
     const newSortBy = columnKey
-    const newSortOrder = currentSortBy === columnKey && currentSortOrder === 'asc' ? 'desc' : 'asc'
+    const newSortOrder = sortBy === columnKey && sortOrder === 'asc' ? 'desc' : 'asc'
     
-    params.set('sortBy', newSortBy)
-    params.set('sortOrder', newSortOrder)
-    params.set('page', '1') // Reset to first page when sorting
-    
-    // Use provided route path or default to current pathname
-    const routePath = to || (typeof window !== 'undefined' ? window.location.pathname : '/')
-    navigate({ to: routePath, search: Object.fromEntries(params) })
+    setSortBy(newSortBy)
+    setSortOrder(newSortOrder)
     
     // Call optional callback
     onSortChange?.()
   }
 
   return {
-    currentSortBy,
-    currentSortOrder,
+    currentSortBy: sortBy,
+    currentSortOrder: sortOrder,
     handleSort,
   }
 }

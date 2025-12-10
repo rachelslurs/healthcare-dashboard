@@ -1,10 +1,10 @@
 import { format } from 'date-fns'
+import { useRef, useEffect } from 'react'
 import DataTable, { type ColumnDefinition } from '@/components/layout/data-table'
 import type { Activity } from './types'
 import { getActivities } from './api'
 import usePaginatedData from '@/hooks/usePaginatedData'
 import useSortedData from '@/hooks/useSortedData'
-import { getSearchParams } from '@/lib/ssr'
 
 // Format timestamp for display
 const formatTimestamp = (timestamp: string): string => {
@@ -17,10 +17,31 @@ const formatTimestamp = (timestamp: string): string => {
 }
 
 export default function ActivitiesList() {
+  const goToPageRef = useRef<((page: number) => void) | null>(null)
+
   const { currentSortBy, currentSortOrder, handleSort } = useSortedData({
     defaultSortOrder: 'desc',
-    to: '/',
+    onSortChange: () => {
+      // Reset to first page when sorting changes
+      goToPageRef.current?.(1)
+    },
   })
+
+  const { data, isLoading, error, goToPage, isFetching } = usePaginatedData({
+    fetchFn: ({ page, pageSize, sortBy, sortOrder }) => getActivities({ 
+      page, 
+      pageSize, 
+      sortBy: sortBy as 'timestamp' | undefined, 
+      sortOrder 
+    }),
+    pageSize: 10,
+    sortBy: currentSortBy,
+    sortOrder: currentSortOrder,
+  })
+
+  useEffect(() => {
+    goToPageRef.current = goToPage
+  }, [goToPage])
 
   // Define columns for the activities table
   const columns: ColumnDefinition<Activity>[] = [
@@ -44,23 +65,6 @@ export default function ActivitiesList() {
     },
   ]
 
-  const { data, isLoading, error } = usePaginatedData({
-    fetchFn: ({ page, pageSize, sortBy, sortOrder }) => getActivities({ 
-      page, 
-      pageSize, 
-      sortBy: sortBy as 'timestamp' | undefined, 
-      sortOrder 
-    }),
-    pageSize: 10,
-  })
-
-  // Build pagination URL with query parameters
-  const buildPageUrl = (page: number) => {
-    const params = getSearchParams()
-    params.set('page', page.toString())
-    return `/?${params.toString()}`
-  }
-
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
@@ -68,13 +72,15 @@ export default function ActivitiesList() {
         columns={columns}
         data={data}
         isLoading={isLoading}
+        isFetching={isFetching}
         error={error}
         itemLabel="activities"
-        buildPageUrl={buildPageUrl}
+        onPageChange={goToPage}
         emptyMessage="No activities found"
         onSort={handleSort}
         currentSortBy={currentSortBy}
         currentSortOrder={currentSortOrder}
+        showShowingText={true}
       />
     </div>
   )

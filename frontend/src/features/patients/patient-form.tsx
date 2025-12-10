@@ -354,29 +354,29 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
 
   if (isLoading) {
     return (
-      <div className="p-6">
-        <LoadingSpinner message="Loading patient information..." />
+      <div className='p-6'>
+        <LoadingSpinner message='Loading patient information...' />
       </div>
     )
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">{isEdit ? 'Edit Patient' : 'New Patient'}</h1>
+    <div className='p-6 max-w-4xl mx-auto'>
+      <h1 className='text-2xl font-bold mb-6'>{isEdit ? 'Edit Patient' : 'New Patient'}</h1>
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
         {/* Basic Information */}
         <Fieldset>
           <Legend>Basic Information</Legend>
           <FieldGroup>
             <Field>
               <Label>
-                First Name <span className="text-red-500">*</span>
+                First Name <span className='text-red-500'>*</span>
               </Label>
               <Input
-                type="text"
+                type='text'
                 {...register('firstName')}
-                placeholder="John"
+                placeholder='John'
               />
               {errors.firstName && (
                 <ErrorMessage>{errors.firstName.message}</ErrorMessage>
@@ -385,12 +385,12 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
 
             <Field>
               <Label>
-                Last Name <span className="text-red-500">*</span>
+                Last Name <span className='text-red-500'>*</span>
               </Label>
               <Input
-                type="text"
+                type='text'
                 {...register('lastName')}
-                placeholder="Doe"
+                placeholder='Doe'
               />
               {errors.lastName && (
                 <ErrorMessage>{errors.lastName.message}</ErrorMessage>
@@ -399,10 +399,10 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
 
             <Field>
               <Label>
-                Date of Birth <span className="text-red-500">*</span>
+                Date of Birth <span className='text-red-500'>*</span>
               </Label>
               <Input
-                type="date"
+                type='date'
                 {...register('dateOfBirth')}
               />
               {errors.dateOfBirth && (
@@ -410,15 +410,15 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
               )}
             </Field>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
               <Field>
                 <Label>
-                  Email <span className="text-red-500">*</span>
+                  Email <span className='text-red-500'>*</span>
                 </Label>
                 <Input
-                  type="email"
+                  type='email'
                   {...register('email')}
-                  placeholder="john.doe@example.com"
+                  placeholder='john.doe@example.com'
                 />
                 {errors.email && (
                   <ErrorMessage>{errors.email.message}</ErrorMessage>
@@ -427,12 +427,12 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
 
               <Field>
                 <Label>
-                  Phone <span className="text-red-500">*</span>
+                  Phone <span className='text-red-500'>*</span>
                 </Label>
                 <Input
-                  type="tel"
+                  type='tel'
                   {...register('phone')}
-                  placeholder="(555) 123-4567"
+                  placeholder='(555) 123-4567'
                 />
                 {errors.phone && (
                   <ErrorMessage>{errors.phone.message}</ErrorMessage>
@@ -442,12 +442,12 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
 
             <Field>
               <Label>
-                Status <span className="text-red-500">*</span>
+                Status <span className='text-red-500'>*</span>
               </Label>
               <Select {...register('status')}>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="archived">Archived</option>
+                <option value='active'>Active</option>
+                <option value='inactive'>Inactive</option>
+                <option value='archived'>Archived</option>
               </Select>
               {errors.status && (
                 <ErrorMessage>{errors.status.message}</ErrorMessage>
@@ -463,11 +463,11 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
             <FieldGroup>
               <Field>
                 <Label>Photo</Label>
-                <div className="space-y-4">
+                <div className='space-y-4'>
                   {/* Photo Preview */}
                   {(photoPreview || currentPhotoUrl) && (
-                    <div className="flex items-center gap-4">
-                      <div className="relative">
+                    <div className='flex items-center gap-4'>
+                      <div className='relative'>
                         <PhotoPreview 
                           photoPreview={photoPreview}
                           currentPhotoUrl={currentPhotoUrl}
@@ -476,7 +476,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                       </div>
                       {photoFile && (
                         <Button
-                          type="button"
+                          type='button'
                           onClick={handleRemovePhoto}
                           outline
                         >
@@ -487,19 +487,19 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                   )}
                   
                   {/* File Input */}
-                  <div className="flex items-center gap-4">
+                  <div className='flex items-center gap-4'>
                     <input
                       ref={fileInputRef}
-                      type="file"
-                      accept="image/jpeg,image/jpg,image/png"
+                      type='file'
+                      accept='image/jpeg,image/jpg,image/png'
                       onChange={handlePhotoChange}
-                      className="block w-full text-sm text-neutral-600
+                      className='block w-full text-sm text-neutral-600
                         file:mr-4 file:py-2 file:px-4
                         file:rounded-lg file:border-0
                         file:text-sm file:font-semibold
                         file:bg-neutral-100 file:text-neutral-700
                         hover:file:bg-neutral-200
-                        file:cursor-pointer"
+                        file:cursor-pointer'
                     />
                   </div>
                   <Description>
@@ -518,22 +518,22 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
             <Field>
               <Label>Street</Label>
               <Input
-                type="text"
+                type='text'
                 {...register('address.street')}
-                placeholder="123 Main St"
+                placeholder='123 Main St'
               />
               {errors.address?.street && (
                 <ErrorMessage>{errors.address.street.message}</ErrorMessage>
               )}
             </Field>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
               <Field>
                 <Label>City</Label>
                 <Input
-                  type="text"
+                  type='text'
                   {...register('address.city')}
-                  placeholder="New York"
+                  placeholder='New York'
                 />
                 {errors.address?.city && (
                   <ErrorMessage>{errors.address.city.message}</ErrorMessage>
@@ -543,9 +543,9 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
               <Field>
                 <Label>State</Label>
                 <Input
-                  type="text"
+                  type='text'
                   {...register('address.state')}
-                  placeholder="NY"
+                  placeholder='NY'
                 />
                 {errors.address?.state && (
                   <ErrorMessage>{errors.address.state.message}</ErrorMessage>
@@ -553,13 +553,13 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
               </Field>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
               <Field>
                 <Label>ZIP Code</Label>
                 <Input
-                  type="text"
+                  type='text'
                   {...register('address.zipCode')}
-                  placeholder="10001"
+                  placeholder='10001'
                 />
                 {errors.address?.zipCode && (
                   <ErrorMessage>{errors.address.zipCode.message}</ErrorMessage>
@@ -569,9 +569,9 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
               <Field>
                 <Label>Country</Label>
                 <Input
-                  type="text"
+                  type='text'
                   {...register('address.country')}
-                  placeholder="USA"
+                  placeholder='USA'
                 />
               </Field>
             </div>
@@ -587,12 +587,12 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           <FieldGroup>
             <Field>
               <Label>
-                Name {emergencyContact && <span className="text-red-500">*</span>}
+                Name {emergencyContact && <span className='text-red-500'>*</span>}
               </Label>
               <Input
-                type="text"
+                type='text'
                 {...register('emergencyContact.name')}
-                placeholder="Jane Doe"
+                placeholder='Jane Doe'
               />
               {errors.emergencyContact?.name && (
                 <ErrorMessage>{errors.emergencyContact.name.message}</ErrorMessage>
@@ -601,27 +601,27 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
 
             <Field>
               <Label>
-                Relationship {emergencyContact && <span className="text-red-500">*</span>}
+                Relationship {emergencyContact && <span className='text-red-500'>*</span>}
               </Label>
               <Input
-                type="text"
+                type='text'
                 {...register('emergencyContact.relationship')}
-                placeholder="Spouse"
+                placeholder='Spouse'
               />
               {errors.emergencyContact?.relationship && (
                 <ErrorMessage>{errors.emergencyContact.relationship.message}</ErrorMessage>
               )}
             </Field>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
               <Field>
                 <Label>
-                  Phone {emergencyContact && <span className="text-red-500">*</span>}
+                  Phone {emergencyContact && <span className='text-red-500'>*</span>}
                 </Label>
                 <Input
-                  type="tel"
+                  type='tel'
                   {...register('emergencyContact.phone')}
-                  placeholder="(555) 123-4567"
+                  placeholder='(555) 123-4567'
                 />
                 {errors.emergencyContact?.phone && (
                   <ErrorMessage>{errors.emergencyContact.phone.message}</ErrorMessage>
@@ -631,9 +631,9 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
               <Field>
                 <Label>Email</Label>
                 <Input
-                  type="email"
+                  type='email'
                   {...register('emergencyContact.email')}
-                  placeholder="jane.doe@example.com"
+                  placeholder='jane.doe@example.com'
                 />
                 {errors.emergencyContact?.email && (
                   <ErrorMessage>{errors.emergencyContact.email.message}</ErrorMessage>
@@ -652,10 +652,10 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           <FieldGroup>
             <Field>
               <Label>Allergies</Label>
-              <div className="space-y-2">
-                <div className="flex gap-2">
+              <div className='space-y-2'>
+                <div className='flex gap-2'>
                   <Input
-                    type="text"
+                    type='text'
                     value={allergyInput}
                     onChange={(e) => setAllergyInput(e.target.value)}
                     onKeyDown={(e) => {
@@ -664,24 +664,24 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                         handleAddAllergy()
                       }
                     }}
-                    placeholder="Enter allergy and press Enter or click Add"
+                    placeholder='Enter allergy and press Enter or click Add'
                   />
-                  <Button type="button" onClick={handleAddAllergy} outline>
+                  <Button type='button' onClick={handleAddAllergy} outline>
                     Add
                   </Button>
                 </div>
                 {allergies.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
+                  <div className='flex flex-wrap gap-2 mt-2'>
                     {allergies.map((allergy, index) => (
                       <span
                         key={index}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
+                        className='inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm'
                       >
                         {allergy}
                         <button
-                          type="button"
+                          type='button'
                           onClick={() => handleRemoveAllergy(index)}
-                          className="text-blue-700 hover:text-blue-900"
+                          className='text-blue-700 hover:text-blue-900'
                         >
                           ×
                         </button>
@@ -694,10 +694,10 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
 
             <Field>
               <Label>Medical Conditions</Label>
-              <div className="space-y-2">
-                <div className="flex gap-2">
+              <div className='space-y-2'>
+                <div className='flex gap-2'>
                   <Input
-                    type="text"
+                    type='text'
                     value={conditionInput}
                     onChange={(e) => setConditionInput(e.target.value)}
                     onKeyDown={(e) => {
@@ -706,24 +706,24 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                         handleAddCondition()
                       }
                     }}
-                    placeholder="Enter condition and press Enter or click Add"
+                    placeholder='Enter condition and press Enter or click Add'
                   />
-                  <Button type="button" onClick={handleAddCondition} outline>
+                  <Button type='button' onClick={handleAddCondition} outline>
                     Add
                   </Button>
                 </div>
                 {conditions.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
+                  <div className='flex flex-wrap gap-2 mt-2'>
                     {conditions.map((condition, index) => (
                       <span
                         key={index}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm"
+                        className='inline-flex items-center gap-1 px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm'
                       >
                         {condition}
                         <button
-                          type="button"
+                          type='button'
                           onClick={() => handleRemoveCondition(index)}
-                          className="text-purple-700 hover:text-purple-900"
+                          className='text-purple-700 hover:text-purple-900'
                         >
                           ×
                         </button>
@@ -737,22 +737,22 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
             <Field>
               <Label>Blood Type</Label>
               <Controller
-                name="medicalInfo.bloodType"
+                name='medicalInfo.bloodType'
                 control={control}
                 render={({ field }) => (
                   <Select
                     value={field.value || ''}
                     onChange={(e) => field.onChange(e.target.value || undefined)}
                   >
-                    <option value="">Not specified</option>
-                    <option value="A+">A+</option>
-                    <option value="A-">A-</option>
-                    <option value="B+">B+</option>
-                    <option value="B-">B-</option>
-                    <option value="AB+">AB+</option>
-                    <option value="AB-">AB-</option>
-                    <option value="O+">O+</option>
-                    <option value="O-">O-</option>
+                    <option value=''>Not specified</option>
+                    <option value='A+'>A+</option>
+                    <option value='A-'>A-</option>
+                    <option value='B+'>B+</option>
+                    <option value='B-'>B-</option>
+                    <option value='AB+'>AB+</option>
+                    <option value='AB-'>AB-</option>
+                    <option value='O+'>O+</option>
+                    <option value='O-'>O-</option>
                   </Select>
                 )}
               />
@@ -761,7 +761,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
             <Field>
               <Label>Last Visit</Label>
               <Input
-                type="date"
+                type='date'
                 {...register('medicalInfo.lastVisit')}
               />
             </Field>
@@ -779,27 +779,27 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           <FieldGroup>
             <Field>
               <Label>
-                Provider <span className="text-red-500">*</span>
+                Provider <span className='text-red-500'>*</span>
               </Label>
               <Input
-                type="text"
+                type='text'
                 {...register('insurance.provider')}
-                placeholder="Blue Cross Blue Shield"
+                placeholder='Blue Cross Blue Shield'
               />
               {errors.insurance?.provider && (
                 <ErrorMessage>{errors.insurance.provider.message}</ErrorMessage>
               )}
             </Field>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
               <Field>
                 <Label>
-                  Policy Number <span className="text-red-500">*</span>
+                  Policy Number <span className='text-red-500'>*</span>
                 </Label>
                 <Input
-                  type="text"
+                  type='text'
                   {...register('insurance.policyNumber')}
-                  placeholder="POL123456"
+                  placeholder='POL123456'
                 />
                 {errors.insurance?.policyNumber && (
                   <ErrorMessage>{errors.insurance.policyNumber.message}</ErrorMessage>
@@ -809,18 +809,18 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
               <Field>
                 <Label>Group Number</Label>
                 <Input
-                  type="text"
+                  type='text'
                   {...register('insurance.groupNumber')}
-                  placeholder="GRP789"
+                  placeholder='GRP789'
                 />
               </Field>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
               <Field>
                 <Label>Effective Date</Label>
                 <Input
-                  type="date"
+                  type='date'
                   {...register('insurance.effectiveDate')}
                 />
               </Field>
@@ -828,28 +828,28 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
               <Field>
                 <Label>Expiration Date</Label>
                 <Input
-                  type="date"
+                  type='date'
                   {...register('insurance.expirationDate')}
                 />
               </Field>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
               <Field>
                 <Label>
-                  Copay ($) <span className="text-red-500">*</span>
+                  Copay ($) <span className='text-red-500'>*</span>
                 </Label>
                 <Controller
-                  name="insurance.copay"
+                  name='insurance.copay'
                   control={control}
                   render={({ field }) => (
                     <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
+                      type='number'
+                      step='0.01'
+                      min='0'
                       value={field.value}
                       onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                      placeholder="25.00"
+                      placeholder='25.00'
                     />
                   )}
                 />
@@ -861,16 +861,16 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
               <Field>
                 <Label>Deductible ($)</Label>
                 <Controller
-                  name="insurance.deductible"
+                  name='insurance.deductible'
                   control={control}
                   render={({ field }) => (
                     <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
+                      type='number'
+                      step='0.01'
+                      min='0'
                       value={field.value ?? ''}
                       onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                      placeholder="1000.00"
+                      placeholder='1000.00'
                     />
                   )}
                 />
@@ -883,11 +883,11 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
         </Fieldset>
 
         {/* Form Actions */}
-        <div className="flex gap-4 justify-end pt-6 border-t">
-          <Button type="button" onClick={handleCancel} outline>
+        <div className='flex gap-4 justify-end pt-6 border-t'>
+          <Button type='button' onClick={handleCancel} outline>
             Cancel
           </Button>
-          <Button type="submit" color="blue" disabled={isSubmitting}>
+          <Button type='submit' color='blue' disabled={isSubmitting}>
             {isSubmitting ? 'Saving...' : isEdit ? 'Update Patient' : 'Create Patient'}
           </Button>
         </div>

@@ -5,7 +5,7 @@ import type React from 'react'
 export function SwitchGroup({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
   return (
     <div
-      data-slot="control"
+      data-slot='control'
       {...props}
       className={clsx(
         className,
@@ -24,7 +24,7 @@ export function SwitchField({
 }: { className?: string } & Omit<Headless.FieldProps, 'as' | 'className'>) {
   return (
     <Headless.Field
-      data-slot="field"
+      data-slot='field'
       {...props}
       className={clsx(
         className,
@@ -146,7 +146,7 @@ export function Switch({
 } & Omit<Headless.SwitchProps, 'as' | 'className' | 'children'>) {
   return (
     <Headless.Switch
-      data-slot="control"
+      data-slot='control'
       {...props}
       className={clsx(
         className,
@@ -171,7 +171,7 @@ export function Switch({
       )}
     >
       <span
-        aria-hidden="true"
+        aria-hidden='true'
         className={clsx(
           // Basic layout
           'pointer-events-none relative inline-block size-4.5 rounded-full sm:size-3.5',

@@ -7,7 +7,7 @@ export function RadioGroup({
 }: { className?: string } & Omit<Headless.RadioGroupProps, 'as' | 'className'>) {
   return (
     <Headless.RadioGroup
-      data-slot="control"
+      data-slot='control'
       {...props}
       className={clsx(
         className,
@@ -26,7 +26,7 @@ export function RadioField({
 }: { className?: string } & Omit<Headless.FieldProps, 'as' | 'className'>) {
   return (
     <Headless.Field
-      data-slot="field"
+      data-slot='field'
       {...props}
       className={clsx(
         className,
@@ -113,7 +113,7 @@ export function Radio({
 }: { color?: Color; className?: string } & Omit<Headless.RadioProps, 'as' | 'className' | 'children'>) {
   return (
     <Headless.Radio
-      data-slot="control"
+      data-slot='control'
       {...props}
       className={clsx(className, 'group inline-flex focus:outline-hidden')}
     >

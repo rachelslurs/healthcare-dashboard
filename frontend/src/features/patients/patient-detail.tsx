@@ -53,19 +53,19 @@ export default function PatientDetail() {
 
   if (isLoading) {
     return (
-      <div className="p-6">
-        <LoadingSpinner message="Loading patient information..." />
+      <div className='p-6'>
+        <LoadingSpinner message='Loading patient information...' />
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="p-6">
-        <h1 className="text-2xl font-bold mb-4">Patient Detail</h1>
-        <div className="rounded-lg bg-red-50 border border-red-200 p-4">
-          <p className="text-red-800 font-medium">Error loading patient</p>
-          <p className="text-red-600 text-sm mt-1">{error.message}</p>
+      <div className='p-6'>
+        <h1 className='text-2xl font-bold mb-4'>Patient Detail</h1>
+        <div className='rounded-lg bg-red-50 border border-red-200 p-4'>
+          <p className='text-red-800 font-medium'>Error loading patient</p>
+          <p className='text-red-600 text-sm mt-1'>{error.message}</p>
         </div>
       </div>
     )
@@ -73,9 +73,9 @@ export default function PatientDetail() {
 
   if (!patient) {
     return (
-      <div className="p-6">
-        <h1 className="text-2xl font-bold mb-4">Patient Detail</h1>
-        <p className="text-gray-600">Patient not found</p>
+      <div className='p-6'>
+        <h1 className='text-2xl font-bold mb-4'>Patient Detail</h1>
+        <p className='text-gray-600'>Patient not found</p>
       </div>
     )
   }
@@ -135,18 +135,18 @@ export default function PatientDetail() {
     : null
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex items-start gap-4">
+    <div className='p-6'>
+      <div className='mb-6'>
+        <div className='flex items-start justify-between mb-2'>
+          <div className='flex items-start gap-4'>
             {/* Patient Photo or Avatar */}
-            <div className="shrink-0 relative">
+            <div className='shrink-0 relative'>
               {photoUrl ? (
                 <>
                   <img
                     src={photoUrl}
                     alt={`${patient.firstName} ${patient.lastName}`}
-                    className="w-24 h-24 rounded-full object-cover border-2 border-neutral-200 shadow-sm"
+                    className='w-24 h-24 rounded-full object-cover border-2 border-neutral-200 shadow-sm'
                     onError={(e) => {
                       // Fallback to avatar if image fails to load
                       const target = e.target as HTMLImageElement
@@ -156,14 +156,14 @@ export default function PatientDetail() {
                     }}
                   />
                   <div
-                    className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold shadow-sm hidden"
+                    className='w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold shadow-sm hidden'
                   >
                     {getInitials(patient.firstName, patient.lastName)}
                   </div>
                 </>
               ) : (
                 <div
-                  className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold shadow-sm"
+                  className='w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold shadow-sm'
                 >
                   {getInitials(patient.firstName, patient.lastName)}
                 </div>
@@ -171,34 +171,34 @@ export default function PatientDetail() {
             </div>
             
             <div>
-              <h1 className="text-2xl font-bold mb-2">
+              <h1 className='text-2xl font-bold mb-2'>
                 {patient.firstName} {patient.lastName}
               </h1>
-              <div className="flex items-center gap-2">
+              <div className='flex items-center gap-2'>
                 <Badge color={getStatusColor(patient.status)}>
                   {patient.status.charAt(0).toUpperCase() + patient.status.slice(1)}
                 </Badge>
                 {patient.age && (
-                  <span className="text-sm text-gray-600">Age: {patient.age}</span>
+                  <span className='text-sm text-gray-600'>Age: {patient.age}</span>
                 )}
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className='flex items-center gap-2'>
             <Button outline onClick={handleEdit}>
               Edit
             </Button>
-            <Button color="red" onClick={handleDeleteClick}>
+            <Button color='red' onClick={handleDeleteClick}>
               Delete
             </Button>
           </div>
         </div>
       </div>
 
-      <div className="space-y-6 lg:grid lg:grid-cols-2 lg:gap-6 lg:space-y-0">
+      <div className='space-y-6 lg:grid lg:grid-cols-2 lg:gap-6 lg:space-y-0'>
         {/* Basic Information */}
         <section>
-          <h2 className="text-lg font-semibold mb-4">Basic Information</h2>
+          <h2 className='text-lg font-semibold mb-4'>Basic Information</h2>
           <DescriptionList>
             <DescriptionTerm>Patient ID</DescriptionTerm>
             <DescriptionDetails>{patient.id}</DescriptionDetails>
@@ -217,7 +217,7 @@ export default function PatientDetail() {
         {/* Address */}
         {patient.address ? (
           <section>
-            <h2 className="text-lg font-semibold mb-4">Address</h2>
+            <h2 className='text-lg font-semibold mb-4'>Address</h2>
             <DescriptionList>
               <DescriptionTerm>Street</DescriptionTerm>
               <DescriptionDetails>{patient.address.street}</DescriptionDetails>
@@ -240,7 +240,7 @@ export default function PatientDetail() {
         {/* Emergency Contact */}
         {patient.emergencyContact ? (
           <section>
-            <h2 className="text-lg font-semibold mb-4">Emergency Contact</h2>
+            <h2 className='text-lg font-semibold mb-4'>Emergency Contact</h2>
             <DescriptionList>
               <DescriptionTerm>Name</DescriptionTerm>
               <DescriptionDetails>{patient.emergencyContact.name}</DescriptionDetails>
@@ -263,7 +263,7 @@ export default function PatientDetail() {
 
         {/* Medical Information */}
         <section>
-          <h2 className="text-lg font-semibold mb-4">Medical Information</h2>
+          <h2 className='text-lg font-semibold mb-4'>Medical Information</h2>
           <DescriptionList>
             <DescriptionTerm>Blood Type</DescriptionTerm>
             <DescriptionDetails>{patient.medicalInfo.bloodType || '—'}</DescriptionDetails>
@@ -271,11 +271,11 @@ export default function PatientDetail() {
             <DescriptionTerm>Allergies</DescriptionTerm>
             <DescriptionDetails>
               {patient.medicalInfo.allergies.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
+                <div className='flex flex-wrap gap-2'>
                   {patient.medicalInfo.allergies.map((allergy, index) => (
                     <span
                       key={index}
-                      className="inline-flex items-center px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
+                      className='inline-flex items-center px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm'
                     >
                       {allergy}
                     </span>
@@ -289,11 +289,11 @@ export default function PatientDetail() {
             <DescriptionTerm>Conditions</DescriptionTerm>
             <DescriptionDetails>
               {patient.medicalInfo.conditions.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
+                <div className='flex flex-wrap gap-2'>
                   {patient.medicalInfo.conditions.map((condition, index) => (
                     <span
                       key={index}
-                      className="inline-flex items-center px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm"
+                      className='inline-flex items-center px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm'
                     >
                       {condition}
                     </span>
@@ -318,7 +318,7 @@ export default function PatientDetail() {
 
         {/* Insurance Information */}
         <section>
-          <h2 className="text-lg font-semibold mb-4">Insurance Information</h2>
+          <h2 className='text-lg font-semibold mb-4'>Insurance Information</h2>
           <DescriptionList>
             <DescriptionTerm>Provider</DescriptionTerm>
             <DescriptionDetails>{patient.insurance.provider}</DescriptionDetails>
@@ -358,7 +358,7 @@ export default function PatientDetail() {
         Are you sure you want to delete {`${patient?.firstName} ${patient?.lastName}`}? This action cannot be undone.
         </DialogDescription>
         <DialogBody>
-          <p className="text-sm text-neutral-600">
+          <p className='text-sm text-neutral-600'>
             This will permanently remove the patient from the system.
           </p>
         </DialogBody>
@@ -366,7 +366,7 @@ export default function PatientDetail() {
           <Button outline onClick={handleDeleteCancel} disabled={isDeleting}>
             Cancel
           </Button>
-          <Button color="red" onClick={handleDeleteConfirm} disabled={isDeleting}>
+          <Button color='red' onClick={handleDeleteConfirm} disabled={isDeleting}>
             {isDeleting ? 'Deleting...' : 'Delete'}
           </Button>
         </DialogActions>

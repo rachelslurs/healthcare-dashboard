@@ -12,7 +12,7 @@ export const Textarea = forwardRef(function Textarea(
 ) {
   return (
     <span
-      data-slot="control"
+      data-slot='control'
       className={clsx([
         className,
         // Basic layout

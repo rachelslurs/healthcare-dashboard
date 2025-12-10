@@ -39,15 +39,15 @@ export default function Sidebar() {
   return (
     <SidebarComponent>
       <SidebarHeader>
-        <SidebarHeading className="text-xl">Ascertain</SidebarHeading>
+        <SidebarHeading className='text-xl'>Ascertain</SidebarHeading>
       </SidebarHeader>
       <SidebarBody>
         <SidebarSection>
-          <SidebarItem href="/">
+          <SidebarItem href='/'>
             <ChartBarIcon />
             <SidebarLabel>Activity</SidebarLabel>
           </SidebarItem>
-          <SidebarItem href="/patients">
+          <SidebarItem href='/patients'>
             <UserGroupIcon />
             <SidebarLabel>Patients</SidebarLabel>
           </SidebarItem>
@@ -57,17 +57,17 @@ export default function Sidebar() {
         <SidebarSection>
           <Dropdown>
             <DropdownButton as={SidebarItem}>
-              <span className="flex min-w-0 items-center gap-3">
-                <span className="min-w-0">
-                  <span className="block truncate text-sm/5 font-medium text-ascertain-foreground">Rachel</span>
-                  <span className="block truncate text-xs/5 font-normal text-neutral-600">
+              <span className='flex min-w-0 items-center gap-3'>
+                <span className='min-w-0'>
+                  <span className='block truncate text-sm/5 font-medium text-ascertain-foreground'>Rachel</span>
+                  <span className='block truncate text-xs/5 font-normal text-neutral-600'>
                     rachel@example.com
                   </span>
                 </span>
               </span>
               <ChevronUpIcon />
             </DropdownButton>
-            <DropdownMenu className="min-w-64" anchor="top start">
+            <DropdownMenu className='min-w-64' anchor='top start'>
               <DropdownItem onClick={handleShareFeedback}>
                 <LightBulbIcon />
                 <DropdownLabel>Share feedback</DropdownLabel>

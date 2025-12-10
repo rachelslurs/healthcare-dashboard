@@ -10,7 +10,7 @@ export const patientsNewRoute = createRoute({
   path: '/patients/new',
   component: NewPatient,
   errorComponent: ({ error, reset }) => (
-    <QueryErrorDisplay error={error} reset={reset} title="Failed to load form" />
+    <QueryErrorDisplay error={error} reset={reset} title='Failed to load form' />
   ),
 })
 

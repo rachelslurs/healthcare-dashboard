@@ -28,15 +28,15 @@ export function PaginationPrevious({
     <Button 
       {...(href ? { href } : { onClick, disabled: isDisabled })} 
       plain 
-      aria-label="Previous page" 
+      aria-label='Previous page' 
       className={clsx(className, 'items-center')}
     >
-      <svg className="stroke-current" data-slot="icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <svg className='stroke-current' data-slot='icon' viewBox='0 0 16 16' fill='none' aria-hidden='true'>
         <path
-          d="M2.75 8H13.25M2.75 8L5.25 5.5M2.75 8L5.25 10.5"
+          d='M2.75 8H13.25M2.75 8L5.25 5.5M2.75 8L5.25 10.5'
           strokeWidth={1.5}
-          strokeLinecap="round"
-          strokeLinejoin="round"
+          strokeLinecap='round'
+          strokeLinejoin='round'
         />
       </svg>
       {children}
@@ -61,16 +61,16 @@ export function PaginationNext({
     <Button 
       {...(href ? { href } : { onClick, disabled: isDisabled })} 
       plain 
-      aria-label="Next page" 
+      aria-label='Next page' 
       className={clsx(className, 'items-center')}
     >
       {children}
-      <svg className="stroke-current" data-slot="icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <svg className='stroke-current' data-slot='icon' viewBox='0 0 16 16' fill='none' aria-hidden='true'>
         <path
-          d="M13.25 8L2.75 8M13.25 8L10.75 10.5M13.25 8L10.75 5.5"
+          d='M13.25 8L2.75 8M13.25 8L10.75 10.5M13.25 8L10.75 5.5'
           strokeWidth={1.5}
-          strokeLinecap="round"
-          strokeLinejoin="round"
+          strokeLinecap='round'
+          strokeLinejoin='round'
         />
       </svg>
     </Button>
@@ -105,7 +105,7 @@ export function PaginationPage({
         current && 'before:bg-neutral-950/5'
       )}
     >
-      <span className="-mx-0.5">{children}</span>
+      <span className='-mx-0.5'>{children}</span>
     </Button>
   )
 }
@@ -117,7 +117,7 @@ export function PaginationGap({
 }: React.ComponentPropsWithoutRef<'span'>) {
   return (
     <span
-      aria-hidden="true"
+      aria-hidden='true'
       {...props}
       className={clsx(className, 'w-9 text-center text-sm/6 font-semibold text-neutral-950 select-none')}
     >

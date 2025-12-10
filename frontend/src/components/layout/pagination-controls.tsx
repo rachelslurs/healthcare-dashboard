@@ -82,15 +82,15 @@ export default memo(function PaginationControls({
   }, [showShowingText, page, pageSize, total, itemLabel])
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className='flex flex-col gap-2'>
       {totalPages > 1 && (
-        <div className="flex items-center justify-center">
-          <div className="flex items-center gap-x-2 w-full max-w-md">
+        <div className='flex items-center justify-center'>
+          <div className='flex items-center gap-x-2 w-full max-w-md'>
             <PaginationPrevious
               onClick={page > 1 ? handlePrevious : undefined}
               disabled={page <= 1}
             />
-            <div className="flex-1 flex justify-center">
+            <div className='flex-1 flex justify-center'>
               <PaginationList>
                 {pageNumbers.map((pageNum, index) => {
                   if (pageNum === 'ellipsis') {
@@ -116,7 +116,7 @@ export default memo(function PaginationControls({
         </div>
       )}
       {showingText && (
-        <div className="flex justify-center text-sm text-neutral-500">
+        <div className='flex justify-center text-sm text-neutral-500'>
           {showingText}
         </div>
       )}

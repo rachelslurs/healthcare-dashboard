@@ -41,10 +41,10 @@ export default memo(function TableHeaderRow<T>({
             style={column.width ? { width: column.width } : undefined}
             onClick={() => column.sortable && column.sortKey && handleSortClick(column.sortKey)}
           >
-            <div className="flex items-center gap-2">
+            <div className='flex items-center gap-2'>
               <span>{column.header}</span>
               {column.sortable && (
-                <span className="text-neutral-400 text-xs">{sortIcon}</span>
+                <span className='text-neutral-400 text-xs'>{sortIcon}</span>
               )}
             </div>
           </TableHeader>

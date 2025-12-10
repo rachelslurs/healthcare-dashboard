@@ -124,8 +124,8 @@ The database is automatically seeded with 20 sample patients on first run. Can b
 - **Server State**: TanStack Query for server data caching and synchronization
 - **URL State**: TanStack Router for route-based state (navigation, route params)
 
-#### Sorting & Pagination State
-**Decision: React State (Local State) vs URL State**
+<details>
+<summary><strong>Sorting & Pagination State</strong> - React State vs URL State Decision</summary>
 
 We use a **hybrid approach** based on the complexity and use case of each data table:
 
@@ -144,9 +144,10 @@ We use a **hybrid approach** based on the complexity and use case of each data t
   - 5-minute cache staleness with background refetching
 
 **Activities List (React State):**
-- Uses **React local state** for pagination and sorting
+- Uses **React local state** (`useState`) for pagination and sorting
 - Simpler implementation for tables without search functionality
 - No need for URL sync when sharing/bookmarking isn't required
+- Page state managed with `useState`, sorting handled by `useSortedData` hook with local state fallback
 
 **When to Use Each Approach:**
 
@@ -165,12 +166,14 @@ We use a **hybrid approach** based on the complexity and use case of each data t
 
 **Current Implementation:**
 - **Patients List**: URL state via TanStack Router with Zod validation
-- **Activities List**: React local state with `useState`
+- **Activities List**: React local state with `useState` for pagination, `useSortedData` hook for sorting (with local state fallback)
 - Both use **TanStack Query** for data fetching with automatic caching
 - Query keys include all state dependencies for proper cache invalidation
 
-#### Toast Notification System
-**Global State Pattern for User Feedback**
+</details>
+
+<details>
+<summary><strong>Toast Notification System</strong> - Global State Pattern for User Feedback</summary>
 
 The application uses a custom toast notification system that works outside React's normal state flow, allowing toasts to be triggered from anywhere (components, hooks, mutations, utilities).
 
@@ -213,7 +216,8 @@ The application uses a custom toast notification system that works outside React
 - **Removal Delay**: 100ms delay before actual removal from state (configurable via `TOAST_REMOVAL_DELAY`)
 - **Variants**: `default` (success/info) and `destructive` (errors)
 
-**Usage Patterns:**
+<details>
+<summary><strong>Usage Patterns</strong></summary>
 
 ```typescript
 // Import the standalone toast function
@@ -263,6 +267,7 @@ const toastInstance = toast({ title: "Processing..." })
 toastInstance.dismiss()
 toastInstance.update({ title: "Complete!" })
 ```
+</details>
 
 **Toast Lifecycle:**
 1. **Add**: Toast is created with `open: true` and added to state array
@@ -279,9 +284,12 @@ toastInstance.update({ title: "Complete!" })
 - SSR-safe (works with TanStack Start)
 - State resets appropriately (e.g., page resets to 1 when sort or search changes)
 
+</details>
+
 #### Form State
 
-### Library Choices & Rationale
+<details>
+<summary><strong>Library Choices & Rationale</strong></summary>
 
 #### Routing
 - **TanStack Router**: 
@@ -336,6 +344,8 @@ toastInstance.update({ title: "Complete!" })
 
 #### Testing
 - Testing framework to be determined (Jest, Vitest, or Playwright recommended)
+
+</details>
 
 ### Backend Architecture
 

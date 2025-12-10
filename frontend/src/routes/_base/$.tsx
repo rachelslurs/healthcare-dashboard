@@ -21,7 +21,7 @@ function NotFound() {
         </p>
       </div>
       <div className="flex gap-4">
-        <Button href="/" color="dark/zinc">
+        <Button href="/" color="violet">
           Go Home
         </Button>
       </div>

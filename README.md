@@ -35,7 +35,6 @@ The database is automatically seeded with 20 sample patients on first run. Can b
 ### Error Handling Strategy
 
 ### Known Issues/To Dos
-- I didn't add document types ie medical_record, insurance_card, etc.
 
 ### Component Architecture
 - **Separation of Concerns**:

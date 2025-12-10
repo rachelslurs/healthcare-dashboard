@@ -4,7 +4,6 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app
       # Use named volume for database and uploads to avoid file/directory conflicts
       - backend-data:/app/data
     environment:
@@ -19,12 +18,24 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
+    develop:
+      watch:
+        # Sync Python source files for hot reload
+        - action: sync
+          path: ./backend/app
+          target: /app/app
+          ignore:
+            - __pycache__/
+            - "*.pyc"
+        # Rebuild when dependencies change
+        - action: rebuild
+          path: ./backend/requirements.txt
   frontend:
     build: ./frontend
     ports:
       - "5173:5173"
     volumes:
-      - ./frontend:/app
+      # Keep node_modules as a volume to avoid syncing it
       - /app/node_modules
     environment:
       - VITE_API_URL=http://localhost:8000
@@ -33,6 +44,24 @@ services:
         condition: service_healthy
     command: npm run dev -- --host
     restart: unless-stopped
+    develop:
+      watch:
+        # Sync source files for Vite HMR
+        - action: sync
+          path: ./frontend/src
+          target: /app/src
+          ignore:
+            - node_modules/
+        # Sync config files that might affect dev server
+        - action: sync
+          path: ./frontend/vite.config.ts
+          target: /app/vite.config.ts
+        - action: sync
+          path: ./frontend/tsconfig.json
+          target: /app/tsconfig.json
+        # Rebuild when dependencies change
+        - action: rebuild
+          path: ./frontend/package.json
 
 volumes:
   backend-data:

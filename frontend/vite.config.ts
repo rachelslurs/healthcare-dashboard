@@ -25,4 +25,13 @@ export default defineConfig({
       "@": resolve("src"),
     },
   },
+  
+  server: {
+    host: true, // Allows external access (needed for Docker)
+    port: 5173,
+    strictPort: true,
+    watch: {
+      usePolling: true, // Helps with file watching in Docker
+    },
+  },
 })

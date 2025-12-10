@@ -165,7 +165,7 @@ export default function PatientDetail() {
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-start gap-4">
             {/* Patient Photo or Avatar */}
-            <div className="flex-shrink-0 relative">
+            <div className="shrink-0 relative">
               {photoUrl ? (
                 <>
                   <img

@@ -165,7 +165,8 @@ frontend/
 │   │   ├── __root.tsx    # Root layout
 │   │   ├── _base.tsx    # Base layout wrapper
 │   │   ├── _base/
-│   │   │   └── index.tsx
+│   │   │   ├── index.tsx
+│   │   │   └── $.tsx
 │   │   └── patients/
 │   │       ├── index.tsx
 │   │       ├── new.tsx

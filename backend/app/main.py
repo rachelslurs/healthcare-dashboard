@@ -9,7 +9,6 @@ from typing import Optional
 import os
 import shutil
 import uuid
-import mimetypes
 from pathlib import Path
 from app.database import get_db, init_db
 from app.models import Patient, Activity
@@ -30,12 +29,6 @@ ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png"}
 
 # Allowed document extensions
 ALLOWED_DOCUMENT_EXTENSIONS = {".pdf"}
-
-# Allowed MIME types for images
-ALLOWED_IMAGE_MIME_TYPES = {"image/jpeg", "image/jpg", "image/png"}
-
-# Allowed MIME types for documents
-ALLOWED_DOCUMENT_MIME_TYPES = {"application/pdf"}
 
 
 @app.on_event("startup")
@@ -401,21 +394,19 @@ async def upload_patient_photo(
     # Read file content for validation
     file_content = await file.read()
     
-    # Validate MIME type from content
-    detected_mime, _ = mimetypes.guess_type(file.filename)
-    if detected_mime not in ALLOWED_IMAGE_MIME_TYPES:
-        # Fallback: check magic numbers for common image formats
-        is_valid_image = False
-        if file_content.startswith(b'\xff\xd8\xff'):  # JPEG
-            is_valid_image = file_ext in {".jpg", ".jpeg"}
-        elif file_content.startswith(b'\x89PNG\r\n\x1a\n'):  # PNG
-            is_valid_image = file_ext == ".png"
-        
-        if not is_valid_image:
-            raise HTTPException(
-                status_code=400,
-                detail="File content does not match the file extension. Please upload a valid image file."
-            )
+    # Always validate file content using magic numbers (file signatures)
+    # This prevents attackers from uploading malicious files with valid extensions
+    is_valid_image = False
+    if file_content.startswith(b'\xff\xd8\xff'):  # JPEG magic number
+        is_valid_image = file_ext in {".jpg", ".jpeg"}
+    elif file_content.startswith(b'\x89PNG\r\n\x1a\n'):  # PNG magic number
+        is_valid_image = file_ext == ".png"
+    
+    if not is_valid_image:
+        raise HTTPException(
+            status_code=400,
+            detail="File content does not match the file extension. Please upload a valid image file (JPEG or PNG)."
+        )
     
     # Generate unique filename with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -540,15 +531,14 @@ async def upload_patient_document(
     # Read file content for validation
     file_content = await file.read()
     
-    # Validate MIME type from content
-    detected_mime, _ = mimetypes.guess_type(file.filename)
-    if detected_mime not in ALLOWED_DOCUMENT_MIME_TYPES:
-        # Check PDF magic number: PDF files start with %PDF
-        if not file_content.startswith(b'%PDF'):
-            raise HTTPException(
-                status_code=400,
-                detail="File content does not match the file extension. Please upload a valid PDF file."
-            )
+    # Always validate file content using magic numbers (file signatures)
+    # This prevents attackers from uploading malicious files with valid extensions
+    # Check PDF magic number: PDF files start with %PDF
+    if not file_content.startswith(b'%PDF'):
+        raise HTTPException(
+            status_code=400,
+            detail="File content does not match the file extension. Please upload a valid PDF file."
+        )
     
     # Generate unique filename with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

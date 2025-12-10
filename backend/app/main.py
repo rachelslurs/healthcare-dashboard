@@ -3,11 +3,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime, date
-from app.database import get_db
+from app.database import get_db, init_db
 from app.models import Patient
 from app.schemas import PatientListResponse, PaginatedPatientsResponse
 
 app = FastAPI()
+
+
+@app.on_event("startup")
+def startup_event():
+    """Initialize database on startup."""
+    init_db()
 
 # CORS middleware configuration
 app.add_middleware(

@@ -49,7 +49,7 @@ The easiest way to run the entire application:
    ```bash
    docker compose up --watch
    ```
-   - Automatically rebuilds containers when dependencies change (`package.json`, `package-lock.json`, `requirements.txt`)
+   - Automatically rebuilds containers when dependencies change
    - Provides clear feedback during startup (dependency installation, migrations, etc.)
 
 2. **Access the application:**
@@ -76,7 +76,7 @@ Both services use entrypoint scripts that provide clear, formatted feedback duri
 The project is configured with Docker Compose's watch feature for improved development workflow:
 
 - **Automatic Rebuilds**: Containers automatically rebuild when dependencies change:
-  - **Frontend**: Rebuilds when `package.json` changes (new dependencies added/removed)
+  - **Frontend**: Rebuilds when `package.json` or `package-lock.json` changes (new dependencies added/removed, version updates, or lock file updates)
   - **Backend**: Rebuilds when `requirements.txt` changes (new Python packages added/removed)
   
 - **Hot Reload**: Both services support hot reload during development:
@@ -88,7 +88,7 @@ The project is configured with Docker Compose's watch feature for improved devel
   - **Backend**: Dependencies are installed during the Docker build, but the entrypoint verifies they're available
   
 - **Usage**: Simply run `docker compose up --watch` and the watch system handles the rest. When you add a new dependency:
-  1. Update `package.json` (frontend) or `requirements.txt` (backend)
+  1. Update `package.json` or `package-lock.json` (frontend) or `requirements.txt` (backend)
   2. Save the file
   3. Watch mode detects the change and automatically rebuilds the container
   4. The entrypoint script ensures dependencies are installed

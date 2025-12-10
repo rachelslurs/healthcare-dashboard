@@ -1,4 +1,5 @@
 import { format } from 'date-fns'
+import type React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
@@ -10,6 +11,7 @@ import useDebounce from '@/hooks/useDebounce'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input, InputGroup } from '@/components/ui/input'
+import { TableRow, TableCell } from '@/components/ui/table'
 
 // Format date for display
 const formatDate = (dateString: string | undefined): string => {
@@ -135,6 +137,40 @@ export default function PatientsList() {
     })
   }
 
+  // Render clickable rows that navigate to patient detail
+  const renderRow = (row: PatientListItem, index: number) => {
+    const patientName = `${row.firstName || ''} ${row.lastName || ''}`.trim() || 'Patient'
+    return (
+      <TableRow
+        key={row.id}
+        href={`/patients/${row.id}`}
+        title={`View ${patientName}`}
+        className="cursor-pointer"
+      >
+        {columns.map((column, colIndex) => {
+          let content: React.ReactNode
+          if (column.accessor) {
+            if (typeof column.accessor === 'function') {
+              content = column.accessor(row)
+            } else {
+              content = row[column.accessor]
+            }
+          } else {
+            content = null
+          }
+          return (
+            <TableCell
+              key={colIndex}
+              className={column.className}
+            >
+              {content}
+            </TableCell>
+          )
+        })}
+      </TableRow>
+    )
+  }
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
@@ -169,6 +205,7 @@ export default function PatientsList() {
         currentSortBy={currentSortBy}
         currentSortOrder={currentSortOrder}
         showShowingText={true}
+        renderRow={renderRow}
       />
     </div>
   )

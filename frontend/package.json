@@ -8,9 +8,12 @@
         "build": "vite build"
     },
     "dependencies": {
+        "@headlessui/react": "^2.2.9",
         "@tailwindcss/vite": "^4.1.17",
         "@tanstack/react-router": "^1.140.1",
         "@tanstack/react-start": "^1.140.3",
+        "clsx": "^2.1.1",
+        "motion": "^12.23.25",
         "react": "^19.2.1",
         "react-dom": "^19.2.1",
         "tailwindcss": "^4.1.17"

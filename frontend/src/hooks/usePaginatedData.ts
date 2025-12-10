@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react'
-import { useLocation } from '@tanstack/react-router'
 import type { PaginatedData } from '@/components/layout/data-table'
 import { getSearchParams, getSearchString } from '@/lib/ssr'
 

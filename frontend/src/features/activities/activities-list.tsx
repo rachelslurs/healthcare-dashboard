@@ -4,6 +4,7 @@ import type { Activity } from './types'
 import { getActivities } from './api'
 import usePaginatedData from '@/hooks/usePaginatedData'
 import useSortedData from '@/hooks/useSortedData'
+import { getSearchParams } from '@/lib/ssr'
 
 // Format timestamp for display
 const formatTimestamp = (timestamp: string): string => {
@@ -55,7 +56,7 @@ export default function ActivitiesList() {
 
   // Build pagination URL with query parameters
   const buildPageUrl = (page: number) => {
-    const params = new URLSearchParams(window.location.search)
+    const params = getSearchParams()
     params.set('page', page.toString())
     return `/?${params.toString()}`
   }

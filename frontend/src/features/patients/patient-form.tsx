@@ -307,9 +307,9 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           
           if (name && relationship && phone) {
             return {
-              name: name as string,
-              relationship: relationship as string,
-              phone: phone as string,
+              name,
+              relationship,
+              phone,
               email: ec.email?.trim() || undefined,
             }
           }

@@ -31,7 +31,7 @@ function MobileSidebar({ open, close, children }: React.PropsWithChildren<{ open
         transition
         className="fixed inset-y-0 w-full max-w-80 p-2 transition duration-300 ease-in-out data-closed:-translate-x-full"
       >
-        <div className="flex h-full flex-col rounded-lg bg-white shadow-xs ring-1 ring-zinc-950/5 dark:bg-zinc-900 dark:ring-white/10">
+        <div className="flex h-full flex-col rounded-xl bg-ascertain-white shadow-md ring-1 ring-neutral-800/10">
           <div className="-mb-3 px-4 pt-3">
             <Headless.CloseButton as={NavbarItem} aria-label="Close navigation">
               <CloseMenuIcon />
@@ -52,9 +52,16 @@ export function SidebarLayout({
   let [showSidebar, setShowSidebar] = useState(false)
 
   return (
-    <div className="relative isolate flex min-h-svh w-full bg-white max-lg:flex-col lg:bg-zinc-100 dark:bg-zinc-900 dark:lg:bg-zinc-950">
+    <div className="relative isolate flex min-h-svh w-full bg-ascertain-background max-lg:flex-col">
       {/* Sidebar on desktop */}
-      <div className="fixed inset-y-0 left-0 w-64 max-lg:hidden">{sidebar}</div>
+      <div className="fixed inset-y-0 left-0 w-64 max-lg:hidden border-r border-neutral-800/10">{sidebar}</div>
+      
+      {/* Desktop navbar header with frosted glass effect */}
+      <header className="fixed top-0 right-0 left-64 z-10 hidden lg:block">
+        <div className="bg-ascertain-white/80 backdrop-blur-sm border-b border-neutral-800/10 px-4 py-2.5">
+          {navbar}
+        </div>
+      </header>
 
       {/* Sidebar on mobile */}
       <MobileSidebar open={showSidebar} close={() => setShowSidebar(false)}>
@@ -72,8 +79,8 @@ export function SidebarLayout({
       </header>
 
       {/* Content */}
-      <main className="flex flex-1 flex-col pb-2 lg:min-w-0 lg:pt-2 lg:pr-2 lg:pl-64">
-        <div className="grow p-6 lg:rounded-lg lg:bg-white lg:p-10 lg:shadow-xs lg:ring-1 lg:ring-zinc-950/5 dark:lg:bg-zinc-900 dark:lg:ring-white/10">
+      <main className="flex flex-1 flex-col pb-2 lg:min-w-0 lg:pt-14 lg:pr-2 lg:pl-64">
+        <div className="grow p-6 lg:rounded-xl lg:bg-ascertain-white lg:p-10 lg:shadow-md">
           <div className="mx-auto max-w-6xl">{children}</div>
         </div>
       </main>

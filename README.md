@@ -70,7 +70,8 @@ The database is automatically seeded with 20 sample patients on first run. Can b
 
 ### Known Issues/To Dos
 - **Medication Management**: The patient form currently does not include UI for managing current medications.
-- **Documents Section**: Document upload and management UI has not been implemented for the patient form or patient detail page. The backend supports document uploads via `/api/patients/{patient_id}/upload-document`, but the frontend UI is pending. 
+- **Documents Section**: Document upload and management UI has not been implemented for the patient form or patient detail page. The backend supports document uploads via `/api/patients/{patient_id}/upload-document`, but the frontend UI is pending.
+- **Photo Upload Display**: Photo upload endpoint returns 200 (success) but the photo path is not returned as part of the patient endpoint response, so uploaded photos cannot be displayed. 
 
 ### Component Architecture
 - **Separation of Concerns**:

@@ -25,8 +25,8 @@ export function Table({
     <TableContext.Provider value={{ bleed, dense, grid, striped } as React.ContextType<typeof TableContext>}>
       <div className="flow-root">
         <div {...props} className={clsx(className, '-mx-(--gutter) overflow-x-auto whitespace-nowrap')}>
-          <div className={clsx('inline-block min-w-full align-middle', !bleed && 'sm:px-(--gutter)')}>
-            <table className="min-w-full text-left text-sm/6 text-ascertain-foreground">{children}</table>
+            <div className={clsx('inline-block min-w-full align-middle', !bleed && 'sm:px-(--gutter)')}>
+            <table className="min-w-full text-left text-sm/6 text-ascertain-foreground" style={{ tableLayout: 'fixed' }}>{children}</table>
           </div>
         </div>
       </div>

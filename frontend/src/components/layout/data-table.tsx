@@ -335,6 +335,7 @@ export default function DataTable<T extends Record<string, any>>({
                             <TableCell
                               key={colIndex}
                               className={column.className}
+                              style={column.width ? { width: column.width } : undefined}
                             >
                               {content}
                             </TableCell>

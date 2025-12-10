@@ -29,6 +29,7 @@ export interface ColumnDefinition<T> {
   className?: string
   width?: string
   sortable?: boolean
+  sortKey?: string
 }
 
 interface PaginationControlsProps {
@@ -89,7 +90,7 @@ function PaginationControls({
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div className="text-sm text-zinc-500">
+      <div className="text-sm text-neutral-500">
         Showing {start} to {end} of {total} {itemLabel}
       </div>
       <Pagination>
@@ -148,7 +149,7 @@ function TableSkeleton({ rows = 5, columns }: TableSkeletonProps) {
         <TableRow key={rowIndex}>
           {Array.from({ length: columns }).map((_, colIndex) => (
             <TableCell key={colIndex}>
-              <div className="h-4 w-3/4 animate-pulse rounded bg-zinc-200" />
+              <div className="h-4 w-3/4 animate-pulse rounded bg-neutral-200" />
             </TableCell>
           ))}
         </TableRow>
@@ -170,6 +171,9 @@ interface DataTableProps<T> {
   renderRow?: (row: T, index: number) => React.ReactNode
   className?: string
   skeletonRows?: number
+  onSort?: (sortKey: string) => void
+  currentSortBy?: string
+  currentSortOrder?: 'asc' | 'desc'
 }
 
 export default function DataTable<T extends Record<string, any>>({
@@ -185,17 +189,20 @@ export default function DataTable<T extends Record<string, any>>({
   renderRow,
   className,
   skeletonRows = 5,
+  onSort,
+  currentSortBy,
+  currentSortOrder,
 }: DataTableProps<T>) {
-  const hasData = data && data.items.length > 0
+  const hasData = !!(data && data.items.length > 0)
   const showOverlay = isFetching && hasData
 
   return (
-    <div className={clsx('relative rounded-lg border border-zinc-950/10 bg-white shadow-sm', className)}>
+    <div className={clsx('relative rounded-lg border border-neutral-950/10 bg-white shadow-sm', className)}>
       <LoadingOverlay isVisible={showOverlay} />
       
       {error ? (
         <div className="flex flex-col items-center justify-center gap-4 p-12">
-          <p className="text-sm text-zinc-600">
+          <p className="text-sm text-neutral-600">
             {error.message || 'An error occurred while loading data'}
           </p>
           {refetch && (
@@ -209,15 +216,31 @@ export default function DataTable<T extends Record<string, any>>({
           <Table>
             <TableHead>
               <TableRow>
-                {columns.map((column, index) => (
-                  <TableHeader
-                    key={index}
-                    className={column.className}
-                    style={column.width ? { width: column.width } : undefined}
-                  >
-                    {column.header}
-                  </TableHeader>
-                ))}
+                {columns.map((column, index) => {
+                  const isSorted = column.sortable && column.sortKey === currentSortBy
+                  const sortIcon = isSorted 
+                    ? currentSortOrder === 'asc' ? '↑' : '↓'
+                    : column.sortable ? '⇅' : ''
+                  
+                  return (
+                    <TableHeader
+                      key={index}
+                      className={clsx(
+                        column.className,
+                        column.sortable && 'cursor-pointer hover:bg-zinc-50 select-none'
+                      )}
+                      style={column.width ? { width: column.width } : undefined}
+                      onClick={() => column.sortable && column.sortKey && onSort?.(column.sortKey)}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>{column.header}</span>
+                        {column.sortable && (
+                          <span className="text-zinc-400 text-xs">{sortIcon}</span>
+                        )}
+                      </div>
+                    </TableHeader>
+                  )
+                })}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -235,19 +258,35 @@ export default function DataTable<T extends Record<string, any>>({
         <>
           <div className="overflow-x-auto">
             <Table>
-              <TableHead>
-                <TableRow>
-                  {columns.map((column, index) => (
+            <TableHead>
+              <TableRow>
+                {columns.map((column, index) => {
+                  const isSorted = column.sortable && column.sortKey === currentSortBy
+                  const sortIcon = isSorted 
+                    ? currentSortOrder === 'asc' ? '↑' : '↓'
+                    : column.sortable ? '⇅' : ''
+                  
+                  return (
                     <TableHeader
                       key={index}
-                      className={column.className}
+                      className={clsx(
+                        column.className,
+                        column.sortable && 'cursor-pointer hover:bg-zinc-50 select-none'
+                      )}
                       style={column.width ? { width: column.width } : undefined}
+                      onClick={() => column.sortable && column.sortKey && onSort?.(column.sortKey)}
                     >
-                      {column.header}
+                      <div className="flex items-center gap-2">
+                        <span>{column.header}</span>
+                        {column.sortable && (
+                          <span className="text-zinc-400 text-xs">{sortIcon}</span>
+                        )}
+                      </div>
                     </TableHeader>
-                  ))}
-                </TableRow>
-              </TableHead>
+                  )
+                })}
+              </TableRow>
+            </TableHead>
               <TableBody>
                 {renderRow
                   ? data.items.map((row, index) => renderRow(row, index))

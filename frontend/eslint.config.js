@@ -145,7 +145,7 @@ export default [
       ],
       'import/first': 'error',
       'import/exports-last': 'off',
-      'import/newline-after-import': 'off', // Allow flexible blank lines after imports
+      'import/newline-after-import': 'error', // Enforce blank line after imports for consistency
       'import/no-absolute-path': 'error',
       'import/no-relative-packages': 'warn',
       

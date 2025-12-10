@@ -65,6 +65,10 @@ if [ "$MIGRATION_AVAILABLE" = true ]; then
   echo "🔄 Running migrations..."
   echo ""
   
+  # Set environment variable to indicate migrations are being run by entrypoint
+  # This prevents the application startup from running them again
+  export MIGRATIONS_RUN_BY_ENTRYPOINT=1
+  
   # Capture both stdout and stderr, and preserve the exit code
   MIGRATION_OUTPUT=$(python -m app.migrations 2>&1)
   MIGRATION_EXIT=$?

@@ -5,15 +5,41 @@ import DataTable, { type ColumnDefinition } from '@/components/layout/data-table
 import type { Activity } from './types'
 import { getActivities } from './api'
 import useSortedData from '@/hooks/useSortedData'
+import { Badge } from '@/components/ui/badge'
 
-// Format timestamp for display
+// Format timestamp for display (localized to user's timezone)
 const formatTimestamp = (timestamp: string): string => {
   try {
     const date = new Date(timestamp)
+    // date-fns format automatically uses local timezone
     return format(date, 'MMM d, yyyy h:mm a')
   } catch {
     return timestamp
   }
+}
+
+// Get badge color based on action type
+const getActionColor = (actionType: string): 'green' | 'blue' | 'red' | 'orange' | 'purple' | 'zinc' => {
+  const upperAction = actionType.toUpperCase()
+  switch (upperAction) {
+    case 'CREATE':
+      return 'green'
+    case 'UPDATE':
+      return 'blue'
+    case 'DELETE':
+      return 'red'
+    case 'VIEW':
+    case 'READ':
+      return 'purple'
+    default:
+      return 'zinc'
+  }
+}
+
+// Format action type as a badge
+const formatActionType = (actionType: string) => {
+  const color = getActionColor(actionType)
+  return <Badge color={color}>{actionType}</Badge>
 }
 
 export default function ActivitiesList() {
@@ -54,7 +80,7 @@ export default function ActivitiesList() {
   const columns: ColumnDefinition<Activity>[] = [
     {
       header: 'Action',
-      accessor: 'actionType',
+      accessor: (row) => formatActionType(row.actionType),
     },
     {
       header: 'Description',

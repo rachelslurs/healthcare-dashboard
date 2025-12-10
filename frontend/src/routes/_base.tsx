@@ -1,6 +1,9 @@
-import { createFileRoute } from '@tanstack/react-router'
-import MainLayout from '../components/layout/main-layout'
+import { createRoute } from '@tanstack/react-router'
+import { rootRoute } from './__root'
+import MainLayout from '@/components/layout/main-layout'
 
-export const Route = createFileRoute('/_base')({
+export const baseRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  id: '/_base',
   component: MainLayout,
 })

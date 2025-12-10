@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import type React from 'react'
 
 interface LoadingSpinnerProps {
@@ -12,10 +13,10 @@ interface LoadingSpinnerProps {
  */
 export default function LoadingSpinner({ 
   message = 'Loading...', 
-  className = '' 
+  className 
 }: LoadingSpinnerProps) {
   return (
-    <div className={`flex items-center justify-center min-h-[400px] ${className}`}>
+    <div className={clsx('flex items-center justify-center min-h-[400px]', className)}>
       <div className="flex flex-col items-center gap-2">
         <div className="size-8 animate-spin rounded-full border-4 border-neutral-300 border-t-neutral-600" />
         {message && (

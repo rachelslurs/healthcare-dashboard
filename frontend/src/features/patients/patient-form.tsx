@@ -283,11 +283,15 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           ? formData.address
           : undefined,
         // Convert empty emergency contact to undefined
+        // Only require name, relationship, and phone (email is optional)
         emergencyContact: formData.emergencyContact &&
           formData.emergencyContact.name?.trim() &&
           formData.emergencyContact.relationship?.trim() &&
           formData.emergencyContact.phone?.trim()
-          ? formData.emergencyContact
+          ? {
+              ...formData.emergencyContact,
+              email: formData.emergencyContact.email?.trim() || undefined,
+            }
           : undefined,
         // Ensure lastVisit is a string (not undefined)
         medicalInfo: {

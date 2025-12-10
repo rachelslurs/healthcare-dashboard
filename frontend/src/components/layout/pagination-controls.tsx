@@ -94,16 +94,16 @@ export default memo(function PaginationControls({
   }
 
   return (
-    <div className='flex flex-col gap-2'>
+    <div className='flex flex-col gap-2 min-w-[320px]'>
       {totalPages > 1 && (
         <div className='flex items-center justify-center'>
           <div className='flex items-center gap-x-2'>
             <PaginationPrevious
               onClick={handlePrevious}
               disabled={page <= 1}
-              className='w-24'
+              className='w-24 flex-shrink-0'
             />
-            <PaginationList>
+            <PaginationList className='min-w-[120px] flex justify-center'>
               {pageNumbers.map((pageNum, index) => {
                 if (pageNum === 'ellipsis') {
                   return <PaginationGap key={`ellipsis-${index}`} />
@@ -122,13 +122,13 @@ export default memo(function PaginationControls({
             <PaginationNext
               onClick={handleNext}
               disabled={page >= totalPages}
-              className='w-24'
+              className='w-24 flex-shrink-0'
             />
           </div>
         </div>
       )}
       {showingText && (
-        <div className='flex justify-center text-sm text-neutral-500'>
+        <div className='flex justify-center text-sm text-neutral-500 min-h-[20px]'>
           {showingText}
         </div>
       )}

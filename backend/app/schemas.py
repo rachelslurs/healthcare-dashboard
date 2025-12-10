@@ -51,14 +51,20 @@ class MedicalInfo(BaseModel):
 
 
 class InsuranceInfo(BaseModel):
-    """Insurance information schema."""
+    """Insurance information schema.
+    
+    Note: Monetary values (copay, deductible) are stored as floats with 2 decimal places.
+    While floating-point precision can theoretically cause issues, values are rounded to
+    2 decimal places in practice. For production systems requiring exact precision,
+    consider storing values as integer cents instead.
+    """
     provider: str
     policy_number: str = Field(..., alias="policyNumber")
     group_number: Optional[str] = Field(None, alias="groupNumber")
     effective_date: str = Field(..., alias="effectiveDate")
     expiration_date: Optional[str] = Field(None, alias="expirationDate")
-    copay: float
-    deductible: float
+    copay: float = Field(..., description="Copay amount in dollars (stored as float, rounded to 2 decimal places)")
+    deductible: float = Field(..., description="Deductible amount in dollars (stored as float, rounded to 2 decimal places)")
     
     model_config = ConfigDict(populate_by_name=True)
 

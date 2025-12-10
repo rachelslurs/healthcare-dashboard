@@ -38,9 +38,13 @@ The database is automatically seeded with 20 sample patients on first run. Can b
 
 ### Component Architecture
 - **Separation of Concerns**:
+  - `features/` - Feature-specific components organized by domain (e.g., `features/patients/`, `features/activity/`)
+    - Flat structure: components directly in feature folder (e.g., `features/patients/patients-list.tsx`)
+    - Shared form components reused across routes (e.g., `patient-form.tsx` used by both new and edit routes)
   - `components/ui/` - Reusable, unstyled UI primitives using [Catalyst](https://tailwindcss.com/plus/ui-kit)
   - `components/layout/` - Layout-specific components (Header, Sidebar, MainLayout)
   - `components/feedback/` - User feedback components (Toast notifications)
+  - `routes/` - Thin route files that import and wire up feature components
 
 ### Form Validation & Management
 - **React Hook Form**: Form state management and validation library
@@ -62,8 +66,10 @@ The database is automatically seeded with 20 sample patients on first run. Can b
 #### Routing
 - **TanStack Router**: 
   - Type-safe routing with full TypeScript support
-  - File-based routing for intuitive organization
+  - Manual route configuration for explicit control
+  - Feature-based organization: route files import from `features/` directory
   - Built-in data loading and SSR support
+  - Path aliases (`@/`) for cleaner imports
   - Excellent developer experience
 
 #### UI Components
@@ -144,6 +150,36 @@ backend/
 │   └── schemas.py       # Pydantic schemas for validation
 ├── requirements.txt
 ├── Dockerfile
+└── README.md
+
+frontend/
+├── src/
+│   ├── features/        # Feature-based components
+│   │   ├── activity/
+│   │   │   └── activity-page.tsx
+│   │   └── patients/
+│   │       ├── patients-list.tsx
+│   │       ├── patient-detail.tsx
+│   │       └── patient-form.tsx
+│   ├── routes/          # Route configuration files (thin wrappers)
+│   │   ├── _root.tsx    # Root layout
+│   │   ├── _base.tsx    # Base layout wrapper
+│   │   ├── _base/
+│   │   │   └── index.tsx
+│   │   └── patients/
+│   │       ├── index.tsx
+│   │       ├── new.tsx
+│   │       └── $patientId/
+│   │           ├── layout.tsx
+│   │           ├── index.tsx
+│   │           └── edit.tsx
+│   ├── router.tsx       # Manual route tree configuration
+│   ├── components/      # Shared UI components
+│   ├── types/           # TypeScript type definitions
+│   └── assets/          # Static assets
+├── package.json
+├── tsconfig.json        # TypeScript config with @ alias
+├── vite.config.ts       # Vite config with @ alias
 └── README.md
 ```
 

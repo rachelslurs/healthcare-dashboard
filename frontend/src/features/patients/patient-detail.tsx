@@ -186,11 +186,14 @@ export default function PatientDetail() {
             </div>
           </div>
           <div className='flex items-center gap-2'>
-            <Button outline onClick={handleEdit}>
-              Edit
-            </Button>
-            <Button color='red' onClick={handleDeleteClick}>
+            <Button
+              color='red'
+              onClick={handleDeleteClick}
+            >
               Delete
+            </Button>
+            <Button color='violet' onClick={handleEdit}>
+              Edit
             </Button>
           </div>
         </div>

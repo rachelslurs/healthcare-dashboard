@@ -19,11 +19,9 @@ const styles = {
   ],
   solid: [
     // Optical border, implemented as the button background to avoid corner artifacts
-    'border-transparent bg-(--btn-border)',
+    'border border-transparent bg-(--btn-border)',
     // Button background, implemented as foreground layer to stack on top of pseudo-border layer
     'before:absolute before:inset-0 before:-z-10 before:rounded-[calc(var(--radius-lg)-1px)] before:bg-(--btn-bg)',
-    // Drop shadow, applied to the inset `before` layer so it blends with the border
-    'before:shadow-sm',
     // Shim/overlay, inset to match button foreground and used for hover state + highlight shadow
     'after:absolute after:inset-0 after:-z-10 after:rounded-[calc(var(--radius-lg)-1px)]',
     // Inner highlight shadow

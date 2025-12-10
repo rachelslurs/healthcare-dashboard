@@ -491,9 +491,9 @@ frontend/
 ### 1. Developer Experience & Architecture
 
 #### ✅ Code Quality
-- [ ] Run `npm run lint` → **Zero** linting errors (ESLint).
-- [ ] Run type check (e.g., `tsc --noEmit`) → **Zero** TypeScript errors.
-- [ ] Run `npm run build` → Build completes without warnings.
+- [ ] Run `docker-compose exec frontend npm run lint` → **Zero** linting errors (ESLint).
+- [ ] Run type check: `docker-compose exec frontend npx tsc --noEmit` → **Zero** TypeScript errors.
+- [ ] Run `docker-compose exec frontend npm run build` → Build completes without warnings.
 - [ ] Folder structure clearly separates `features`, `components`, and `hooks`.
 
 #### ✅ Docker & Setup

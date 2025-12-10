@@ -9,6 +9,10 @@ import {
 } from '../ui/pagination'
 
 // Helper function to format the "Showing" text
+// This function was moved here from data-table.tsx because it's used in a useMemo hook
+// that must be called before any conditional returns, following the Rules of Hooks.
+// Keeping it as a standalone function (rather than inline) allows it to be used in useMemo
+// while maintaining clean separation of concerns.
 function formatShowingText(
   page: number,
   pageSize: number,

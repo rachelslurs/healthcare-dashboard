@@ -41,11 +41,8 @@ export default memo(function PaginationControls({
     onPageChange(pageNum)
   }, [onPageChange])
 
-  if (totalPages <= 1 && !showShowingText) {
-    return null
-  }
-
   // Generate page numbers with smart ellipsis
+  // Must be called before any early returns (Rules of Hooks)
   const pageNumbers = useMemo(() => {
     const pages: (number | 'ellipsis')[] = []
     const alwaysShow = new Set([1, totalPages, page])
@@ -80,6 +77,11 @@ export default memo(function PaginationControls({
   const showingText = useMemo(() => {
     return showShowingText ? formatShowingText(page, pageSize, total, itemLabel) : null
   }, [showShowingText, page, pageSize, total, itemLabel])
+
+  // Early return after all hooks are called
+  if (totalPages <= 1 && !showShowingText) {
+    return null
+  }
 
   return (
     <div className='flex flex-col gap-2'>

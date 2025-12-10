@@ -2,7 +2,6 @@ from fastapi import FastAPI, Depends, Query, HTTPException, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
-from typing import List
 from datetime import datetime, date
 import os
 import shutil
@@ -144,34 +143,43 @@ def get_patients(
             detail="Invalid sort_order. Must be 'asc' or 'desc'"
         )
     
-    if sort_by == "age":
-        # Calculate age for sorting: older patients have earlier date_of_birth
-        # For descending (oldest first): order by date_of_birth ASC (earliest dates first)
-        # For ascending (youngest first): order by date_of_birth DESC (latest dates first)
-        if sort_order == "desc":
-            query = query.order_by(Patient.date_of_birth.asc())
-        else:
-            query = query.order_by(Patient.date_of_birth.desc())
-    elif sort_by == "last_name":
-        if sort_order == "desc":
-            query = query.order_by(Patient.last_name.desc())
-        else:
-            query = query.order_by(Patient.last_name.asc())
-    elif sort_by == "status":
-        if sort_order == "desc":
-            query = query.order_by(Patient.status.desc())
-        else:
-            query = query.order_by(Patient.status.asc())
-    elif sort_by == "last_visit":
-        if sort_order == "desc":
-            query = query.order_by(Patient.last_visit.desc().nulls_last())
-        else:
-            query = query.order_by(Patient.last_visit.asc().nulls_last())
-    else:
+    # Define sort field mappings to column attributes
+    sort_field_map = {
+        "last_name": Patient.last_name,
+        "status": Patient.status,
+        "last_visit": Patient.last_visit,
+        "age": Patient.date_of_birth,  # Special case: uses date_of_birth with reversed logic
+    }
+    
+    if sort_by not in sort_field_map:
         raise HTTPException(
             status_code=400,
-            detail="Invalid sort_by. Must be one of: last_name, age, status, last_visit"
+            detail=f"Invalid sort_by. Must be one of: {', '.join(sort_field_map.keys())}"
         )
+    
+    # Get the column to sort by
+    sort_column = sort_field_map[sort_by]
+    
+    # Determine sort direction (age uses reversed logic)
+    if sort_by == "age":
+        # Age sorting: older patients have earlier date_of_birth
+        # For descending (oldest first): order by date_of_birth ASC (earliest dates first)
+        # For ascending (youngest first): order by date_of_birth DESC (latest dates first)
+        actual_order = "asc" if sort_order == "desc" else "desc"
+    else:
+        actual_order = sort_order
+    
+    # Apply sorting
+    if actual_order == "desc":
+        order_expr = sort_column.desc()
+    else:
+        order_expr = sort_column.asc()
+    
+    # Handle NULL values for last_visit
+    if sort_by == "last_visit":
+        order_expr = order_expr.nulls_last()
+    
+    query = query.order_by(order_expr)
     
     # Calculate offset
     offset = (page - 1) * page_size
@@ -376,23 +384,39 @@ def upload_patient_photo(
     
     # Generate unique filename with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"{timestamp}_{file.filename}"
+    filename = f"{timestamp}_{Path(file.filename).name}"
     file_path = UPLOAD_DIR / filename
     
-    # Delete old photo if it exists
+    # Store old photo path for cleanup (don't delete yet)
+    old_file_path = None
     if patient.photo_url:
         old_file_path = UPLOAD_DIR / Path(patient.photo_url).name
-        if old_file_path.exists():
+    
+    try:
+        # Save the new file first
+        with open(file_path, "wb") as dest_file:
+            shutil.copyfileobj(file.file, dest_file)
+        
+        # Update patient photo_url
+        patient.photo_url = f"/uploads/{filename}"
+        db.commit()
+        db.refresh(patient)
+        
+        # Only delete old photo after successful save and database update
+        if old_file_path and old_file_path.exists():
             old_file_path.unlink()
-    
-    # Save the file
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-    
-    # Update patient photo_url
-    patient.photo_url = f"/uploads/{filename}"
-    db.commit()
-    db.refresh(patient)
+            
+    except Exception as e:
+        # Rollback database changes
+        db.rollback()
+        # Clean up the new file if it was created
+        if file_path.exists():
+            file_path.unlink()
+        # Re-raise the exception
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to upload photo: {str(e)}"
+        )
     
     # Log activity
     patient_name = f"{patient.first_name} {patient.last_name}"
@@ -432,8 +456,8 @@ def upload_patient_document(
     file_path = UPLOAD_DIR / filename
     
     # Save the file
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    with open(file_path, "wb") as dest_file:
+        shutil.copyfileobj(file.file, dest_file)
     
     # Add document metadata to patient.documents array
     documents = patient.documents or []

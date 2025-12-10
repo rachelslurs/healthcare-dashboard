@@ -49,7 +49,7 @@ The easiest way to run the entire application:
    ```bash
    docker compose up --watch
    ```
-   - Automatically rebuilds containers when dependencies change (`package.json`, `requirements.txt`)
+   - Automatically rebuilds containers when dependencies change (`package.json`, `package-lock.json`, `requirements.txt`)
    - Provides clear feedback during startup (dependency installation, migrations, etc.)
 
 2. **Access the application:**

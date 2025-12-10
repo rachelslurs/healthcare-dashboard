@@ -49,7 +49,7 @@ interface DataTableProps<T> {
   showShowingText?: boolean
 }
 
-export default function DataTable<T extends Record<string, unknown>>({
+export default function DataTable<T extends object>({
   columns,
   data,
   isLoading,

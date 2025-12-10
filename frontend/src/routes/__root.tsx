@@ -5,6 +5,7 @@ import globalsCss from '@/assets/styles/globals.css?url';
 import { Outlet, createRootRoute, HeadContent, Scripts } from '@tanstack/react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import ErrorBoundary from '@/components/errors/error-boundary'
+import Toaster from '@/components/feedback/toaster'
 
 // Create a QueryClient instance
 const queryClient = new QueryClient({
@@ -86,6 +87,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       </head>
       <body className="bg-ascertain-background text-ascertain-foreground">
         {children}
+        <Toaster />
         <Scripts />
       </body>
     </html>

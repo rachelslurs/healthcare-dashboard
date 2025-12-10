@@ -45,7 +45,7 @@ export function Combobox<T>({
           // Background color + shadow applied to inset pseudo element, so shadow blends with border in light mode
           'before:absolute before:inset-px before:rounded-[calc(var(--radius-lg)-1px)] before:bg-white before:shadow-sm',
           // Focus ring
-          'after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-transparent after:ring-inset sm:focus-within:after:ring-2 sm:focus-within:after:ring-blue-500',
+          'after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-transparent after:ring-inset sm:focus-within:after:ring-2 sm:focus-within:after:ring-violet-500',
           // Disabled state
           'has-data-disabled:opacity-50 has-data-disabled:before:bg-zinc-950/5 has-data-disabled:before:shadow-none',
           // Invalid state
@@ -66,9 +66,9 @@ export function Combobox<T>({
             // Horizontal padding
             'pr-[calc(--spacing(10)-1px)] pl-[calc(--spacing(3.5)-1px)] sm:pr-[calc(--spacing(9)-1px)] sm:pl-[calc(--spacing(3)-1px)]',
             // Typography
-            'text-base/6 text-zinc-950 placeholder:text-zinc-500 sm:text-sm/6',
+            'text-base/6 text-neutral-950 placeholder:text-neutral-500 sm:text-sm/6',
             // Border
-            'border border-zinc-950/10 data-hover:border-zinc-950/20',
+            'border border-neutral-950/10 data-hover:border-neutral-950/20',
             // Background color
             'bg-transparent',
             // Hide default focus styles
@@ -76,7 +76,7 @@ export function Combobox<T>({
             // Invalid state
             'data-invalid:border-red-500 data-invalid:data-hover:border-red-500',
             // Disabled state
-            'data-disabled:border-zinc-950/20',
+            'data-disabled:border-neutral-950/20',
           ])}
         />
         <Headless.ComboboxButton className="group absolute inset-y-0 right-0 flex items-center px-2">
@@ -144,8 +144,8 @@ export function ComboboxOption<T>({
         'group/option grid w-full cursor-default grid-cols-[1fr_--spacing(5)] items-baseline gap-x-2 rounded-lg py-2.5 pr-2 pl-3.5 sm:grid-cols-[1fr_--spacing(4)] sm:py-1.5 sm:pr-2 sm:pl-3',
         // Typography
         'text-base/6 text-zinc-950 sm:text-sm/6 forced-colors:text-[CanvasText]',
-        // Focus
-        'outline-hidden data-focus:bg-blue-500 data-focus:text-white',
+        // Focus  
+        'outline-hidden data-focus:bg-violet-500 data-focus:text-white',
         // Forced colors mode
         'forced-color-adjust-none forced-colors:data-focus:bg-[Highlight] forced-colors:data-focus:text-[HighlightText]',
         // Disabled

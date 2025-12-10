@@ -65,3 +65,26 @@ class PatientListResponse(BaseModel):
     
     class Config:
         from_attributes = True
+
+
+class ActivityResponse(BaseModel):
+    """Schema for activity response."""
+    
+    id: int
+    timestamp: datetime
+    action_type: str
+    description: str
+    patient_id: Optional[int] = None
+    
+    class Config:
+        from_attributes = True
+
+
+class PaginatedActivitiesResponse(BaseModel):
+    """Schema for paginated activity list response."""
+    
+    items: List[ActivityResponse]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int

@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from sqlalchemy import func as sql_func
 from datetime import datetime, date
+from typing import Optional
 import os
 import shutil
 import uuid
@@ -61,7 +62,7 @@ def health_check():
     return {"status": "healthy", "timestamp": datetime.now().isoformat()}
 
 
-def calculate_age(date_of_birth_str: str) -> int:
+def calculate_age(date_of_birth_str: str) -> Optional[int]:
     """Calculate age from date of birth (ISO format string)."""
     try:
         dob = datetime.fromisoformat(date_of_birth_str.replace('Z', '+00:00'))

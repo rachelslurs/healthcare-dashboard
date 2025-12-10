@@ -227,7 +227,7 @@ export default function DataTable<T extends Record<string, any>>({
                       key={index}
                       className={clsx(
                         column.className,
-                        column.sortable && 'cursor-pointer hover:bg-zinc-50 select-none'
+                        column.sortable && 'cursor-pointer hover:bg-neutral-50 select-none'
                       )}
                       style={column.width ? { width: column.width } : undefined}
                       onClick={() => column.sortable && column.sortKey && onSort?.(column.sortKey)}
@@ -235,7 +235,7 @@ export default function DataTable<T extends Record<string, any>>({
                       <div className="flex items-center gap-2">
                         <span>{column.header}</span>
                         {column.sortable && (
-                          <span className="text-zinc-400 text-xs">{sortIcon}</span>
+                          <span className="text-neutral-400 text-xs">{sortIcon}</span>
                         )}
                       </div>
                     </TableHeader>
@@ -250,7 +250,7 @@ export default function DataTable<T extends Record<string, any>>({
         </div>
       ) : !hasData ? (
         <div className="flex items-center justify-center p-12">
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-neutral-500">
             {emptyMessage}
           </p>
         </div>
@@ -271,7 +271,7 @@ export default function DataTable<T extends Record<string, any>>({
                       key={index}
                       className={clsx(
                         column.className,
-                        column.sortable && 'cursor-pointer hover:bg-zinc-50 select-none'
+                        column.sortable && 'cursor-pointer hover:bg-neutral-50 select-none'
                       )}
                       style={column.width ? { width: column.width } : undefined}
                       onClick={() => column.sortable && column.sortKey && onSort?.(column.sortKey)}
@@ -279,7 +279,7 @@ export default function DataTable<T extends Record<string, any>>({
                       <div className="flex items-center gap-2">
                         <span>{column.header}</span>
                         {column.sortable && (
-                          <span className="text-zinc-400 text-xs">{sortIcon}</span>
+                          <span className="text-neutral-400 text-xs">{sortIcon}</span>
                         )}
                       </div>
                     </TableHeader>
@@ -318,7 +318,7 @@ export default function DataTable<T extends Record<string, any>>({
             </Table>
           </div>
           {data && (
-            <div className="border-t border-zinc-950/10 px-6 py-4">
+            <div className="border-t border-neutral-950/10 px-6 py-4">
               <PaginationControls
                 page={data.page}
                 totalPages={data.total_pages}

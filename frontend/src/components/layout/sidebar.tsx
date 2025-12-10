@@ -1,3 +1,4 @@
+import { useLocation } from '@tanstack/react-router'
 import {
   ArrowRightStartOnRectangleIcon,
   LightBulbIcon,
@@ -28,6 +29,9 @@ import {
 } from '../ui/sidebar'
 
 export default function Sidebar() {
+  const location = useLocation()
+  const pathname = location.pathname
+
   const handleShareFeedback = () => {
     console.log('Share feedback clicked')
   }
@@ -43,11 +47,11 @@ export default function Sidebar() {
       </SidebarHeader>
       <SidebarBody>
         <SidebarSection>
-          <SidebarItem href='/'>
+          <SidebarItem href='/' current={pathname === '/'}>
             <ChartBarIcon />
-            <SidebarLabel>Activity</SidebarLabel>
+            <SidebarLabel>Activities</SidebarLabel>
           </SidebarItem>
-          <SidebarItem href='/patients'>
+          <SidebarItem href='/patients' current={pathname === '/patients' || pathname.startsWith('/patients/')}>
             <UserGroupIcon />
             <SidebarLabel>Patients</SidebarLabel>
           </SidebarItem>

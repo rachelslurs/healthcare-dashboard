@@ -44,7 +44,7 @@ class MedicalInfo(BaseModel):
     current_medications: List[Medication] = Field(..., alias="currentMedications")
     conditions: List[str]
     blood_type: Literal['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] = Field(..., alias="bloodType")
-    last_visit: str = Field(..., alias="lastVisit")
+    last_visit: Optional[str] = Field(None, alias="lastVisit")
     status: Literal['active', 'inactive', 'critical']
     
     model_config = ConfigDict(populate_by_name=True)

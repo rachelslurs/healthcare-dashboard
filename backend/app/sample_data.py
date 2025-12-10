@@ -2,7 +2,6 @@
 
 import random
 from datetime import date, datetime, timedelta
-from sqlalchemy.orm import Session
 from app.models import Patient
 from app.database import SessionLocal
 

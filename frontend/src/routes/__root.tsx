@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import globalsCss from '@/assets/styles/globals.css?url';
 
 import { Outlet, createRootRoute, HeadContent, Scripts } from '@tanstack/react-router'
+import ErrorBoundary from '@/components/errors/error-boundary'
 
 export const rootRoute = createRootRoute({
   head: () => ({
@@ -56,9 +57,11 @@ export const rootRoute = createRootRoute({
 
 function RootComponent() {
   return (
-    <RootDocument>
-      <Outlet />
-    </RootDocument>
+    <ErrorBoundary>
+      <RootDocument>
+        <Outlet />
+      </RootDocument>
+    </ErrorBoundary>
   );
 }
 

@@ -110,17 +110,77 @@ def patient_to_response(patient: Patient) -> PatientResponse:
 def get_patients(
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(10, ge=1, le=100, description="Items per page"),
+    search: str = Query(None, description="Search by first name or last name"),
+    status: str = Query(None, description="Filter by status (active, inactive, archived)"),
+    sort_by: str = Query("last_name", description="Sort by: last_name, age, status, last_visit"),
+    sort_order: str = Query("asc", description="Sort order: asc or desc"),
     db: Session = Depends(get_db)
 ):
-    """Get paginated list of patients."""
+    """Get paginated list of patients with optional search, filters, and sorting."""
+    # Build base query
+    query = db.query(Patient)
+    
+    # Apply search filter if provided
+    if search:
+        search_pattern = f"%{search}%"
+        query = query.filter(
+            (Patient.first_name.ilike(search_pattern)) |
+            (Patient.last_name.ilike(search_pattern))
+        )
+    
+    # Apply status filter if provided
+    if status:
+        if status not in ["active", "inactive", "archived"]:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid status. Must be one of: active, inactive, archived"
+            )
+        query = query.filter(Patient.status == status)
+    
+    # Apply sorting
+    if sort_order not in ["asc", "desc"]:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid sort_order. Must be 'asc' or 'desc'"
+        )
+    
+    if sort_by == "age":
+        # Calculate age for sorting: older patients have earlier date_of_birth
+        # For descending (oldest first): order by date_of_birth ASC (earliest dates first)
+        # For ascending (youngest first): order by date_of_birth DESC (latest dates first)
+        if sort_order == "desc":
+            query = query.order_by(Patient.date_of_birth.asc())
+        else:
+            query = query.order_by(Patient.date_of_birth.desc())
+    elif sort_by == "last_name":
+        if sort_order == "desc":
+            query = query.order_by(Patient.last_name.desc())
+        else:
+            query = query.order_by(Patient.last_name.asc())
+    elif sort_by == "status":
+        if sort_order == "desc":
+            query = query.order_by(Patient.status.desc())
+        else:
+            query = query.order_by(Patient.status.asc())
+    elif sort_by == "last_visit":
+        if sort_order == "desc":
+            query = query.order_by(Patient.last_visit.desc().nulls_last())
+        else:
+            query = query.order_by(Patient.last_visit.asc().nulls_last())
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid sort_by. Must be one of: last_name, age, status, last_visit"
+        )
+    
     # Calculate offset
     offset = (page - 1) * page_size
     
-    # Get total count
-    total = db.query(Patient).count()
+    # Get total count (after filters)
+    total = query.count()
     
     # Get patients for current page
-    patients = db.query(Patient).offset(offset).limit(page_size).all()
+    patients = query.offset(offset).limit(page_size).all()
     
     # Convert to response format with age calculation
     items = []

@@ -1,12 +1,12 @@
 import clsx from 'clsx'
 import type React from 'react'
 
-import type { Toast, ToastAction } from '@/lib/toast'
+import type { Toast as ToastType, ToastAction } from '@/lib/toast'
 
 import { Button } from './button'
 
 export interface ToastProps {
-  toast: Toast
+  toast: ToastType
   onOpenChange: (open: boolean) => void
 }
 

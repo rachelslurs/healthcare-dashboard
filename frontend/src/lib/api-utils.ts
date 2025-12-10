@@ -56,9 +56,14 @@ export async function handleApiError(
   // Try to extract error detail from response body
   let errorMessage = defaultMessage
   try {
-    const errorData = await response.json().catch(() => ({}))
-    if (errorData.detail) {
-      errorMessage = errorData.detail
+    const errorData = (await response.json()) as unknown
+    if (
+      typeof errorData === 'object' &&
+      errorData !== null &&
+      'detail' in errorData &&
+      typeof (errorData as { detail: unknown }).detail === 'string'
+    ) {
+      errorMessage = (errorData as { detail: string }).detail
     } else if (response.statusText) {
       errorMessage = `${defaultMessage}: ${response.statusText}`
     }
@@ -70,18 +75,4 @@ export async function handleApiError(
   }
 
   throw new Error(errorMessage)
-}
-
-/**
- * Create a standardized API error message
- * @param action - The action that failed (e.g., "fetch patients", "create patient")
- * @param resource - The resource type (e.g., "patient", "activity")
- * @param id - Optional resource ID for specific resource operations
- * @returns Error message string
- */
-export function createApiErrorMessage(action: string, resource: string, id?: string): string {
-  if (id) {
-    return `Failed to ${action} ${resource} with ID ${id}`
-  }
-  return `Failed to ${action} ${resource}`
 }

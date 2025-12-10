@@ -283,7 +283,7 @@ export default function DataTable<T extends Record<string, any>>({
         </div>
       ) : isLoading && !hasData ? (
         <div className="overflow-x-auto">
-          <Table striped={true}>
+          <Table striped={true} dense={true}>
             <TableHead>
               <TableHeaderRow
                 columns={columns}

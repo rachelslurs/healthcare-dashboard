@@ -168,7 +168,7 @@ export default function PatientDetail() {
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-6 lg:grid lg:grid-cols-2 lg:gap-6 lg:space-y-0">
         {/* Basic Information */}
         <section>
           <h2 className="text-lg font-semibold mb-4">Basic Information</h2>
@@ -250,16 +250,38 @@ export default function PatientDetail() {
 
             <DescriptionTerm>Allergies</DescriptionTerm>
             <DescriptionDetails>
-              {patient.medicalInfo.allergies.length > 0 
-                ? patient.medicalInfo.allergies.join(', ')
-                : 'None'}
+              {patient.medicalInfo.allergies.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {patient.medicalInfo.allergies.map((allergy, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
+                    >
+                      {allergy}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                'None'
+              )}
             </DescriptionDetails>
 
             <DescriptionTerm>Conditions</DescriptionTerm>
             <DescriptionDetails>
-              {patient.medicalInfo.conditions.length > 0
-                ? patient.medicalInfo.conditions.join(', ')
-                : 'None'}
+              {patient.medicalInfo.conditions.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {patient.medicalInfo.conditions.map((condition, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm"
+                    >
+                      {condition}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                'None'
+              )}
             </DescriptionDetails>
 
             <DescriptionTerm>Current Medications</DescriptionTerm>
@@ -306,18 +328,6 @@ export default function PatientDetail() {
 
             <DescriptionTerm>Deductible</DescriptionTerm>
             <DescriptionDetails>{patient.insurance.deductible ? `$${patient.insurance.deductible.toFixed(2)}` : '—'}</DescriptionDetails>
-          </DescriptionList>
-        </section>
-
-        {/* Metadata */}
-        <section>
-          <h2 className="text-lg font-semibold mb-4">Record Information</h2>
-          <DescriptionList>
-            <DescriptionTerm>Created At</DescriptionTerm>
-            <DescriptionDetails>{formatDate(patient.createdAt)}</DescriptionDetails>
-
-            <DescriptionTerm>Last Updated</DescriptionTerm>
-            <DescriptionDetails>{formatDate(patient.updatedAt)}</DescriptionDetails>
           </DescriptionList>
         </section>
       </div>

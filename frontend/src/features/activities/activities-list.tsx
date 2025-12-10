@@ -1,9 +1,9 @@
 import { format } from 'date-fns'
-import { useRef, useEffect } from 'react'
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import DataTable, { type ColumnDefinition } from '@/components/layout/data-table'
 import type { Activity } from './types'
 import { getActivities } from './api'
-import usePaginatedData from '@/hooks/usePaginatedData'
 import useSortedData from '@/hooks/useSortedData'
 
 // Format timestamp for display
@@ -17,31 +17,38 @@ const formatTimestamp = (timestamp: string): string => {
 }
 
 export default function ActivitiesList() {
-  const goToPageRef = useRef<((page: number) => void) | null>(null)
+  const [page, setPage] = useState(1)
 
   const { currentSortBy, currentSortOrder, handleSort } = useSortedData({
     defaultSortOrder: 'desc',
     onSortChange: () => {
       // Reset to first page when sorting changes
-      goToPageRef.current?.(1)
+      setPage(1)
     },
   })
 
-  const { data, isLoading, error, goToPage, isFetching } = usePaginatedData({
-    fetchFn: ({ page, pageSize, sortBy, sortOrder }) => getActivities({ 
-      page, 
-      pageSize, 
-      sortBy: sortBy as 'timestamp' | undefined, 
-      sortOrder 
-    }),
-    pageSize: 10,
-    sortBy: currentSortBy,
-    sortOrder: currentSortOrder,
+  // Use TanStack Query for data fetching
+  const {
+    data,
+    isLoading,
+    error,
+    isFetching,
+  } = useQuery({
+    queryKey: ['activities', page, 10, currentSortBy, currentSortOrder],
+    queryFn: () =>
+      getActivities({
+        page,
+        pageSize: 10,
+        sortBy: currentSortBy as 'timestamp' | undefined,
+        sortOrder: currentSortOrder,
+      }),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    placeholderData: (previousData) => previousData, // Keep previous data visible during transitions
   })
 
-  useEffect(() => {
-    goToPageRef.current = goToPage
-  }, [goToPage])
+  const goToPage = (newPage: number) => {
+    setPage(newPage)
+  }
 
   // Define columns for the activities table
   const columns: ColumnDefinition<Activity>[] = [

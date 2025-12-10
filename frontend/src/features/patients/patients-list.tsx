@@ -1,12 +1,15 @@
 import { format } from 'date-fns'
-import { useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import DataTable, { type ColumnDefinition } from '@/components/layout/data-table'
 import type { PatientListItem } from './types'
 import { getPatients } from './api'
-import usePaginatedData from '@/hooks/usePaginatedData'
 import useSortedData from '@/hooks/useSortedData'
+import useDebounce from '@/hooks/useDebounce'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Input, InputGroup } from '@/components/ui/input'
 
 // Format date for display
 const formatDate = (dateString: string | undefined): string => {
@@ -46,15 +49,22 @@ const formatStatus = (status: 'active' | 'inactive' | 'archived') => {
 }
 
 export default function PatientsList() {
-  const goToPageRef = useRef<((page: number) => void) | null>(null)
+  const [page, setPage] = useState(1)
+  const [searchTerm, setSearchTerm] = useState('')
+  const debouncedSearch = useDebounce(searchTerm, 300)
 
   const { currentSortBy, currentSortOrder, handleSort } = useSortedData({
     defaultSortOrder: 'asc',
     onSortChange: () => {
       // Reset to first page when sorting changes
-      goToPageRef.current?.(1)
+      setPage(1)
     },
   })
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setPage(1)
+  }, [debouncedSearch])
 
   // Define columns for the patients table
   const columns: ColumnDefinition<PatientListItem>[] = [
@@ -82,23 +92,29 @@ export default function PatientsList() {
     },
   ]
 
-  const { data, isLoading, error, goToPage, isFetching } = usePaginatedData({
-    fetchFn: ({ page, pageSize, sortBy, sortOrder }) => {
-      return getPatients({ 
-        page, 
-        pageSize, 
-        sortBy: sortBy as 'lastName' | 'lastVisit' | 'status' | undefined, 
-        sortOrder 
-      })
-    },
-    pageSize: 10,
-    sortBy: currentSortBy,
-    sortOrder: currentSortOrder,
+  // Use TanStack Query for data fetching
+  const {
+    data,
+    isLoading,
+    error,
+    isFetching,
+  } = useQuery({
+    queryKey: ['patients', page, 10, currentSortBy, currentSortOrder, debouncedSearch],
+    queryFn: () =>
+      getPatients({
+        page,
+        pageSize: 10,
+        sortBy: currentSortBy as 'lastName' | 'lastVisit' | 'status' | undefined,
+        sortOrder: currentSortOrder,
+        search: debouncedSearch || undefined,
+      }),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    placeholderData: (previousData) => previousData, // Keep previous data visible during transitions
   })
 
-  useEffect(() => {
-    goToPageRef.current = goToPage
-  }, [goToPage])
+  const goToPage = (newPage: number) => {
+    setPage(newPage)
+  }
 
   return (
     <div className="p-6">
@@ -106,6 +122,21 @@ export default function PatientsList() {
         <h1 className="text-2xl font-bold">Patients</h1>
         <Button href="/patients/new">Add New Patient</Button>
       </div>
+
+      {/* Search Input */}
+      <div className="mb-6">
+        <InputGroup>
+          <MagnifyingGlassIcon data-slot="icon" />
+          <Input
+            type="search"
+            placeholder="Search by name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full max-w-md"
+          />
+        </InputGroup>
+      </div>
+
       <DataTable
         columns={columns}
         data={data}
@@ -114,7 +145,7 @@ export default function PatientsList() {
         error={error}
         itemLabel="patients"
         onPageChange={goToPage}
-        emptyMessage="No patients found"
+        emptyMessage={debouncedSearch ? 'No patients found matching your search' : 'No patients found'}
         onSort={handleSort}
         currentSortBy={currentSortBy}
         currentSortOrder={currentSortOrder}

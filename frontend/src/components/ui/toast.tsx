@@ -36,24 +36,24 @@ export function Toast({ toast, onOpenChange }: ToastProps) {
   return (
     <div
       className={clsx(
-        'group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-lg border p-4 pr-6 shadow-lg transition-all duration-300',
+        'group pointer-events-auto relative flex w-full max-w-sm items-start gap-3 overflow-hidden rounded-lg border bg-ascertain-white p-4 pr-8 shadow-xs ring-1 ring-zinc-950/5 transition-all duration-300',
         isOpen
           ? 'opacity-100 translate-x-0'
           : 'opacity-0 translate-x-full pointer-events-none',
         isDestructive
-          ? 'border-red-200 bg-red-50 text-red-950'
-          : 'border-zinc-200 bg-white text-zinc-950'
+          ? 'border-red-200/50 bg-red-50/50'
+          : 'border-neutral-800/10 bg-ascertain-white'
       )}
       role="alert"
       aria-live="assertive"
       aria-atomic="true"
     >
-      <div className="grid gap-1 flex-1">
+      <div className="grid gap-1 flex-1 min-w-0">
         {toast.title && (
           <div
             className={clsx(
-              'text-sm font-semibold',
-              isDestructive ? 'text-red-900' : 'text-zinc-900'
+              'text-sm font-medium',
+              isDestructive ? 'text-red-900' : 'text-ascertain-foreground'
             )}
           >
             {toast.title}
@@ -62,8 +62,8 @@ export function Toast({ toast, onOpenChange }: ToastProps) {
         {toast.description && (
           <div
             className={clsx(
-              'text-sm opacity-90',
-              isDestructive ? 'text-red-800' : 'text-zinc-600'
+              'text-sm',
+              isDestructive ? 'text-red-800' : 'text-neutral-600'
             )}
           >
             {toast.description}
@@ -78,7 +78,7 @@ export function Toast({ toast, onOpenChange }: ToastProps) {
                 'text-xs px-2 py-1',
                 isDestructive
                   ? 'border-red-300 text-red-700 hover:bg-red-100'
-                  : 'border-zinc-300 text-zinc-700 hover:bg-zinc-100'
+                  : 'border-neutral-800/20 text-neutral-700 hover:bg-neutral-800/5'
               )}
             >
               {toast.action.altText}
@@ -89,8 +89,10 @@ export function Toast({ toast, onOpenChange }: ToastProps) {
       <button
         onClick={handleClose}
         className={clsx(
-          'absolute right-2 top-2 rounded-md p-1 text-zinc-950/50 opacity-0 transition-opacity hover:text-zinc-950 focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100',
-          isDestructive && 'text-red-700/50 hover:text-red-900'
+          'absolute right-2 top-2 rounded-md p-1 opacity-0 transition-opacity hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-1 group-hover:opacity-100',
+          isDestructive 
+            ? 'text-red-700/60 hover:text-red-900' 
+            : 'text-neutral-600 hover:text-ascertain-foreground'
         )}
         aria-label="Close"
       >

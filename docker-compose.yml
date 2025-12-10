@@ -20,13 +20,16 @@ services:
     restart: unless-stopped
     develop:
       watch:
-        # Sync Python source files for hot reload
+        # Sync entire backend directory for hot reload
         - action: sync
-          path: ./backend/app
-          target: /app/app
+          path: ./backend
+          target: /app
           ignore:
             - __pycache__/
             - "*.pyc"
+            - .git/
+            - "*.db"
+            - uploads/
         # Rebuild when dependencies change
         - action: rebuild
           path: ./backend/requirements.txt
@@ -46,19 +49,15 @@ services:
     restart: unless-stopped
     develop:
       watch:
-        # Sync source files for Vite HMR
+        # Sync entire frontend directory for Vite HMR
         - action: sync
-          path: ./frontend/src
-          target: /app/src
+          path: ./frontend
+          target: /app
           ignore:
             - node_modules/
-        # Sync config files that might affect dev server
-        - action: sync
-          path: ./frontend/vite.config.ts
-          target: /app/vite.config.ts
-        - action: sync
-          path: ./frontend/tsconfig.json
-          target: /app/tsconfig.json
+            - .git/
+            - dist/
+            - build/
         # Rebuild when dependencies change
         - action: rebuild
           path: ./frontend/package.json

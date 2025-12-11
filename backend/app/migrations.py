@@ -6,8 +6,10 @@ Run migrations before deploying changes that modify the database structure.
 
 from sqlalchemy import inspect, text
 from sqlalchemy.engine import make_url
-from app.database import engine, DATABASE_URL
+from app.database import engine, DATABASE_URL, SessionLocal
+from app.models import Patient
 import logging
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -104,9 +106,94 @@ def make_columns_nullable():
                 raise
 
 
+def simplify_medications():
+    """
+    Migration: Simplify medication schema by removing id, startDate, endDate, isActive, and prescribedBy fields.
+    
+    This migration updates existing medication records in the medical_info JSON column
+    to match the new simplified schema (name, dosage, frequency only).
+    
+    IMPORTANT: Run this migration before deploying code changes that expect
+    the simplified medication schema, otherwise the application will fail when
+    trying to process medication records with the old schema.
+    """
+    db = SessionLocal()
+    try:
+        # Get all patients
+        patients = db.query(Patient).all()
+        
+        if not patients:
+            logger.info("No patients found. Skipping medication migration.")
+            return
+        
+        updated_count = 0
+        
+        for patient in patients:
+            if not patient.medical_info:
+                continue
+            
+            # Parse medical_info JSON
+            try:
+                medical_info = patient.medical_info if isinstance(patient.medical_info, dict) else json.loads(patient.medical_info)
+            except (json.JSONDecodeError, TypeError):
+                logger.warning(f"Invalid medical_info JSON for patient {patient.id}. Skipping.")
+                continue
+            
+            medications = medical_info.get('currentMedications', [])
+            if not medications:
+                continue
+            
+            # Check if any medication has old fields that need migration
+            needs_migration = False
+            for med in medications:
+                if any(key in med for key in ['id', 'startDate', 'endDate', 'isActive', 'prescribedBy', 
+                                              'start_date', 'end_date', 'is_active', 'prescribed_by']):
+                    needs_migration = True
+                    break
+            
+            if not needs_migration:
+                continue
+            
+            # Migrate medications to simplified schema
+            simplified_medications = []
+            for med in medications:
+                simplified_med = {
+                    'name': med.get('name', ''),
+                }
+                
+                # Only include optional fields if they exist and are not empty
+                if med.get('dosage'):
+                    simplified_med['dosage'] = med['dosage']
+                if med.get('frequency'):
+                    simplified_med['frequency'] = med['frequency']
+                
+                simplified_medications.append(simplified_med)
+            
+            # Update medical_info
+            medical_info['currentMedications'] = simplified_medications
+            
+            # Update patient record
+            patient.medical_info = medical_info
+            updated_count += 1
+        
+        if updated_count > 0:
+            db.commit()
+            logger.info(f"Migration complete: Updated {updated_count} patient(s) with simplified medication schema.")
+        else:
+            logger.info("No patients needed medication migration.")
+            
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Medication migration failed: {e}")
+        raise
+    finally:
+        db.close()
+
+
 if __name__ == "__main__":
     """Run migrations when script is executed directly."""
     logging.basicConfig(level=logging.INFO)
-    logger.info("Starting database migration...")
+    logger.info("Starting database migrations...")
     make_columns_nullable()
-    logger.info("Migration completed.")
+    simplify_medications()
+    logger.info("All migrations completed.")

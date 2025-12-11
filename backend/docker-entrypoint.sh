@@ -55,10 +55,10 @@ echo "🗄️  Running Database Migrations"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-# Check if the migration module exists and the specific function is available
+# Check if the migration module exists and the specific functions are available
 # This is more explicit than just checking if the module can be imported
 MIGRATION_AVAILABLE=false
-if python -c "from app.migrations import make_columns_nullable; import inspect; assert callable(make_columns_nullable)" 2>/dev/null; then
+if python -c "from app.migrations import make_columns_nullable, simplify_medications; import inspect; assert callable(make_columns_nullable) and callable(simplify_medications)" 2>/dev/null; then
   MIGRATION_AVAILABLE=true
 fi
 

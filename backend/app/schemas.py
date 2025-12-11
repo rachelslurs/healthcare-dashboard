@@ -25,15 +25,10 @@ class EmergencyContact(BaseModel):
 
 
 class Medication(BaseModel):
-    """Medication schema."""
-    id: str
+    """Simplified medication schema."""
     name: str
-    dosage: str
-    frequency: str
-    prescribed_by: str = Field(..., alias="prescribedBy")
-    start_date: str = Field(..., alias="startDate")
-    end_date: Optional[str] = Field(None, alias="endDate")
-    is_active: bool = Field(..., alias="isActive")
+    dosage: Optional[str] = None
+    frequency: Optional[str] = None
     
     model_config = ConfigDict(populate_by_name=True)
 

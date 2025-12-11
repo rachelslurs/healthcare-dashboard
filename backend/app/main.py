@@ -44,9 +44,10 @@ def startup_event():
         import logging
         logger = logging.getLogger(__name__)
         try:
-            from app.migrations import make_columns_nullable
+            from app.migrations import make_columns_nullable, simplify_medications
             logger.info("Running database migrations (not in Docker or entrypoint didn't run them)...")
             make_columns_nullable()
+            simplify_medications()
             logger.info("Database migrations completed.")
         except Exception as e:
             # Log but don't fail startup if migration fails

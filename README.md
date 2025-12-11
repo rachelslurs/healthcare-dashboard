@@ -503,7 +503,12 @@ setValue('medicalInfo.allergies', [...allergies, newAllergy], {
   - Formatting and manipulation utilities
 
 #### Testing
-- Testing framework to be determined (Jest, Vitest, or Playwright recommended)
+- **Vitest**: Fast unit testing framework with Vite integration
+- **React Testing Library**: Component testing with focus on user interactions
+- **@testing-library/user-event**: Simulating user interactions (clicks, typing, etc.)
+- **@testing-library/jest-dom**: Custom matchers for DOM assertions
+- **jsdom**: DOM environment for testing React components
+- **Separate Config Files**: `vite.config.ts` for development, `vitest.config.ts` for testing (prevents requiring test dependencies in production builds)
 
 </details>
 
@@ -543,6 +548,86 @@ To regenerate sample data or start fresh:
 - **Note**: Sample data only generates when the database is empty. After deleting, restart the backend to regenerate sample data (if `SEED_PATIENT_COUNT > 0`)
 
 </details>
+
+## Testing Strategy
+
+### Testing Framework & Tools
+
+**Frontend Testing Stack:**
+- **Vitest**: Fast unit testing framework with native Vite integration
+- **React Testing Library**: Component testing focused on user behavior and accessibility
+- **@testing-library/user-event**: Realistic user interaction simulation
+- **@testing-library/jest-dom**: Extended DOM matchers for assertions
+- **jsdom**: Browser-like DOM environment for testing React components
+
+**Configuration:**
+- Separate config files: `vite.config.ts` for development, `vitest.config.ts` for testing
+- Test setup in `src/test/setup.ts` for global configuration
+
+### Running Tests
+
+```bash
+# Run all tests
+docker compose exec frontend npm test
+
+# Watch mode (development)
+docker compose exec frontend npm test -- --watch
+
+# Run once (CI mode)
+docker compose exec frontend npm test -- --run
+
+# Interactive UI
+docker compose exec frontend npm run test:ui
+```
+
+### Testing Approach
+
+**Philosophy:**
+- **User-Centric**: Tests focus on what users see and interact with, not implementation details
+- **Accessibility First**: Use semantic queries (`getByRole`, `getByLabelText`) over implementation queries
+- **Realistic Interactions**: Use `userEvent` for interactions that mirror real user behavior
+
+**Test Organization:**
+- Tests co-located with components: `component-name.test.tsx` next to `component-name.tsx`
+- Feature tests in feature directories
+- Shared test utilities in `src/test/setup.ts`
+
+### What We're Testing
+
+#### Error Handling Components
+
+**ErrorBoundary Component:**
+- Error catching from child components
+- Error display UI (messages, icons, action buttons)
+- Error reset functionality
+- Button actions (Try Again, Go to Home, Reload Page)
+- Custom fallback UI support
+- Development vs production error details
+
+**QueryErrorDisplay Component:**
+- Error message display (default and custom)
+- Error type handling (network errors, HTTP status codes)
+- Retry functionality with reset callbacks
+- Router navigation fallback
+- UI element rendering
+
+#### Form Validation
+
+**Patient Form Schema:**
+- Required field validation
+- Email and date format validation
+- Address validation (empty and partial)
+- Emergency contact validation
+- Insurance and medical info validation
+
+### Testing Best Practices
+
+- Use semantic selectors (`getByRole`, `getByLabelText`) over implementation queries
+- Test user-visible behavior, not implementation details
+- Use `userEvent` for realistic user interactions
+- Mock external dependencies when needed
+- Keep tests independent and isolated
+- Use `waitFor()` for async state updates
 
 ## Test Plan
 
@@ -634,6 +719,10 @@ To regenerate sample data or start fresh:
 - [ ] **API Down:** Stop backend server → Frontend shows user-friendly "Service Unavailable" message (not a white screen).
 - [ ] **Retry:** Click "Retry" on error screen → Attempts to refetch data.
 - [ ] **Invalid ID:** Go to `/patients/999999` → Shows "Patient Not Found" UI.
+
+#### ✅ Automated Error Component Testing
+- [x] **ErrorBoundary Component Tests**: Comprehensive tests covering error catching, display, reset functionality, and user interactions
+- [x] **QueryErrorDisplay Component Tests**: Tests covering error message display, error type handling, retry functionality, and navigation
 
 
 ### 8. Responsive Design

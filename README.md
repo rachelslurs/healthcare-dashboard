@@ -159,6 +159,7 @@ healthcare-dashboard/
 - **Stable References**: Column definitions and render functions memoized in list components to prevent table re-renders on every state change
 - **Debounced Search Input**: Search queries debounced with 300ms delay to reduce API calls while typing (URL updates immediately for shareable/bookmarkable links, but API requests only fire after user stops typing)
 - **Pagination for Large Datasets**: Server-side pagination (10 items per page) prevents rendering performance issues with large datasets. For infinite scrolling, consider using [TanStack Virtual](https://tanstack.com/virtual) for virtualization of large lists
+- **Memory Leak Prevention**: React Query mutations handle automatic cleanup on component unmount, eliminating the need for manual `isMountedRef` patterns
 
 ### Route Structure
 - **File-Based Routing**: TanStack Router with file-based route generation
@@ -419,11 +420,14 @@ Forms use React Hook Form for state management, providing re-render control and 
 
 **Form Submission:**
 - Type-safe submission handler with `SubmitHandler<PatientFormData>`
+- Uses React Query `useMutation` for all write operations (create, update, delete)
 - Data transformation before submission:
   - Empty nested objects converted to `undefined` if all fields are empty
   - Conditional validation: Emergency contact required fields validated only if any field is filled
-- Error handling: Uses `getErrorMessage()` utility for consistent error messages
-- Success handling: Invalidates TanStack Query cache and navigates to detail page
+- Error handling: Centralized via mutation `onError` callbacks using `getErrorMessage()` utility
+- Success handling: Automatic cache invalidation via mutation `onSuccess` callbacks and navigation
+- Loading states: Managed via mutation `isPending` property (no manual state needed)
+- Automatic cleanup: Mutations handle component unmount cleanup automatically (no `isMountedRef` needed)
 
 **Implementation Details:**
 - **Re-render Control**: Selective watching and memoization reduce re-renders
@@ -447,6 +451,36 @@ const emergencyContact = useWatch({ control, name: 'emergencyContact' })
 setValue('medicalInfo.allergies', [...allergies, newAllergy], {
   shouldValidate: true,
 })
+
+// Mutation for creating/updating patients
+const createMutation = useMutation({
+  mutationFn: createPatient,
+  onSuccess: (newPatient) => {
+    // Invalidate related queries
+    queryClient.invalidateQueries({ queryKey: ['patients'] })
+    queryClient.invalidateQueries({ queryKey: ['patient', newPatient.id] })
+    queryClient.invalidateQueries({ queryKey: ['activities'] })
+    
+    toast({ title: 'Patient added' })
+    navigate({ to: `/patients/${newPatient.id}` })
+  },
+  onError: (err) => {
+    toast({
+      title: 'Failed to add patient',
+      description: getErrorMessage(err, 'Failed to add patient'),
+      variant: 'destructive',
+    })
+  },
+})
+
+// Form submission uses mutation
+const onSubmit: SubmitHandler<PatientFormData> = (formData) => {
+  const submitData = transformFormData(formData)
+  createMutation.mutate(submitData)
+}
+
+// Loading state from mutation
+const isSubmitting = createMutation.isPending
 ```
 
 <details>
@@ -468,6 +502,12 @@ setValue('medicalInfo.allergies', [...allergies, newAllergy], {
   - Built-in loading and error states
   - Query invalidation and refetching based on query keys
   - Used for all server data fetching (patients list, search, sorting, pagination)
+  - **Mutations**: All write operations (create, update, delete) use `useMutation` for:
+    - Automatic retry logic
+    - Built-in loading states (`isPending`)
+    - Automatic cleanup (no need for `isMountedRef` patterns)
+    - Centralized error handling via `onError` callbacks
+    - Efficient cache invalidation via `onSuccess` callbacks
   - Query keys include all dependencies (page, sortBy, sortOrder, search) ensuring proper cache management
   - 5-minute default stale time
 

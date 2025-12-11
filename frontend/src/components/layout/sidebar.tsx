@@ -25,7 +25,7 @@ import {
   SidebarItem,
   SidebarLabel,
   SidebarSection,
-  SidebarHeading,
+  SidebarHeadingItem,
 } from '../ui/sidebar'
 
 export default function Sidebar() {
@@ -43,7 +43,7 @@ export default function Sidebar() {
   return (
     <SidebarComponent>
       <SidebarHeader className='border-none'>
-        <SidebarItem href='/'>
+        <SidebarHeadingItem>
           <img
             src='/brandmark.png'
             alt=''
@@ -56,7 +56,7 @@ export default function Sidebar() {
             alt='Ascertain'
             className='h-4 w-auto object-contain'
           />
-        </SidebarItem>
+        </SidebarHeadingItem>
       </SidebarHeader>
       <SidebarBody>
         <SidebarSection>

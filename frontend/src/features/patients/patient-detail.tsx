@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 import LoadingBrand from "@/components/feedback/loading-brand";
 import QueryErrorDisplay from "@/components/errors/query-error-display";
@@ -34,6 +34,13 @@ export default function PatientDetail() {
   const queryClient = useQueryClient();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const {
     data: patient,
@@ -98,9 +105,12 @@ export default function PatientDetail() {
   const handleDeleteConfirm = async () => {
     if (!patientId) return;
 
+    if (!isMountedRef.current) return;
     setIsDeleting(true);
     try {
       await deletePatient(patientId);
+
+      if (!isMountedRef.current) return;
 
       // Invalidate query caches to refresh the lists
       queryClient.invalidateQueries({ queryKey: ["activities"] });
@@ -114,6 +124,8 @@ export default function PatientDetail() {
       // Navigate back to patients list after successful deletion
       navigate({ to: "/patients" });
     } catch (err) {
+      if (!isMountedRef.current) return;
+
       const errorMessage = getErrorMessage(err, "Failed to delete patient");
       console.error("Failed to delete patient:", err);
       setIsDeleting(false);

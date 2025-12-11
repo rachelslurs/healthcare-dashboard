@@ -690,7 +690,7 @@ docker compose exec frontend npm run test:ui
 #### ✅ Search & Filtering
 - [x] **Debounce Test:** Type "Johnson" rapidly → Network request only fires after typing stops (300ms debounce, not on every keystroke).
 - [ ] **TanStack Query Caching:** Search for "Smith", navigate away, return → Results load instantly from cache (no network request).
-- [ ] Filter by "Active" → Only active patients shown.
+- [X] Filter by "Active" → Only active patients shown.
 - [x] Sort by "Last Visit" → Correctly orders dates (Newest vs Oldest). TanStack Query caches each sort combination separately.
 - [x] Clear Search → Restores full 1000+ list instantly from cache if previously viewed.
 
@@ -700,7 +700,7 @@ docker compose exec frontend npm run test:ui
 #### ✅ File Uploads 
 - [x] Click "Upload Photo" → System file picker opens.
 - [x] Only show on edit for faster implementation
-- [ ] Select Image → **Preview** of image appears in the form.
+- [x] Select Image → **Preview** of image appears in the form.
 - [ ] **Validation:** Try to upload a non-image (e.g., .pdf or .exe) → Shows error.
 - [ ] Submit Form → Image persists on Patient Detail page.
 
@@ -740,9 +740,9 @@ docker compose exec frontend npm run test:ui
 ### 7. Error Handling
 
 #### ✅ Network & System Errors
-- [ ] **API Down:** Stop backend server → Frontend shows user-friendly "Service Unavailable" message (not a white screen).
-- [ ] **Retry:** Click "Retry" on error screen → Attempts to refetch data.
-- [ ] **Invalid ID:** Go to `/patients/999999` → Shows "Patient Not Found" UI.
+- [x] **API Down:** Stop backend server → Frontend shows user-friendly "Service Unavailable" message (not a white screen).
+- [x] **Retry:** Click "Retry" on error screen → Attempts to refetch data.
+- [x] **Invalid ID:** Go to `/patients/999999` → Shows "404 Not Found" UI.
 
 #### ✅ Automated Error Component Testing
 - [x] **ErrorBoundary Component Tests**: Comprehensive tests covering error catching, display, reset functionality, and user interactions
@@ -753,6 +753,6 @@ docker compose exec frontend npm run test:ui
 
 #### ✅ Mobile (375px) & Tablet
 - [x] **Hamburger Menu:** Sidebar collapses into a hamburger menu on mobile.
-- [ ] **Table/Cards:** Patient list transforms from wide table to stacked cards or scrollable table on mobile.
+- [x] **Table/Cards:** Patient list transforms from wide table to stacked cards or scrollable table on mobile.
 - [x] **Form Inputs:** No horizontal scrolling required to fill forms.
 - [ ] **Touch Targets:** Buttons are large enough for touch (>44px).

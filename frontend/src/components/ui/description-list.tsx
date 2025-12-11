@@ -30,7 +30,7 @@ export function DescriptionDetails({ className, ...props }: React.ComponentProps
       {...props}
       className={clsx(
         className,
-        'py-1.5 text-base/6 text-neutral-950 sm:border-t sm:border-neutral-950/5 sm:py-1.5 sm:text-sm/6 sm:nth-2:border-none sm:col-start-2 min-w-0 max-w-full overflow-hidden'
+        'border-t border-neutral-950/5 py-1.5 text-base/6 text-neutral-950 sm:border-t sm:border-neutral-950/5 sm:py-1.5 sm:text-sm/6 sm:nth-2:border-none sm:col-start-2 min-w-0 max-w-full overflow-hidden'
       )}
     />
   )

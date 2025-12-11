@@ -309,7 +309,7 @@ def create_patient(patient_data: PatientCreate, db: Session = Depends(get_db)):
     log_activity(
         db=db,
         action_type="CREATE",
-        description=f"Added new patient {patient_name}",
+        description=patient_name,
         patient_id=patient.id
     )
     
@@ -355,7 +355,7 @@ def update_patient(
     log_activity(
         db=db,
         action_type="UPDATE",
-        description=f"Updated details for {patient_name}",
+        description=patient_name,
         patient_id=patient.id
     )
     
@@ -377,7 +377,7 @@ def delete_patient(patient_id: str, db: Session = Depends(get_db)):
     log_activity(
         db=db,
         action_type="DELETE",
-        description=f"Removed patient {patient_name}",
+        description=patient_name,
         patient_id=patient.id
     )
     
@@ -451,7 +451,7 @@ async def upload_patient_photo(
     log_activity(
         db=db,
         action_type="UPDATE",
-        description=f"Uploaded photo for {patient_name}",
+        description=patient_name,
         patient_id=patient.id
     )
     
@@ -603,7 +603,7 @@ async def upload_patient_document(
     log_activity(
         db=db,
         action_type="UPDATE",
-        description=f"Uploaded document '{file.filename}' for {patient_name}",
+        description=patient_name,
         patient_id=patient.id
     )
     

@@ -81,7 +81,7 @@ export async function createPatient(patientData: Omit<Patient, 'id' | 'createdAt
   })
 
   if (!response.ok) {
-    await handleApiError(response, 'Failed to create patient')
+    await handleApiError(response, 'Failed to add patient')
   }
 
   return await response.json()
@@ -100,7 +100,7 @@ export async function updatePatient(id: string, patientData: Partial<Omit<Patien
   })
 
   if (!response.ok) {
-    await handleApiError(response, 'Failed to update patient', `Patient with ID ${id} not found`)
+    await handleApiError(response, 'Failed to edit patient', `Patient with ID ${id} not found`)
   }
 
   return await response.json()

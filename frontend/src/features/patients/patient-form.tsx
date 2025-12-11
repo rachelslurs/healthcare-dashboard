@@ -308,7 +308,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           } catch (photoErr) {
             // Show error for photo upload but still navigate since patient was updated
             toast({
-              title: 'Patient updated, but photo upload failed',
+              title: 'Patient edited, but photo upload failed',
               description: `Patient information was saved successfully, but the photo could not be uploaded: ${getErrorMessage(photoErr, 'Unknown error')}`,
               variant: 'destructive',
             })
@@ -319,8 +319,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
         queryClient.invalidateQueries({ queryKey: ['activities'] })
         
         toast({
-          title: 'Patient updated',
-          description: 'Patient information has been successfully updated.',
+          title: 'Patient edited',
         })
         
         navigate({ to: `/patients/${patientId}` })
@@ -331,8 +330,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
         queryClient.invalidateQueries({ queryKey: ['activities'] })
         
         toast({
-          title: 'Patient created',
-          description: `${submitData.firstName} ${submitData.lastName} has been successfully added to the system.`,
+          title: 'Patient added',
         })
         
         navigate({ to: `/patients/${newPatient.id}` })
@@ -341,7 +339,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
       const errorMessage = getErrorMessage(err, 'Failed to save patient')
       
       toast({
-        title: isEdit ? 'Failed to update patient' : 'Failed to create patient',
+        title: isEdit ? 'Failed to edit patient' : 'Failed to add patient',
         description: errorMessage,
         variant: 'destructive',
       })

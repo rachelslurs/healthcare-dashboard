@@ -22,7 +22,7 @@ export function getStatusColor(status: 'active' | 'inactive' | 'archived'): 'gre
 
 /**
  * Get badge color based on activity action type
- * @param actionType - Activity action type (e.g., 'CREATE', 'UPDATE', 'DELETE')
+ * @param actionType - Activity action type from backend (e.g., 'CREATE', 'UPDATE', 'DELETE')
  * @returns Badge color string
  */
 export function getActionColor(actionType: string): 'green' | 'blue' | 'red' | 'orange' | 'purple' | 'zinc' {

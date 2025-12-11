@@ -10,10 +10,25 @@ import { formatTimestamp } from '@/lib/date-utils'
 import { getActivities } from './api'
 import type { Activity } from './types'
 
+// Map backend action types to user-friendly labels
+const getActionLabel = (actionType: string): string => {
+  switch (actionType.toUpperCase()) {
+    case 'CREATE':
+      return 'Added'
+    case 'UPDATE':
+      return 'Edited'
+    case 'DELETE':
+      return 'Deleted'
+    default:
+      return actionType
+  }
+}
+
 // Format action type as a badge
 const formatActionType = (actionType: string) => {
+  const label = getActionLabel(actionType)
   const color = getActionColor(actionType)
-  return <Badge color={color}>{actionType}</Badge>
+  return <Badge color={color}>{label}</Badge>
 }
 
 export default function ActivitiesList() {

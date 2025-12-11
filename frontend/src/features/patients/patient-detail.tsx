@@ -109,7 +109,6 @@ export default function PatientDetail() {
 
       toast({
         title: "Patient deleted",
-        description: `${patient.firstName} ${patient.lastName} has been successfully removed from the system.`,
       });
 
       // Navigate back to patients list after successful deletion

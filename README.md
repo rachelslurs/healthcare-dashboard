@@ -620,6 +620,29 @@ docker compose exec frontend npm run test:ui
 - Emergency contact validation
 - Insurance and medical info validation
 
+#### Notification System (Toast Components)
+
+**Toast Component:**
+- Rendering of title, description, and action buttons
+- Variant styling (default vs destructive)
+- Close button functionality
+- Action button click handling
+- Open/closed state management
+- Accessibility attributes (role, aria-live, aria-atomic)
+
+**Toaster Component:**
+- Rendering of active toasts
+- Empty state handling
+- Toast dismissal integration
+- Accessibility attributes
+
+**useToast Hook:**
+- State initialization from global toast state
+- Subscription to toast state changes
+- Unsubscription on unmount (memory leak prevention)
+- Return values (toasts array, toast function, dismiss function)
+- Integration with toast library functions
+
 ### Testing Best Practices
 
 - Use semantic selectors (`getByRole`, `getByLabelText`) over implementation queries
@@ -710,7 +733,8 @@ docker compose exec frontend npm run test:ui
 #### ✅ Global Notifications
 - [x] **Success:** Create/Edit success triggers a global toast notification.
 - [x] **Error:** Network failure triggers a global error toast.
-- [ ] Navigate away while toast is showing → toast remains visible until timeout.
+- [x] Navigate away while toast is showing → toast remains visible until timeout.
+- [x] **Automated Tests:** Toast component, Toaster component, and useToast hook have comprehensive tests covering rendering, user interactions, state management, and accessibility.
 
 
 ### 7. Error Handling

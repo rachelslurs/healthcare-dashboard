@@ -21,12 +21,14 @@ import {
   Sidebar as SidebarComponent,
   SidebarBody,
   SidebarFooter,
+  SidebarHeading,
   SidebarHeader,
   SidebarItem,
   SidebarLabel,
   SidebarSection,
   SidebarHeadingItem,
 } from '../ui/sidebar'
+import LoadingBrand from '../feedback/loading-brand'
 
 export default function Sidebar() {
   const location = useLocation()
@@ -42,21 +44,16 @@ export default function Sidebar() {
 
   return (
     <SidebarComponent>
-      <SidebarHeader className='border-none'>
-        <SidebarHeadingItem>
+      <SidebarHeader className='border-none px-2 py-2.5'>
+        <SidebarHeading className='flex items-center my-4'>
           <img
-            src='/brandmark.png'
+            src='/logo.png'
             alt=''
-            className='h-4 w-auto object-contain'
+            className='h-5 w-auto object-contain'
             aria-hidden='true'
             data-slot='icon'
           />
-          <img
-            src='/brand.png'
-            alt='Ascertain'
-            className='h-4 w-auto object-contain'
-          />
-        </SidebarHeadingItem>
+        </SidebarHeading>
       </SidebarHeader>
       <SidebarBody>
         <SidebarSection>

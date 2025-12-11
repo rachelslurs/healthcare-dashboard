@@ -147,7 +147,7 @@ export default function PatientDetail() {
     <div className="p-6">
       <div className="mb-6">
         <div className="flex items-start justify-between mb-2">
-          <div className="flex items-start gap-4">
+          <div className="flex items-start gap-4 min-w-0">
             {/* Patient Photo or Avatar */}
             <div className="shrink-0 relative">
               {photoUrl ? (
@@ -175,8 +175,8 @@ export default function PatientDetail() {
               )}
             </div>
 
-            <div>
-              <h1 className="text-2xl font-bold mb-2">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-2xl font-bold mb-2 truncate">
                 {patient.firstName} {patient.lastName}
               </h1>
               <div className="flex items-center gap-2">
@@ -209,18 +209,18 @@ export default function PatientDetail() {
           <h2 className="text-lg font-semibold mb-4">Basic Information</h2>
           <DescriptionList>
             <DescriptionTerm>Patient ID</DescriptionTerm>
-            <DescriptionDetails>{patient.id}</DescriptionDetails>
+            <DescriptionDetails className="truncate">{patient.id}</DescriptionDetails>
 
             <DescriptionTerm>Date of Birth</DescriptionTerm>
-            <DescriptionDetails>
+            <DescriptionDetails className="truncate">
               {formatDate(patient.dateOfBirth)}
             </DescriptionDetails>
 
             <DescriptionTerm>Email</DescriptionTerm>
-            <DescriptionDetails>{patient.email}</DescriptionDetails>
+            <DescriptionDetails className="truncate">{patient.email}</DescriptionDetails>
 
             <DescriptionTerm>Phone</DescriptionTerm>
-            <DescriptionDetails>{patient.phone}</DescriptionDetails>
+            <DescriptionDetails className="truncate">{patient.phone}</DescriptionDetails>
           </DescriptionList>
         </section>
 
@@ -230,19 +230,19 @@ export default function PatientDetail() {
             <h2 className="text-lg font-semibold mb-4">Address</h2>
             <DescriptionList>
               <DescriptionTerm>Street</DescriptionTerm>
-              <DescriptionDetails>{patient.address.street}</DescriptionDetails>
+              <DescriptionDetails className="truncate">{patient.address.street}</DescriptionDetails>
 
               <DescriptionTerm>City</DescriptionTerm>
-              <DescriptionDetails>{patient.address.city}</DescriptionDetails>
+              <DescriptionDetails className="truncate">{patient.address.city}</DescriptionDetails>
 
               <DescriptionTerm>State</DescriptionTerm>
-              <DescriptionDetails>{patient.address.state}</DescriptionDetails>
+              <DescriptionDetails className="truncate">{patient.address.state}</DescriptionDetails>
 
               <DescriptionTerm>ZIP Code</DescriptionTerm>
-              <DescriptionDetails>{patient.address.zipCode}</DescriptionDetails>
+              <DescriptionDetails className="truncate">{patient.address.zipCode}</DescriptionDetails>
 
               <DescriptionTerm>Country</DescriptionTerm>
-              <DescriptionDetails>{patient.address.country}</DescriptionDetails>
+              <DescriptionDetails className="truncate">{patient.address.country}</DescriptionDetails>
             </DescriptionList>
           </section>
         ) : null}
@@ -253,24 +253,24 @@ export default function PatientDetail() {
             <h2 className="text-lg font-semibold mb-4">Emergency Contact</h2>
             <DescriptionList>
               <DescriptionTerm>Name</DescriptionTerm>
-              <DescriptionDetails>
+              <DescriptionDetails className="truncate">
                 {patient.emergencyContact.name}
               </DescriptionDetails>
 
               <DescriptionTerm>Relationship</DescriptionTerm>
-              <DescriptionDetails>
+              <DescriptionDetails className="truncate">
                 {patient.emergencyContact.relationship}
               </DescriptionDetails>
 
               <DescriptionTerm>Phone</DescriptionTerm>
-              <DescriptionDetails>
+              <DescriptionDetails className="truncate">
                 {patient.emergencyContact.phone}
               </DescriptionDetails>
 
               {patient.emergencyContact.email && (
                 <>
                   <DescriptionTerm>Email</DescriptionTerm>
-                  <DescriptionDetails>
+                  <DescriptionDetails className="truncate">
                     {patient.emergencyContact.email}
                   </DescriptionDetails>
                 </>
@@ -284,7 +284,7 @@ export default function PatientDetail() {
           <h2 className="text-lg font-semibold mb-4">Medical Information</h2>
           <DescriptionList>
             <DescriptionTerm>Blood Type</DescriptionTerm>
-            <DescriptionDetails>
+            <DescriptionDetails className="truncate">
               {patient.medicalInfo.bloodType || "—"}
             </DescriptionDetails>
 
@@ -293,7 +293,7 @@ export default function PatientDetail() {
               {patient.medicalInfo.allergies.length > 0 ? (
                 <Tags items={patient.medicalInfo.allergies} color="blue" />
               ) : (
-                "None"
+                <span className="truncate block">None</span>
               )}
             </DescriptionDetails>
 
@@ -302,12 +302,12 @@ export default function PatientDetail() {
               {patient.medicalInfo.conditions.length > 0 ? (
                 <Tags items={patient.medicalInfo.conditions} color="blue" />
               ) : (
-                "None"
+                <span className="truncate block">None</span>
               )}
             </DescriptionDetails>
 
             <DescriptionTerm>Last Visit</DescriptionTerm>
-            <DescriptionDetails>
+            <DescriptionDetails className="truncate">
               {formatDate(patient.medicalInfo.lastVisit)}
             </DescriptionDetails>
           </DescriptionList>
@@ -318,45 +318,45 @@ export default function PatientDetail() {
           <h2 className="text-lg font-semibold mb-4">Insurance Information</h2>
           <DescriptionList>
             <DescriptionTerm>Provider</DescriptionTerm>
-            <DescriptionDetails>
+            <DescriptionDetails className="truncate">
               {patient.insurance.provider}
             </DescriptionDetails>
 
             <DescriptionTerm>Policy Number</DescriptionTerm>
-            <DescriptionDetails>
+            <DescriptionDetails className="truncate">
               {patient.insurance.policyNumber}
             </DescriptionDetails>
 
             {patient.insurance.groupNumber && (
               <>
                 <DescriptionTerm>Group Number</DescriptionTerm>
-                <DescriptionDetails>
+                <DescriptionDetails className="truncate">
                   {patient.insurance.groupNumber}
                 </DescriptionDetails>
               </>
             )}
 
             <DescriptionTerm>Effective Date</DescriptionTerm>
-            <DescriptionDetails>
+            <DescriptionDetails className="truncate">
               {formatDate(patient.insurance.effectiveDate) || "—"}
             </DescriptionDetails>
 
             {patient.insurance.expirationDate && (
               <>
                 <DescriptionTerm>Expiration Date</DescriptionTerm>
-                <DescriptionDetails>
+                <DescriptionDetails className="truncate">
                   {formatDate(patient.insurance.expirationDate)}
                 </DescriptionDetails>
               </>
             )}
 
             <DescriptionTerm>Copay</DescriptionTerm>
-            <DescriptionDetails>
+            <DescriptionDetails className="truncate">
               ${patient.insurance.copay.toFixed(2)}
             </DescriptionDetails>
 
             <DescriptionTerm>Deductible</DescriptionTerm>
-            <DescriptionDetails>
+            <DescriptionDetails className="truncate">
               {patient.insurance.deductible
                 ? `$${patient.insurance.deductible.toFixed(2)}`
                 : "—"}

@@ -159,12 +159,13 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
         medicalInfo: {
           ...patientData.medicalInfo,
           bloodType: patientData.medicalInfo.bloodType ?? undefined,
+          lastVisit: formatDateForInput(patientData.medicalInfo.lastVisit),
         },
         insurance: {
           ...patientData.insurance,
           groupNumber: patientData.insurance.groupNumber ?? undefined,
-          effectiveDate: patientData.insurance.effectiveDate ?? undefined,
-          expirationDate: patientData.insurance.expirationDate ?? '',
+          effectiveDate: patientData.insurance.effectiveDate ? formatDateForInput(patientData.insurance.effectiveDate) : undefined,
+          expirationDate: patientData.insurance.expirationDate ? formatDateForInput(patientData.insurance.expirationDate) : '',
           copay: patientData.insurance.copay,
           deductible: patientData.insurance.deductible ?? undefined,
         },

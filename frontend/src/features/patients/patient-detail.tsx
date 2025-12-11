@@ -1,6 +1,6 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useParams, useNavigate } from "@tanstack/react-router";
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 
 import LoadingBrand from "@/components/feedback/loading-brand";
 import QueryErrorDisplay from "@/components/errors/query-error-display";
@@ -33,14 +33,6 @@ export default function PatientDetail() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const isMountedRef = useRef(true);
-
-  useEffect(() => {
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
 
   const {
     data: patient,
@@ -57,6 +49,35 @@ export default function PatientDetail() {
     },
     enabled: !!patientId,
     staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  // Mutation for deleting a patient
+  const deleteMutation = useMutation({
+    mutationFn: deletePatient,
+    onSuccess: () => {
+      // Invalidate all related queries
+      queryClient.invalidateQueries({ queryKey: ['activities'] });
+      queryClient.invalidateQueries({ queryKey: ['patients'] });
+      queryClient.invalidateQueries({ queryKey: ['patient', patientId] });
+
+      toast({
+        title: "Patient deleted",
+      });
+
+      // Navigate back to patients list after successful deletion
+      navigate({ to: "/patients" });
+    },
+    onError: (err) => {
+      const errorMessage = getErrorMessage(err, "Failed to delete patient");
+      console.error("Failed to delete patient:", err);
+      setDeleteDialogOpen(false);
+
+      toast({
+        title: "Failed to delete patient",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    },
   });
 
   if (isLoading) {
@@ -102,41 +123,9 @@ export default function PatientDetail() {
     setDeleteDialogOpen(true);
   };
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = () => {
     if (!patientId) return;
-
-    if (!isMountedRef.current) return;
-    setIsDeleting(true);
-    try {
-      await deletePatient(patientId);
-
-      if (!isMountedRef.current) return;
-
-      // Invalidate query caches to refresh the lists
-      queryClient.invalidateQueries({ queryKey: ["activities"] });
-      queryClient.invalidateQueries({ queryKey: ["patients"] });
-      queryClient.invalidateQueries({ queryKey: ["patient", patientId] });
-
-      toast({
-        title: "Patient deleted",
-      });
-
-      // Navigate back to patients list after successful deletion
-      navigate({ to: "/patients" });
-    } catch (err) {
-      if (!isMountedRef.current) return;
-
-      const errorMessage = getErrorMessage(err, "Failed to delete patient");
-      console.error("Failed to delete patient:", err);
-      setIsDeleting(false);
-      setDeleteDialogOpen(false);
-
-      toast({
-        title: "Failed to delete patient",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    }
+    deleteMutation.mutate(patientId);
   };
 
   const handleDeleteCancel = () => {
@@ -389,15 +378,15 @@ export default function PatientDetail() {
           </p>
         </DialogBody>
         <DialogActions>
-          <Button outline onClick={handleDeleteCancel} disabled={isDeleting}>
+          <Button outline onClick={handleDeleteCancel} disabled={deleteMutation.isPending}>
             Cancel
           </Button>
           <Button
             color="red"
             onClick={handleDeleteConfirm}
-            disabled={isDeleting}
+            disabled={deleteMutation.isPending}
           >
-            {isDeleting ? "Deleting..." : "Delete"}
+            {deleteMutation.isPending ? "Deleting..." : "Delete"}
           </Button>
         </DialogActions>
       </Dialog>

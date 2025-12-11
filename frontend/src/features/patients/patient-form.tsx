@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useForm, Controller, useWatch, type SubmitHandler } from 'react-hook-form'
@@ -76,13 +76,6 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string | undefined>(undefined)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const isMountedRef = useRef(true)
-
-  useEffect(() => {
-    return () => {
-      isMountedRef.current = false
-    }
-  }, [])
 
   // Fetch patient data for edit mode using React Query
   const {
@@ -111,7 +104,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
   const {
     register,
     control,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     setValue,
     reset,
   } = form
@@ -139,10 +132,9 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
   const patientData = patient || fetchedPatient
 
   // Populate form when patient data is available
-  // Note: React Query already prevents patientData from updating after unmount,
-  // so this effect is safe. We keep the mounted check for setCurrentPhotoUrl as a safety measure.
+  // Note: React Query already prevents patientData from updating after unmount
   useEffect(() => {
-    if (isEdit && patientData && isMountedRef.current) {
+    if (isEdit && patientData) {
       reset({
         firstName: patientData.firstName,
         lastName: patientData.lastName,
@@ -265,100 +257,132 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     }
   }, [])
 
-  const onSubmit: SubmitHandler<PatientFormData> = async (formData) => {
-    try {
-      // Prepare form data, converting empty address to undefined
-      const submitData = {
-        ...formData,
-        address: formData.address && 
-          formData.address.street?.trim() && 
-          formData.address.city?.trim() && 
-          formData.address.state?.trim() && 
-          formData.address.zipCode?.trim()
-          ? formData.address
-          : undefined,
-        // Convert empty emergency contact to undefined
-        // Only require name, relationship, and phone (email is optional)
-        emergencyContact: (() => {
-          const ec = formData.emergencyContact
-          if (!ec) return undefined
-          
-          const name = ec.name?.trim()
-          const relationship = ec.relationship?.trim()
-          const phone = ec.phone?.trim()
-          
-          if (name && relationship && phone) {
-            return {
-              name,
-              relationship,
-              phone,
-              email: ec.email?.trim() || undefined,
-            }
-          }
-          return undefined
-        })(),
-        // Ensure lastVisit is a string (not undefined)
-        medicalInfo: {
-          ...formData.medicalInfo,
-          lastVisit: formData.medicalInfo.lastVisit || '',
-        },
-        // Documents field is not used in the form, but required by API
-        documents: [],
-      }
-
-      if (isEdit && patientId) {
-        await updatePatient(patientId, submitData)
-        
-        if (!isMountedRef.current) return;
-        
-        // Upload photo if a new one was selected
-        if (photoFile) {
-          try {
-            await uploadPatientPhoto(patientId, photoFile)
-            if (!isMountedRef.current) return;
-          } catch (photoErr) {
-            if (!isMountedRef.current) return;
-            // Show error for photo upload but still navigate since patient was updated
-            toast({
-              title: 'Patient edited, but photo upload failed',
-              description: `Patient information was saved successfully, but the photo could not be uploaded: ${getErrorMessage(photoErr, 'Unknown error')}`,
-              variant: 'destructive',
-            })
-          }
-        }
-        
-        // Invalidate activities query cache to refresh the activities list
-        queryClient.invalidateQueries({ queryKey: ['activities'] })
-        
-        toast({
-          title: 'Patient edited',
-        })
-        
-        navigate({ to: `/patients/${patientId}` })
-      } else {
-        const newPatient = await createPatient(submitData)
-        
-        if (!isMountedRef.current) return;
-        
-        // Invalidate activities query cache to refresh the activities list
-        queryClient.invalidateQueries({ queryKey: ['activities'] })
-        
-        toast({
-          title: 'Patient added',
-        })
-        
-        navigate({ to: `/patients/${newPatient.id}` })
-      }
-    } catch (err) {
-      if (!isMountedRef.current) return;
-      
-      const errorMessage = getErrorMessage(err, 'Failed to save patient')
+  // Mutation for creating a new patient
+  const createMutation = useMutation({
+    mutationFn: createPatient,
+    onSuccess: (newPatient) => {
+      // Invalidate all related queries
+      queryClient.invalidateQueries({ queryKey: ['patients'] })
+      queryClient.invalidateQueries({ queryKey: ['patient', newPatient.id] })
+      queryClient.invalidateQueries({ queryKey: ['activities'] })
       
       toast({
-        title: isEdit ? 'Failed to edit patient' : 'Failed to add patient',
+        title: 'Patient added',
+      })
+      
+      navigate({ to: `/patients/${newPatient.id}` })
+    },
+    onError: (err) => {
+      const errorMessage = getErrorMessage(err, 'Failed to add patient')
+      toast({
+        title: 'Failed to add patient',
         description: errorMessage,
         variant: 'destructive',
       })
+    },
+  })
+
+  // Mutation for updating an existing patient
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Parameters<typeof updatePatient>[1] }) =>
+      updatePatient(id, data),
+    onSuccess: (updatedPatient) => {
+      // Invalidate all related queries
+      queryClient.invalidateQueries({ queryKey: ['patients'] })
+      queryClient.invalidateQueries({ queryKey: ['patient', updatedPatient.id] })
+      queryClient.invalidateQueries({ queryKey: ['activities'] })
+      
+      toast({
+        title: 'Patient edited',
+      })
+      
+      if (patientId) {
+        navigate({ to: `/patients/${patientId}` })
+      }
+    },
+    onError: (err) => {
+      const errorMessage = getErrorMessage(err, 'Failed to edit patient')
+      toast({
+        title: 'Failed to edit patient',
+        description: errorMessage,
+        variant: 'destructive',
+      })
+    },
+  })
+
+  // Mutation for uploading patient photo
+  const photoUploadMutation = useMutation({
+    mutationFn: ({ id, file }: { id: string; file: File }) =>
+      uploadPatientPhoto(id, file),
+    onError: (err) => {
+      // Show error for photo upload but don't block navigation
+      toast({
+        title: 'Patient edited, but photo upload failed',
+        description: `Patient information was saved successfully, but the photo could not be uploaded: ${getErrorMessage(err, 'Unknown error')}`,
+        variant: 'destructive',
+      })
+    },
+  })
+
+  // Determine if form is submitting based on mutation states
+  const isSubmitting = createMutation.isPending || updateMutation.isPending || photoUploadMutation.isPending
+
+  const onSubmit: SubmitHandler<PatientFormData> = (formData) => {
+    // Prepare form data, converting empty address to undefined
+    const submitData = {
+      ...formData,
+      address: formData.address && 
+        formData.address.street?.trim() && 
+        formData.address.city?.trim() && 
+        formData.address.state?.trim() && 
+        formData.address.zipCode?.trim()
+        ? formData.address
+        : undefined,
+      // Convert empty emergency contact to undefined
+      // Only require name, relationship, and phone (email is optional)
+      emergencyContact: (() => {
+        const ec = formData.emergencyContact
+        if (!ec) return undefined
+        
+        const name = ec.name?.trim()
+        const relationship = ec.relationship?.trim()
+        const phone = ec.phone?.trim()
+        
+        if (name && relationship && phone) {
+          return {
+            name,
+            relationship,
+            phone,
+            email: ec.email?.trim() || undefined,
+          }
+        }
+        return undefined
+      })(),
+      // Ensure lastVisit is a string (not undefined)
+      medicalInfo: {
+        ...formData.medicalInfo,
+        lastVisit: formData.medicalInfo.lastVisit || '',
+      },
+      // Documents field is not used in the form, but required by API
+      documents: [],
+    }
+
+    if (isEdit && patientId) {
+      // Update patient, then upload photo if needed
+      updateMutation.mutate(
+        { id: patientId, data: submitData },
+        {
+          onSuccess: () => {
+            // Upload photo if a new one was selected
+            if (photoFile) {
+              photoUploadMutation.mutate({ id: patientId, file: photoFile })
+            }
+          },
+        }
+      )
+    } else {
+      // Create new patient
+      createMutation.mutate(submitData)
     }
   }
 

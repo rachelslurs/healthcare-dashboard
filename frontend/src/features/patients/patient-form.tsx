@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useForm, Controller, useWatch, type SubmitHandler } from 'react-hook-form'
@@ -71,14 +71,30 @@ const defaultFormValues: PatientFormData = {
 export default function PatientForm({ patient, patientId, isEdit = false }: PatientFormProps) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const [isLoading, setIsLoading] = useState(isEdit && !patient)
-  const [error, setError] = useState<Error | null>(null)
   const [allergyInput, setAllergyInput] = useState('')
   const [conditionInput, setConditionInput] = useState('')
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string | undefined>(undefined)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Fetch patient data for edit mode using React Query
+  const {
+    data: fetchedPatient,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['patient', patientId],
+    queryFn: () => {
+      if (!patientId) {
+        throw new Error('Patient ID is required')
+      }
+      return getPatient(patientId)
+    },
+    enabled: isEdit && !!patientId && !patient, // Only fetch if in edit mode, has patientId, and patient not provided as prop
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
 
   const form = useForm<PatientFormData>({
     resolver: zodResolver(patientFormSchema),
@@ -113,96 +129,48 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
   const allergies = useMemo(() => rawAllergies || [], [rawAllergies])
   const conditions = useMemo(() => rawConditions || [], [rawConditions])
 
-  // Fetch patient data for edit mode
+  // Use the patient from props or from the query
+  const patientData = patient || fetchedPatient
+
+  // Populate form when patient data is available
   useEffect(() => {
-    if (isEdit && patientId && !patient) {
-      const fetchPatientData = async () => {
-        setIsLoading(true)
-        setError(null)
-        try {
-          const data = await getPatient(patientId)
-          reset({
-            firstName: data.firstName,
-            lastName: data.lastName,
-            dateOfBirth: formatDateForInput(data.dateOfBirth),
-            email: data.email,
-            phone: data.phone,
-            status: data.status,
-            address: data.address || {
-              street: '',
-              city: '',
-              state: '',
-              zipCode: '',
-              country: 'USA',
-            },
-            emergencyContact: data.emergencyContact || {
-              name: '',
-              relationship: '',
-              phone: '',
-              email: '',
-            },
-            medicalInfo: {
-              ...data.medicalInfo,
-              bloodType: data.medicalInfo.bloodType ?? undefined,
-            },
-            insurance: {
-              ...data.insurance,
-              groupNumber: data.insurance.groupNumber ?? undefined,
-              effectiveDate: data.insurance.effectiveDate ?? undefined,
-              expirationDate: data.insurance.expirationDate ?? '',
-              copay: data.insurance.copay,
-              deductible: data.insurance.deductible ?? undefined,
-            },
-          })
-          setCurrentPhotoUrl(data.photoUrl)
-        } catch (err) {
-          setError(
-            err instanceof Error ? err : new Error('Failed to load patient data')
-          )
-        } finally {
-          setIsLoading(false)
-        }
-      }
-      fetchPatientData()
-    } else if (isEdit && patient) {
-      // If patient data is passed as prop, use it directly
+    if (isEdit && patientData) {
       reset({
-        firstName: patient.firstName,
-        lastName: patient.lastName,
-        dateOfBirth: formatDateForInput(patient.dateOfBirth),
-        email: patient.email,
-        phone: patient.phone,
-        status: patient.status,
-        address: patient.address || {
+        firstName: patientData.firstName,
+        lastName: patientData.lastName,
+        dateOfBirth: formatDateForInput(patientData.dateOfBirth),
+        email: patientData.email,
+        phone: patientData.phone,
+        status: patientData.status,
+        address: patientData.address || {
           street: '',
           city: '',
           state: '',
           zipCode: '',
           country: 'USA',
         },
-        emergencyContact: patient.emergencyContact || {
+        emergencyContact: patientData.emergencyContact || {
           name: '',
           relationship: '',
           phone: '',
           email: '',
         },
         medicalInfo: {
-          ...patient.medicalInfo,
-          bloodType: patient.medicalInfo.bloodType ?? undefined,
+          ...patientData.medicalInfo,
+          bloodType: patientData.medicalInfo.bloodType ?? undefined,
         },
         insurance: {
-          ...patient.insurance,
-          groupNumber: patient.insurance.groupNumber ?? undefined,
-          effectiveDate: patient.insurance.effectiveDate ?? undefined,
-          expirationDate: patient.insurance.expirationDate ?? '',
-          copay: patient.insurance.copay,
-          deductible: patient.insurance.deductible ?? undefined,
+          ...patientData.insurance,
+          groupNumber: patientData.insurance.groupNumber ?? undefined,
+          effectiveDate: patientData.insurance.effectiveDate ?? undefined,
+          expirationDate: patientData.insurance.expirationDate ?? '',
+          copay: patientData.insurance.copay,
+          deductible: patientData.insurance.deductible ?? undefined,
         },
       })
-      setCurrentPhotoUrl(patient.photoUrl)
-      setIsLoading(false)
+      setCurrentPhotoUrl(patientData.photoUrl)
     }
-  }, [isEdit, patientId, patient, reset])
+  }, [isEdit, patientData, reset])
 
   const handleAddAllergy = useCallback(() => {
     if (allergyInput.trim()) {
@@ -401,7 +369,8 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     return (
       <div className='p-6'>
         <QueryErrorDisplay
-          error={error}
+          error={error instanceof Error ? error : new Error('Failed to load patient')}
+          reset={() => refetch()}
           title='Failed to load patient'
           retryLabel='Try again'
         />

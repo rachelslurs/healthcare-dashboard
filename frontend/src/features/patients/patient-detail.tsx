@@ -1,6 +1,6 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import LoadingBrand from "@/components/feedback/loading-brand";
 import QueryErrorDisplay from "@/components/errors/query-error-display";
@@ -32,37 +32,25 @@ export default function PatientDetail() {
   const { patientId } = useParams({ strict: false });
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [patient, setPatient] = useState<Patient | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  useEffect(() => {
-    if (!patientId) {
-      setError(new Error("Patient ID is required"));
-      setIsLoading(false);
-      return;
-    }
-
-    const fetchPatient = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const data = await getPatient(patientId);
-        setPatient(data);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err : new Error("Failed to fetch patient")
-        );
-      } finally {
-        setIsLoading(false);
+  const {
+    data: patient,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['patient', patientId],
+    queryFn: () => {
+      if (!patientId) {
+        throw new Error('Patient ID is required');
       }
-    };
-
-    fetchPatient();
-  }, [patientId]);
+      return getPatient(patientId);
+    },
+    enabled: !!patientId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
   if (isLoading) {
     return (
@@ -81,7 +69,8 @@ export default function PatientDetail() {
     return (
       <div className="p-6">
         <QueryErrorDisplay
-          error={error}
+          error={error instanceof Error ? error : new Error('Failed to load patient')}
+          reset={() => refetch()}
           title="Failed to load patient"
           retryLabel="Try again"
         />
@@ -113,9 +102,10 @@ export default function PatientDetail() {
     try {
       await deletePatient(patientId);
 
-      // Invalidate both activities and patients query caches to refresh the lists
+      // Invalidate query caches to refresh the lists
       queryClient.invalidateQueries({ queryKey: ["activities"] });
       queryClient.invalidateQueries({ queryKey: ["patients"] });
+      queryClient.invalidateQueries({ queryKey: ["patient", patientId] });
 
       toast({
         title: "Patient deleted",

@@ -9,6 +9,7 @@ import { baseRoute } from '../_base'
 const patientsRouteSearchSchema = z.object({
   page: z.number().optional().default(1),
   search: z.string().optional(),
+  status: z.enum(['active', 'inactive', 'archived']).optional(),
   sortBy: z.string().optional(),
   sortOrder: z.enum(['asc', 'desc']).optional().default('asc'),
 })

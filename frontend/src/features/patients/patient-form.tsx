@@ -139,10 +139,10 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
   const patientData = patient || fetchedPatient
 
   // Populate form when patient data is available
+  // Note: React Query already prevents patientData from updating after unmount,
+  // so this effect is safe. We keep the mounted check for setCurrentPhotoUrl as a safety measure.
   useEffect(() => {
-    if (isEdit && patientData) {
-      if (!isMountedRef.current) return;
-
+    if (isEdit && patientData && isMountedRef.current) {
       reset({
         firstName: patientData.firstName,
         lastName: patientData.lastName,
@@ -180,9 +180,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
         keepDefaultValues: false, // Reset default values to the new values
       })
       
-      if (isMountedRef.current) {
-        setCurrentPhotoUrl(patientData.photoUrl)
-      }
+      setCurrentPhotoUrl(patientData.photoUrl)
     }
   }, [isEdit, patientData, reset])
 

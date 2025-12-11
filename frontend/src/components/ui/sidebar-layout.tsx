@@ -32,7 +32,7 @@ function MobileSidebar({ open, close, children }: React.PropsWithChildren<{ open
         transition
         className='fixed inset-y-0 w-full max-w-80 p-2 transition duration-300 ease-in-out data-closed:-translate-x-full'
       >
-        <div className='flex h-full flex-col rounded-lg bg-ascertain-background shadow-xs overflow-hidden'>
+        <div className='flex h-full flex-col rounded-xl bg-ascertain-background shadow-xs overflow-hidden'>
           <div className='px-4 pt-3'>
             <Headless.CloseButton as={NavbarItem} aria-label='Close navigation'>
               <CloseMenuIcon />
@@ -53,10 +53,10 @@ export function SidebarLayout({
   const [showSidebar, setShowSidebar] = useState(false)
 
   return (
-    <div className='relative isolate flex min-h-svh w-full bg-ascertain-background max-lg:flex-col lg:bg-ascertain-background'>
+    <div className='relative isolate flex h-svh w-full bg-ascertain-background max-lg:flex-col lg:bg-ascertain-background'>
       {/* Sidebar on desktop */}
       <header className='fixed top-0 right-0 left-64 z-10 hidden lg:block px-4 py-2.5'>
-        <div className='bg-transparent backdrop-blur-sm rounded-t-xl px-4 py-2.5'>
+        <div className='bg-transparent backdrop-blur-sm rounded-t-xl px-4 py-2.5 overflow-hidden'>
           {navbar}
         </div>
       </header>
@@ -78,9 +78,11 @@ export function SidebarLayout({
       </header>
 
       {/* Content */}
-      <main className='flex flex-1 flex-col pb-2 lg:min-w-0 lg:pt-2 lg:pr-2 lg:pl-64'>
-        <div className='grow p-6 lg:rounded-lg lg:bg-ascertain-white lg:p-10 lg:shadow-xs lg:ring-1 lg:ring-zinc-950/5'>
-          <div className='mx-auto max-w-6xl'>{children}</div>
+      <main className='flex flex-1 flex-col pb-2 lg:min-w-0 lg:pt-2 lg:pr-2 lg:pl-64 lg:overflow-hidden'>
+        <div className='grow lg:rounded-xl lg:bg-ascertain-white lg:shadow-xs lg:ring-1 lg:ring-zinc-950/5 lg:overflow-hidden lg:flex lg:flex-col lg:min-h-0'>
+          <div className='flex-1 overflow-y-auto p-4 lg:p-10 min-h-0'>
+            <div className='mx-auto max-w-6xl'>{children}</div>
+          </div>
         </div>
       </main>
     </div>

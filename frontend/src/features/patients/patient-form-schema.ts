@@ -8,11 +8,11 @@ const medicationSchema = z.object({
   frequency: z.string(),
   prescribedBy: z.string(),
   startDate: z.string(),
-  endDate: z.string().optional(),
+  endDate: z.string().nullable().optional(), // Can be null or undefined
   isActive: z.boolean(),
 })
 
-// Address schema - always present in form, but fields can be empty
+// Address schema - optional, but if provided, all fields are required
 // Validation ensures if any field is filled, all required fields must be filled
 const addressSchema = z.object({
   street: z.string(),
@@ -20,23 +20,16 @@ const addressSchema = z.object({
   state: z.string(),
   zipCode: z.string(),
   country: z.string(),
-})
+}).optional()
 
-// Emergency contact schema - always present in form, but fields can be empty
-// Validation ensures if name is provided, relationship and phone must be filled
+// Emergency contact schema - optional, but if provided, name/relationship/phone are required
 // Email is always optional
-// Note: Union order matters for performance - check cheap cases (empty/null/undefined) before expensive email validation
 const emergencyContactSchema = z.object({
-  name: z.string().nullable(),
-  relationship: z.string().nullable(),
-  phone: z.string().nullable(),
-  email: z.union([
-    z.literal(''),
-    z.null(),
-    z.undefined(),
-    z.string().email('Invalid email address'),
-  ]).optional(),
-})
+  name: z.string(),
+  relationship: z.string(),
+  phone: z.string(),
+  email: z.string().email('Invalid email address').optional(),
+}).optional()
 
 // Medical info schema
 const medicalInfoSchema = z.object({
@@ -44,7 +37,7 @@ const medicalInfoSchema = z.object({
   currentMedications: z.array(medicationSchema),
   conditions: z.array(z.string()),
   bloodType: z.enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']).optional(),
-  lastVisit: z.string(),
+  lastVisit: z.string().optional(), // Optional to match backend
 })
 
 // Insurance schema
@@ -76,44 +69,8 @@ export const patientFormSchema = z.object({
   emergencyContact: emergencyContactSchema,
   medicalInfo: medicalInfoSchema,
   insurance: insuranceSchema,
-}).refine(
-  (data) => {
-    // If name is provided, relationship and phone must also be provided
-    // Email is always optional
-    const hasName = data.emergencyContact.name?.trim()
-    if (hasName) {
-      return (
-        data.emergencyContact.relationship?.trim() &&
-        data.emergencyContact.phone?.trim()
-      )
-    }
-    return true
-  },
-  {
-    message: 'Emergency contact relationship and phone are required when a name is provided',
-    path: ['emergencyContact'],
-  }
-).refine(
-  (data) => {
-    // If any address field is filled, all required fields must be filled
-    const hasAnyField = data.address.street?.trim() || 
-                        data.address.city?.trim() || 
-                        data.address.state?.trim() ||
-                        data.address.zipCode?.trim()
-    if (hasAnyField) {
-      return (
-        data.address.street?.trim() &&
-        data.address.city?.trim() &&
-        data.address.state?.trim() &&
-        data.address.zipCode?.trim()
-      )
-    }
-    return true
-  },
-  {
-    message: 'All address fields are required if address is provided',
-    path: ['address'],
-  }
-)
+})
+// Note: Address and emergencyContact are optional in the schema
+// The form UI can still show empty objects, but we'll convert them to undefined before submission
 
 export type PatientFormData = z.output<typeof patientFormSchema>

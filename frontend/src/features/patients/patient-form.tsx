@@ -135,30 +135,11 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
   // Use the patient from props or from the query
   const patientData = patient || fetchedPatient
   const hasInitializedForm = useRef<string | undefined>(undefined)
-  const initialFormValuesRef = useRef<PatientFormData | null>(null)
   
-  // Watch all form values to trigger comparison updates
-  const currentFormValues = useWatch({ control }) as PatientFormData
-  
-  // Check if form values have changed from initial values (for edit mode)
-  // or if form is dirty (for create mode)
-  const hasFormChanges = useMemo(() => {
-    if (!isEdit || !initialFormValuesRef.current || hasInitializedForm.current !== patientId) {
-      // For create mode or before initialization, just check isDirty
-      return isDirty
-    }
-    // For edit mode, compare current values with initial values
-    // This is more reliable than isDirty which compares against defaultValues
-    const initial = initialFormValuesRef.current
-    const current = currentFormValues
-    
-    // Deep comparison of form values
-    return JSON.stringify(initial) !== JSON.stringify(current)
-  }, [isEdit, isDirty, patientId, currentFormValues])
-  
+  // With proper schema alignment and reset() using keepDefaultValues: false,
+  // isDirty should correctly compare against the loaded values, not the initial defaults
   // Only consider unsaved changes if form has been initialized (for edit mode) or if we're in create mode
-  // This prevents false positives when form is being initialized
-  const hasUnsavedChanges = (isEdit ? hasInitializedForm.current === patientId : true) && (hasFormChanges || !!photoFile)
+  const hasUnsavedChanges = (isEdit ? hasInitializedForm.current === patientId : true) && (isDirty || !!photoFile)
 
   // Block navigation when there are unsaved changes
   const { markNavigationConfirmed } = useUnsavedChanges({
@@ -192,12 +173,9 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           allergies: patientData.medicalInfo.allergies,
           conditions: patientData.medicalInfo.conditions,
           bloodType: patientData.medicalInfo.bloodType ?? undefined,
-          lastVisit: formatDateForInput(patientData.medicalInfo.lastVisit),
-          // Clean up medications: convert null endDate to undefined to match schema
-          currentMedications: patientData.medicalInfo.currentMedications?.map(med => ({
-            ...med,
-            endDate: med.endDate ?? undefined, // Convert null to undefined
-          })) || [],
+          lastVisit: patientData.medicalInfo.lastVisit ? formatDateForInput(patientData.medicalInfo.lastVisit) : undefined,
+          // Schema now accepts null for endDate, so no conversion needed
+          currentMedications: patientData.medicalInfo.currentMedications || [],
         },
         insurance: {
           ...patientData.insurance,
@@ -208,15 +186,9 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           deductible: patientData.insurance.deductible ?? undefined,
         },
       }, {
-        keepDefaultValues: false, // Reset default values to the new values
+        keepDefaultValues: false, // Update default values to match reset values
+        // This ensures isDirty compares against the loaded patient data, not the initial empty defaults
       })
-      
-      // Store initial form values for comparison (after reset completes)
-      // Use setTimeout to ensure reset has completed and form state is updated
-      setTimeout(() => {
-        const formValues = getValues()
-        initialFormValuesRef.current = JSON.parse(JSON.stringify(formValues)) // Deep clone
-      }, 0)
       
       setCurrentPhotoUrl(patientData.photoUrl)
       hasInitializedForm.current = patientId
@@ -337,21 +309,15 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           }
           return undefined
         })(),
-        // Ensure lastVisit is a string (not undefined)
-        // Preserve existing medications when editing (UI for managing them isn't implemented yet)
-        // Clean up medications to convert null endDate to undefined
+        // Schema now matches backend - lastVisit is optional, endDate can be null
         medicalInfo: {
           allergies: formData.medicalInfo.allergies,
           conditions: formData.medicalInfo.conditions,
           bloodType: formData.medicalInfo.bloodType,
-          lastVisit: formData.medicalInfo.lastVisit || '',
-          // Preserve existing medications from patient data if editing, otherwise empty array
-          // Convert null endDate values to undefined to match schema
+          lastVisit: formData.medicalInfo.lastVisit || undefined, // Optional, send undefined if empty
+          // Preserve existing medications when editing (UI for managing them isn't implemented yet)
           currentMedications: isEdit && patientData?.medicalInfo?.currentMedications 
-            ? patientData.medicalInfo.currentMedications.map(med => ({
-                ...med,
-                endDate: med.endDate ?? undefined, // Convert null to undefined
-              }))
+            ? patientData.medicalInfo.currentMedications // Schema accepts null for endDate
             : [],
         },
         // Documents field is not used in the form, but required by API

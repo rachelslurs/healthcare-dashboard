@@ -22,7 +22,7 @@ export interface Medication {
   frequency: string;
   prescribedBy: string;
   startDate: string;
-  endDate?: string;
+  endDate?: string | null; // Can be null to match backend schema
   isActive: boolean;
 }
 
@@ -62,7 +62,7 @@ export interface Patient {
     currentMedications: Medication[];
     conditions: string[];
     bloodType?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
-    lastVisit: string;
+    lastVisit?: string; // Optional to match backend schema
   };
   insurance: InsuranceInfo;
   documents: Document[];

@@ -110,6 +110,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     setValue,
     reset,
     handleSubmit,
+    getValues,
   } = form
 
   // Watch emergency contact to show conditional required fields
@@ -134,7 +135,30 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
   // Use the patient from props or from the query
   const patientData = patient || fetchedPatient
   const hasInitializedForm = useRef<string | undefined>(undefined)
-  const hasUnsavedChanges = isDirty || !!photoFile
+  const initialFormValuesRef = useRef<PatientFormData | null>(null)
+  
+  // Watch all form values to trigger comparison updates
+  const currentFormValues = useWatch({ control }) as PatientFormData
+  
+  // Check if form values have changed from initial values (for edit mode)
+  // or if form is dirty (for create mode)
+  const hasFormChanges = useMemo(() => {
+    if (!isEdit || !initialFormValuesRef.current || hasInitializedForm.current !== patientId) {
+      // For create mode or before initialization, just check isDirty
+      return isDirty
+    }
+    // For edit mode, compare current values with initial values
+    // This is more reliable than isDirty which compares against defaultValues
+    const initial = initialFormValuesRef.current
+    const current = currentFormValues
+    
+    // Deep comparison of form values
+    return JSON.stringify(initial) !== JSON.stringify(current)
+  }, [isEdit, isDirty, patientId, currentFormValues])
+  
+  // Only consider unsaved changes if form has been initialized (for edit mode) or if we're in create mode
+  // This prevents false positives when form is being initialized
+  const hasUnsavedChanges = (isEdit ? hasInitializedForm.current === patientId : true) && (hasFormChanges || !!photoFile)
 
   // Block navigation when there are unsaved changes
   const { markNavigationConfirmed } = useUnsavedChanges({
@@ -183,7 +207,17 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           copay: patientData.insurance.copay,
           deductible: patientData.insurance.deductible ?? undefined,
         },
+      }, {
+        keepDefaultValues: false, // Reset default values to the new values
       })
+      
+      // Store initial form values for comparison (after reset completes)
+      // Use setTimeout to ensure reset has completed and form state is updated
+      setTimeout(() => {
+        const formValues = getValues()
+        initialFormValuesRef.current = JSON.parse(JSON.stringify(formValues)) // Deep clone
+      }, 0)
+      
       setCurrentPhotoUrl(patientData.photoUrl)
       hasInitializedForm.current = patientId
     }
@@ -351,6 +385,11 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           description: 'Patient information has been successfully updated.',
         })
         
+        // Reset form state and photo file after successful submission
+        reset(undefined, { keepDefaultValues: false })
+        setPhotoFile(null)
+        setPhotoPreview(null)
+        
         // Mark navigation as confirmed before navigating after successful submission
         markNavigationConfirmed()
         navigate({ to: `/patients/${patientId}` })
@@ -364,6 +403,11 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           title: 'Patient created',
           description: `${submitData.firstName} ${submitData.lastName} has been successfully added to the system.`,
         })
+        
+        // Reset form state and photo file after successful submission
+        reset(undefined, { keepDefaultValues: false })
+        setPhotoFile(null)
+        setPhotoPreview(null)
         
         // Mark navigation as confirmed before navigating after successful submission
         markNavigationConfirmed()

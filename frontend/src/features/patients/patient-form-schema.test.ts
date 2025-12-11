@@ -24,7 +24,6 @@ describe('patientFormSchema', () => {
       },
       medicalInfo: {
         allergies: [],
-        currentMedications: [],
         conditions: [],
         lastVisit: '2024-01-15',
       },
@@ -201,7 +200,6 @@ describe('patientFormSchema', () => {
         },
         medicalInfo: {
           allergies: ['Peanuts'],
-          currentMedications: [],
           conditions: ['Hypertension'],
           bloodType: 'O+' as const,
           lastVisit: '2024-01-15',
@@ -244,7 +242,6 @@ describe('patientFormSchema', () => {
         },
         medicalInfo: {
           allergies: [],
-          currentMedications: [],
           conditions: [],
           lastVisit: '2024-01-15',
         },
@@ -286,7 +283,6 @@ describe('patientFormSchema', () => {
         },
         medicalInfo: {
           allergies: [],
-          currentMedications: [],
           conditions: [],
           lastVisit: '2024-01-15',
         },
@@ -328,7 +324,6 @@ describe('patientFormSchema', () => {
         },
         medicalInfo: {
           allergies: [],
-          currentMedications: [],
           conditions: [],
           lastVisit: '2024-01-15',
         },
@@ -365,7 +360,6 @@ describe('patientFormSchema', () => {
         },
         medicalInfo: {
           allergies: [],
-          currentMedications: [],
           conditions: [],
           lastVisit: '2024-01-15',
         },
@@ -407,7 +401,6 @@ describe('patientFormSchema', () => {
         },
         medicalInfo: {
           allergies: [],
-          currentMedications: [],
           conditions: [],
           lastVisit: '2024-01-15',
         },
@@ -444,7 +437,6 @@ describe('patientFormSchema', () => {
         },
         medicalInfo: {
           allergies: [],
-          currentMedications: [],
           conditions: [],
           lastVisit: '2024-01-15',
         },
@@ -486,7 +478,6 @@ describe('patientFormSchema', () => {
         },
         medicalInfo: {
           allergies: [],
-          currentMedications: [],
           conditions: [],
           lastVisit: '2024-01-15',
         },
@@ -529,7 +520,6 @@ describe('patientFormSchema', () => {
         },
         medicalInfo: {
           allergies: [],
-          currentMedications: [],
           conditions: [],
           lastVisit: '2024-01-15',
         },
@@ -567,7 +557,6 @@ describe('patientFormSchema', () => {
         },
         medicalInfo: {
           allergies: [],
-          currentMedications: [],
           conditions: [],
           lastVisit: '2024-01-15',
         },
@@ -609,7 +598,6 @@ describe('patientFormSchema', () => {
         },
         medicalInfo: {
           allergies: [],
-          currentMedications: [],
           conditions: [],
           lastVisit: '2024-01-15',
         },
@@ -651,7 +639,6 @@ describe('patientFormSchema', () => {
         },
         medicalInfo: {
           allergies: [],
-          currentMedications: [],
           conditions: [],
           lastVisit: '2024-01-15',
         },
@@ -693,7 +680,6 @@ describe('patientFormSchema', () => {
         },
         medicalInfo: {
           allergies: [],
-          currentMedications: [],
           conditions: [],
           lastVisit: '2024-01-15',
         },
@@ -735,7 +721,6 @@ describe('patientFormSchema', () => {
         },
         medicalInfo: {
           allergies: [],
-          currentMedications: [],
           conditions: [],
           lastVisit: '2024-01-15',
         },
@@ -778,7 +763,6 @@ describe('patientFormSchema', () => {
         },
         medicalInfo: {
           allergies: [],
-          currentMedications: [],
           conditions: [],
           lastVisit: '2024-01-15',
         },
@@ -818,7 +802,6 @@ describe('patientFormSchema', () => {
         },
         medicalInfo: {
           allergies: [],
-          currentMedications: [],
           conditions: [],
           bloodType: 'INVALID' as any,
           lastVisit: '2024-01-15',

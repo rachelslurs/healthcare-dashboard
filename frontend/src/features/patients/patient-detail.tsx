@@ -306,15 +306,6 @@ export default function PatientDetail() {
               )}
             </DescriptionDetails>
 
-            <DescriptionTerm>Current Medications</DescriptionTerm>
-            <DescriptionDetails>
-              {patient.medicalInfo.currentMedications.length > 0
-                ? patient.medicalInfo.currentMedications
-                    .map((med) => med.name)
-                    .join(", ")
-                : "None"}
-            </DescriptionDetails>
-
             <DescriptionTerm>Last Visit</DescriptionTerm>
             <DescriptionDetails>
               {formatDate(patient.medicalInfo.lastVisit)}

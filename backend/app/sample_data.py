@@ -49,12 +49,6 @@ def generate_sample_patients(count: int = 20):
         # Sample blood types
         blood_types = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
         
-        # Sample medications
-        medication_names = [
-            "Lisinopril", "Metformin", "Albuterol", "Ibuprofen", "Atorvastatin",
-            "Amlodipine", "Omeprazole", "Losartan", "Gabapentin", "Sertraline"
-        ]
-        
         # Sample conditions
         conditions = [
             "Hypertension", "Diabetes", "Asthma", "Arthritis",
@@ -137,26 +131,6 @@ def generate_sample_patients(count: int = 20):
                 "email": f"{contact_first.lower()}.{random.choice(last_names).lower()}@example.com" if random.random() < 0.7 else None
             }
             
-            # Generate medications (using snake_case)
-            num_medications = random.randint(0, 3)
-            medications = []
-            for _ in range(num_medications):
-                med_name = random.choice(medication_names)
-                start_date = (datetime.now() - timedelta(days=random.randint(30, 365))).isoformat()
-                is_active = random.random() < 0.8
-                end_date = None if is_active else (datetime.now() - timedelta(days=random.randint(1, 30))).isoformat()
-                
-                medications.append({
-                    "id": str(uuid.uuid4()),
-                    "name": med_name,
-                    "dosage": f"{random.randint(5, 50)}mg",
-                    "frequency": random.choice(["Once daily", "Twice daily", "Three times daily", "As needed"]),
-                    "prescribed_by": f"Dr. {random.choice(['Smith', 'Johnson', 'Williams', 'Brown', 'Davis'])}",
-                    "start_date": start_date,
-                    "end_date": end_date,
-                    "is_active": is_active
-                })
-            
             # Generate medical info (using snake_case)
             num_conditions = random.randint(0, 3)
             patient_conditions = random.sample(conditions, min(num_conditions, len(conditions)))
@@ -170,7 +144,6 @@ def generate_sample_patients(count: int = 20):
             
             medical_info = {
                 "allergies": allergies,
-                "current_medications": medications,
                 "conditions": patient_conditions,
                 "blood_type": random.choice(blood_types),
                 "last_visit": last_visit

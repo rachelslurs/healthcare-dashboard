@@ -52,7 +52,6 @@ const defaultFormValues: PatientFormData = {
   },
   medicalInfo: {
     allergies: [],
-    currentMedications: [],
     conditions: [],
     bloodType: undefined,
     lastVisit: '',
@@ -761,11 +760,6 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
                 type='date'
                 {...register('medicalInfo.lastVisit')}
               />
-            </Field>
-
-            <Field>
-              <Label>Current Medications</Label>
-              <Description>Medication management will be available in a future update</Description>
             </Field>
           </FieldGroup>
         </Fieldset>

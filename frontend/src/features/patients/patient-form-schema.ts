@@ -1,17 +1,5 @@
 import { z } from 'zod'
 
-// Medication schema
-const medicationSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  dosage: z.string(),
-  frequency: z.string(),
-  prescribedBy: z.string(),
-  startDate: z.string(),
-  endDate: z.string().optional(),
-  isActive: z.boolean(),
-})
-
 // Address schema - always present in form, but fields can be empty
 // Validation ensures if any field is filled, all required fields must be filled
 const addressSchema = z.object({
@@ -41,7 +29,6 @@ const emergencyContactSchema = z.object({
 // Medical info schema
 const medicalInfoSchema = z.object({
   allergies: z.array(z.string()),
-  currentMedications: z.array(medicationSchema),
   conditions: z.array(z.string()),
   bloodType: z.enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']).optional(),
   lastVisit: z.string(),

@@ -15,17 +15,6 @@ export interface EmergencyContact {
   email?: string;
 }
 
-export interface Medication {
-  id: string;
-  name: string;
-  dosage: string;
-  frequency: string;
-  prescribedBy: string;
-  startDate: string;
-  endDate?: string;
-  isActive: boolean;
-}
-
 export interface InsuranceInfo {
   provider: string;
   policyNumber: string;
@@ -59,7 +48,6 @@ export interface Patient {
   emergencyContact?: EmergencyContact;
   medicalInfo: {
     allergies: string[];
-    currentMedications: Medication[];
     conditions: string[];
     bloodType?: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
     lastVisit: string;

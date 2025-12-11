@@ -179,6 +179,7 @@
   --animate-snap-rotate: snap-rotate 2s ease-in-out infinite;
   --transform-origin-center: center;
   --animate-gradient-color: gradient-color 2.5s ease-in-out infinite;
+  --animate-fade-in-out: fade-in-out 2s ease-in-out infinite;
 }
 
 @keyframes slide-from-top {
@@ -242,10 +243,24 @@
   }
 }
 
+@keyframes fade-in-out {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 @layer utilities {
   /* Custom utility for ring-offset-reset (replaces v3 plugin) */
   .ring-offset-reset {
     --current-background: var(--tw-ring-color);
+  }
+  
+  /* Fade in/out animation for loading brand */
+  .animate-fade-in-out {
+    animation: var(--animate-fade-in-out);
   }
 }
 

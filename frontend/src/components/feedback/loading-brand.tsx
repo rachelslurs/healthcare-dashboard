@@ -1,4 +1,3 @@
-// src/components/ui/loading-spinner.tsx
 import { type HTMLAttributes } from "react"
 import clsx from 'clsx'
 
@@ -22,7 +21,7 @@ function LoadingBrand({
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 348.75 374.999991"
-      className={clsx(sizeClasses[size], className)}
+      className={clsx(sizeClasses[size], "animate-fade-in-out", className)}
       {...props}
     >
       {/* Top part */}

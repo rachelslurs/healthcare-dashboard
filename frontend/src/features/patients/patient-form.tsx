@@ -4,7 +4,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useForm, Controller, useWatch, type SubmitHandler } from 'react-hook-form'
 
-import LoadingSpinner from '@/components/feedback/loading-spinner'
+import LoadingBrand from '@/components/feedback/loading-brand'
 import { Button } from '@/components/ui/button'
 import { Fieldset, Legend, FieldGroup, Field, Label, Description, ErrorMessage } from '@/components/ui/fieldset'
 import { Input } from '@/components/ui/input'
@@ -385,7 +385,12 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
   if (isLoading) {
     return (
       <div className='p-6'>
-        <LoadingSpinner message='Loading patient information...' />
+        <div className='flex items-center justify-center min-h-[400px]'>
+          <div className='flex flex-col items-center gap-4'>
+            <LoadingBrand size='lg' className='text-violet-600' />
+            <p className='text-sm text-gray-600'>Loading patient information...</p>
+          </div>
+        </div>
       </div>
     )
   }

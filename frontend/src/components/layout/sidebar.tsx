@@ -28,7 +28,6 @@ import {
   SidebarSection,
   SidebarHeadingItem,
 } from '../ui/sidebar'
-import LoadingBrand from '../feedback/loading-brand'
 
 export default function Sidebar() {
   const location = useLocation()

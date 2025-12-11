@@ -1,5 +1,5 @@
 import { Toast } from '@/components/ui/toast'
-import useToast from '@/hooks/use-toast'
+import useToast from '@/hooks/useToast'
 import { dismissToast } from '@/lib/toast'
 
 /**

@@ -18,7 +18,7 @@ export function DescriptionTerm({ className, ...props }: React.ComponentPropsWit
       {...props}
       className={clsx(
         className,
-        'col-start-1 border-t border-zinc-950/5 pt-3 text-zinc-500 first:border-none sm:border-t sm:border-zinc-950/5 sm:py-3'
+        'col-start-1 border-t border-zinc-950/5 py-1.5 text-base/6 text-zinc-500 first:border-none sm:border-t sm:border-zinc-950/5 sm:py-1.5 sm:text-sm/6 flex items-center'
       )}
     />
   )
@@ -30,7 +30,7 @@ export function DescriptionDetails({ className, ...props }: React.ComponentProps
       {...props}
       className={clsx(
         className,
-        'pt-1 pb-3 text-zinc-950 sm:border-t sm:border-zinc-950/5 sm:py-3 sm:nth-2:border-none min-w-0 max-w-full overflow-hidden'
+        'py-1.5 text-base/6 text-zinc-950 sm:border-t sm:border-zinc-950/5 sm:py-1.5 sm:text-sm/6 sm:nth-2:border-none min-w-0 max-w-full overflow-hidden flex items-center'
       )}
     />
   )

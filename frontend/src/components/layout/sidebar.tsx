@@ -26,7 +26,6 @@ import {
   SidebarItem,
   SidebarLabel,
   SidebarSection,
-  SidebarHeadingItem,
 } from '../ui/sidebar'
 
 export default function Sidebar() {

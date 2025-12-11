@@ -53,7 +53,7 @@ export function SidebarLayout({
   const [showSidebar, setShowSidebar] = useState(false)
 
   return (
-    <div className='relative isolate flex h-svh w-full bg-ascertain-background max-lg:flex-col lg:bg-ascertain-background'>
+    <div className='relative isolate flex h-svh w-full bg-ascertain-background max-lg:flex-col lg:bg-ascertain-background overflow-auto'>
       {/* Sidebar on desktop */}
       <header className='fixed top-0 right-0 left-64 z-10 hidden lg:block px-4 py-2.5'>
         <div className='bg-transparent backdrop-blur-sm rounded-t-xl px-4 py-2.5 overflow-hidden'>

@@ -76,6 +76,13 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string | undefined>(undefined)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const isMountedRef = useRef(true)
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   // Fetch patient data for edit mode using React Query
   const {
@@ -107,8 +114,6 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     formState: { errors, isSubmitting },
     setValue,
     reset,
-    handleSubmit,
-    getValues,
   } = form
 
   // Watch emergency contact to show conditional required fields
@@ -136,6 +141,8 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
   // Populate form when patient data is available
   useEffect(() => {
     if (isEdit && patientData) {
+      if (!isMountedRef.current) return;
+
       reset({
         firstName: patientData.firstName,
         lastName: patientData.lastName,
@@ -173,7 +180,9 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
         keepDefaultValues: false, // Reset default values to the new values
       })
       
-      setCurrentPhotoUrl(patientData.photoUrl)
+      if (isMountedRef.current) {
+        setCurrentPhotoUrl(patientData.photoUrl)
+      }
     }
   }, [isEdit, patientData, reset])
 
@@ -302,11 +311,15 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
       if (isEdit && patientId) {
         await updatePatient(patientId, submitData)
         
+        if (!isMountedRef.current) return;
+        
         // Upload photo if a new one was selected
         if (photoFile) {
           try {
             await uploadPatientPhoto(patientId, photoFile)
+            if (!isMountedRef.current) return;
           } catch (photoErr) {
+            if (!isMountedRef.current) return;
             // Show error for photo upload but still navigate since patient was updated
             toast({
               title: 'Patient edited, but photo upload failed',
@@ -327,6 +340,8 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
       } else {
         const newPatient = await createPatient(submitData)
         
+        if (!isMountedRef.current) return;
+        
         // Invalidate activities query cache to refresh the activities list
         queryClient.invalidateQueries({ queryKey: ['activities'] })
         
@@ -337,6 +352,8 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
         navigate({ to: `/patients/${newPatient.id}` })
       }
     } catch (err) {
+      if (!isMountedRef.current) return;
+      
       const errorMessage = getErrorMessage(err, 'Failed to save patient')
       
       toast({

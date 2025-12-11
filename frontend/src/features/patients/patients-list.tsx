@@ -185,14 +185,14 @@ export default function PatientsList() {
 
   return (
     <div className='p-6'>
-      <div className='flex items-center justify-between mb-4'>
+      <div className='flex items-center justify-between mb-4 self-center'>
         <h1 className='text-2xl font-bold'>Patients</h1>
         <Button href='/patients/new'>Add New Patient</Button>
       </div>
 
       {/* Search Input and Status Filter */}
       <div className='mb-6 flex items-center justify-between gap-4'>
-        <InputGroup className='flex-1 max-w-md'>
+        <InputGroup className='flex-1 max-w-md self-center'>
           <MagnifyingGlassIcon data-slot='icon' />
           <Input
             type='search'
@@ -205,7 +205,7 @@ export default function PatientsList() {
         <Select
           value={statusFilter || 'all'}
           onChange={(e) => handleStatusChange(e.target.value)}
-          className='w-full max-w-xs'
+          className='w-full max-w-xs self-center'
           aria-label='Filter by status'
         >
           <option value='all'>All Statuses</option>

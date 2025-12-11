@@ -7,3 +7,4 @@ export interface Activity {
   description: string;
   patientId?: string;
 }
+

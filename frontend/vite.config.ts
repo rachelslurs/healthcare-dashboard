@@ -1,5 +1,6 @@
 // vite.config.ts
 import { defineConfig } from 'vite'
+import type { UserConfig } from 'vite'
 import { resolve } from 'path'
 import tsConfigPaths from 'vite-tsconfig-paths'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
@@ -7,7 +8,7 @@ import viteReact from '@vitejs/plugin-react'
 import checker from "vite-plugin-checker"
 import tailwindcss from '@tailwindcss/vite'
 
-export default defineConfig({
+const config: UserConfig = {
   plugins: [
     tsConfigPaths(),
     tanstackStart(),
@@ -36,4 +37,6 @@ export default defineConfig({
       usePolling: process.env.VITE_USE_POLLING === 'true',
     },
   },
-})
+}
+
+export default defineConfig(config)

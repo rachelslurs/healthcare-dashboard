@@ -3,6 +3,7 @@
 import clsx from 'clsx'
 import type React from 'react'
 
+import QueryErrorDisplay from '../errors/query-error-display'
 import { Button } from '../ui/button'
 import { Table, TableBody, TableCell, TableHead, TableRow } from '../ui/table'
 
@@ -75,15 +76,13 @@ export default function DataTable<T extends object>({
       <LoadingOverlay isVisible={showOverlay} />
       
       {error ? (
-        <div className='flex flex-col items-center justify-center gap-4 p-12 min-h-[400px]'>
-          <p className='text-sm text-neutral-600'>
-            {error.message || 'An error occurred while loading data'}
-          </p>
-          {refetch && (
-            <Button onClick={refetch} outline>
-              Retry
-            </Button>
-          )}
+        <div className='p-6'>
+          <QueryErrorDisplay
+            error={error}
+            reset={refetch}
+            title='Failed to load data'
+            retryLabel='Try again'
+          />
         </div>
       ) : (
         <>

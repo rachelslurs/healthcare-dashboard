@@ -5,8 +5,10 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useForm, Controller, useWatch, type SubmitHandler } from 'react-hook-form'
 
 import LoadingBrand from '@/components/feedback/loading-brand'
+import QueryErrorDisplay from '@/components/errors/query-error-display'
 import { Button } from '@/components/ui/button'
 import { Fieldset, Legend, FieldGroup, Field, Label, Description, ErrorMessage } from '@/components/ui/fieldset'
+import { Heading } from '@/components/ui/heading'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { API_BASE_URL } from '@/lib/constants'
@@ -70,6 +72,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [isLoading, setIsLoading] = useState(isEdit && !patient)
+  const [error, setError] = useState<Error | null>(null)
   const [allergyInput, setAllergyInput] = useState('')
   const [conditionInput, setConditionInput] = useState('')
   const [photoFile, setPhotoFile] = useState<File | null>(null)
@@ -115,6 +118,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     if (isEdit && patientId && !patient) {
       const fetchPatientData = async () => {
         setIsLoading(true)
+        setError(null)
         try {
           const data = await getPatient(patientId)
           reset({
@@ -152,11 +156,9 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           })
           setCurrentPhotoUrl(data.photoUrl)
         } catch (err) {
-          toast({
-            title: 'Error',
-            description: getErrorMessage(err, 'Failed to load patient data'),
-            variant: 'destructive',
-          })
+          setError(
+            err instanceof Error ? err : new Error('Failed to load patient data')
+          )
         } finally {
           setIsLoading(false)
         }
@@ -395,9 +397,21 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     )
   }
 
+  if (error) {
+    return (
+      <div className='p-6'>
+        <QueryErrorDisplay
+          error={error}
+          title='Failed to load patient'
+          retryLabel='Try again'
+        />
+      </div>
+    )
+  }
+
   return (
     <div className='p-6 max-w-4xl mx-auto'>
-      <h1 className='text-2xl font-bold mb-6'>{isEdit ? 'Edit Patient' : 'New Patient'}</h1>
+      <Heading level={1} className='mb-6'>{isEdit ? 'Edit Patient' : 'New Patient'}</Heading>
 
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
         {/* Basic Information */}

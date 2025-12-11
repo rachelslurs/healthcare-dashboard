@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 
 import LoadingBrand from "@/components/feedback/loading-brand";
+import QueryErrorDisplay from "@/components/errors/query-error-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -79,11 +80,11 @@ export default function PatientDetail() {
   if (error) {
     return (
       <div className="p-6">
-        <h1 className="text-2xl font-bold mb-4">Patient Detail</h1>
-        <div className="rounded-lg bg-red-50 border border-red-200 p-4">
-          <p className="text-red-800 font-medium">Error loading patient</p>
-          <p className="text-red-600 text-sm mt-1">{error.message}</p>
-        </div>
+        <QueryErrorDisplay
+          error={error}
+          title="Failed to load patient"
+          retryLabel="Try again"
+        />
       </div>
     );
   }

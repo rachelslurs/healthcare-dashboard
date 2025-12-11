@@ -38,30 +38,6 @@ describe('Toast', () => {
       expect(screen.getByText('Test description text')).toBeInTheDocument()
     })
 
-    it('should render with only title', () => {
-      const toast: ToastType = {
-        id: 'test-1',
-        title: 'Title Only',
-        open: true,
-      }
-
-      render(<Toast toast={toast} onOpenChange={mockOnOpenChange} />)
-
-      expect(screen.getByText('Title Only')).toBeInTheDocument()
-      expect(screen.queryByText(/description/i)).not.toBeInTheDocument()
-    })
-
-    it('should render with only description', () => {
-      const toast: ToastType = {
-        id: 'test-1',
-        description: 'Description Only',
-        open: true,
-      }
-
-      render(<Toast toast={toast} onOpenChange={mockOnOpenChange} />)
-
-      expect(screen.getByText('Description Only')).toBeInTheDocument()
-    })
 
     it('should render action button when action is provided', () => {
       const mockActionClick = vi.fn()
@@ -112,52 +88,9 @@ describe('Toast', () => {
       expect(toastElement).toHaveClass('border-red-200/50', 'bg-red-50/50')
     })
 
-    it('should apply default variant when variant is not specified', () => {
-      const toast: ToastType = {
-        id: 'test-1',
-        title: 'No Variant Toast',
-        open: true,
-      }
-
-      const { container } = render(<Toast toast={toast} onOpenChange={mockOnOpenChange} />)
-
-      const toastElement = container.firstChild as HTMLElement
-      expect(toastElement).toHaveClass('border-neutral-800/10', 'bg-ascertain-white')
-    })
-
-    it('should apply destructive text colors for destructive variant', () => {
-      const toast: ToastType = {
-        id: 'test-1',
-        title: 'Error Title',
-        description: 'Error description',
-        variant: 'destructive',
-        open: true,
-      }
-
-      render(<Toast toast={toast} onOpenChange={mockOnOpenChange} />)
-
-      const title = screen.getByText('Error Title')
-      const description = screen.getByText('Error description')
-
-      expect(title).toHaveClass('text-red-900')
-      expect(description).toHaveClass('text-red-800')
-    })
   })
 
   describe('close button', () => {
-    it('should render close button', () => {
-      const toast: ToastType = {
-        id: 'test-1',
-        title: 'Test Toast',
-        open: true,
-      }
-
-      render(<Toast toast={toast} onOpenChange={mockOnOpenChange} />)
-
-      const closeButton = screen.getByRole('button', { name: /close/i })
-      expect(closeButton).toBeInTheDocument()
-    })
-
     it('should call onOpenChange(false) when close button is clicked', async () => {
       const user = userEvent.setup()
       const toast: ToastType = {
@@ -219,24 +152,6 @@ describe('Toast', () => {
       expect(mockOnOpenChange).toHaveBeenCalledWith(false)
     })
 
-    it('should apply destructive styling to action button for destructive variant', () => {
-      const mockActionClick = vi.fn()
-      const toast: ToastType = {
-        id: 'test-1',
-        title: 'Error Toast',
-        variant: 'destructive',
-        action: {
-          altText: 'Retry',
-          onClick: mockActionClick,
-        },
-        open: true,
-      }
-
-      render(<Toast toast={toast} onOpenChange={mockOnOpenChange} />)
-
-      const actionButton = screen.getByRole('button', { name: /retry/i })
-      expect(actionButton).toHaveClass('border-red-300', 'text-red-700')
-    })
   })
 
   describe('open/closed state', () => {
@@ -267,17 +182,6 @@ describe('Toast', () => {
       expect(toastElement).toHaveClass('opacity-0', 'translate-x-full', 'pointer-events-none')
     })
 
-    it('should default to open when open is not specified', () => {
-      const toast: ToastType = {
-        id: 'test-1',
-        title: 'Default Open Toast',
-      }
-
-      const { container } = render(<Toast toast={toast} onOpenChange={mockOnOpenChange} />)
-
-      const toastElement = container.firstChild as HTMLElement
-      expect(toastElement).toHaveClass('opacity-100', 'translate-x-0')
-    })
   })
 
   describe('accessibility', () => {

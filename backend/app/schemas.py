@@ -24,24 +24,9 @@ class EmergencyContact(BaseModel):
     email: Optional[str] = None
 
 
-class Medication(BaseModel):
-    """Medication schema."""
-    id: str
-    name: str
-    dosage: str
-    frequency: str
-    prescribed_by: str = Field(..., alias="prescribedBy")
-    start_date: str = Field(..., alias="startDate")
-    end_date: Optional[str] = Field(None, alias="endDate")
-    is_active: bool = Field(..., alias="isActive")
-    
-    model_config = ConfigDict(populate_by_name=True)
-
-
 class MedicalInfo(BaseModel):
     """Medical information schema."""
     allergies: List[str]
-    current_medications: List[Medication] = Field(..., alias="currentMedications")
     conditions: List[str]
     blood_type: Optional[Literal['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']] = Field(None, alias="bloodType")
     last_visit: Optional[str] = Field(None, alias="lastVisit")

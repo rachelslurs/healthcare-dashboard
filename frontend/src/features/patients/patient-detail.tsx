@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useParams, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 
-import LoadingSpinner from "@/components/feedback/loading-spinner";
+import LoadingBrand from "@/components/feedback/loading-brand";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -66,7 +66,12 @@ export default function PatientDetail() {
   if (isLoading) {
     return (
       <div className="p-6">
-        <LoadingSpinner message="Loading patient information..." />
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex flex-col items-center gap-4">
+            <LoadingBrand size="lg" className="text-violet-600" />
+            <p className="text-sm text-gray-600">Loading patient information...</p>
+          </div>
+        </div>
       </div>
     );
   }

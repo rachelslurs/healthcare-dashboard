@@ -108,6 +108,8 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     formState: { errors, isSubmitting },
     setValue,
     reset,
+    handleSubmit,
+    getValues,
   } = form
 
   // Watch emergency contact to show conditional required fields
@@ -167,7 +169,10 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           copay: patientData.insurance.copay,
           deductible: patientData.insurance.deductible ?? undefined,
         },
+      }, {
+        keepDefaultValues: false, // Reset default values to the new values
       })
+      
       setCurrentPhotoUrl(patientData.photoUrl)
     }
   }, [isEdit, patientData, reset])

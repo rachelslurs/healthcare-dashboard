@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
 import LoadingBrand from "@/components/feedback/loading-brand";
 import QueryErrorDisplay from "@/components/errors/query-error-display";
@@ -41,10 +41,10 @@ export default function PatientDetail() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ['patient', patientId],
+    queryKey: ["patient", patientId],
     queryFn: () => {
       if (!patientId) {
-        throw new Error('Patient ID is required');
+        throw new Error("Patient ID is required");
       }
       return getPatient(patientId);
     },
@@ -52,13 +52,21 @@ export default function PatientDetail() {
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
+  // All hooks must be called before any conditional returns
+  const handleEdit = useCallback(() => {
+    if (!patientId) return;
+    navigate({ to: `/patients/${patientId}/edit` });
+  }, [patientId, navigate]);
+
   if (isLoading) {
     return (
       <div className="p-6">
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
             <LoadingBrand size="lg" className="text-violet-600" />
-            <p className="text-sm text-gray-600">Loading patient information...</p>
+            <p className="text-sm text-gray-600">
+              Loading patient information...
+            </p>
           </div>
         </div>
       </div>
@@ -69,7 +77,9 @@ export default function PatientDetail() {
     return (
       <div className="p-6">
         <QueryErrorDisplay
-          error={error instanceof Error ? error : new Error('Failed to load patient')}
+          error={
+            error instanceof Error ? error : new Error("Failed to load patient")
+          }
           reset={() => refetch()}
           title="Failed to load patient"
           retryLabel="Try again"
@@ -86,10 +96,6 @@ export default function PatientDetail() {
       </div>
     );
   }
-
-  const handleEdit = () => {
-    navigate({ to: `/patients/${patientId}/edit` });
-  };
 
   const handleDeleteClick = () => {
     setDeleteDialogOpen(true);

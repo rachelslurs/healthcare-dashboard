@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
+import useUnsavedChanges from '@/hooks/useUnsavedChanges'
 import { useForm, Controller, useWatch, type SubmitHandler } from 'react-hook-form'
 
 import LoadingBrand from '@/components/feedback/loading-brand'
@@ -105,9 +106,10 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
   const {
     register,
     control,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid, isDirty },
     setValue,
     reset,
+    handleSubmit,
   } = form
 
   // Watch emergency contact to show conditional required fields
@@ -131,10 +133,17 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
 
   // Use the patient from props or from the query
   const patientData = patient || fetchedPatient
+  const hasInitializedForm = useRef<string | undefined>(undefined)
+  const hasUnsavedChanges = isDirty || !!photoFile
 
-  // Populate form when patient data is available
+  // Block navigation when there are unsaved changes
+  const { markNavigationConfirmed } = useUnsavedChanges({
+    hasUnsavedChanges,
+  })
+
+  // Populate form when patient data is available (only once per patient)
   useEffect(() => {
-    if (isEdit && patientData) {
+    if (isEdit && patientData && hasInitializedForm.current !== patientId) {
       reset({
         firstName: patientData.firstName,
         lastName: patientData.lastName,
@@ -156,21 +165,29 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           email: '',
         },
         medicalInfo: {
-          ...patientData.medicalInfo,
+          allergies: patientData.medicalInfo.allergies,
+          conditions: patientData.medicalInfo.conditions,
           bloodType: patientData.medicalInfo.bloodType ?? undefined,
+          lastVisit: formatDateForInput(patientData.medicalInfo.lastVisit),
+          // Clean up medications: convert null endDate to undefined to match schema
+          currentMedications: patientData.medicalInfo.currentMedications?.map(med => ({
+            ...med,
+            endDate: med.endDate ?? undefined, // Convert null to undefined
+          })) || [],
         },
         insurance: {
           ...patientData.insurance,
           groupNumber: patientData.insurance.groupNumber ?? undefined,
-          effectiveDate: patientData.insurance.effectiveDate ?? undefined,
-          expirationDate: patientData.insurance.expirationDate ?? '',
+          effectiveDate: patientData.insurance.effectiveDate ? formatDateForInput(patientData.insurance.effectiveDate) : undefined,
+          expirationDate: patientData.insurance.expirationDate ? formatDateForInput(patientData.insurance.expirationDate) : '',
           copay: patientData.insurance.copay,
           deductible: patientData.insurance.deductible ?? undefined,
         },
       })
       setCurrentPhotoUrl(patientData.photoUrl)
+      hasInitializedForm.current = patientId
     }
-  }, [isEdit, patientData, reset])
+  }, [isEdit, patientData, patientId, reset])
 
   const handleAddAllergy = useCallback(() => {
     if (allergyInput.trim()) {
@@ -254,6 +271,7 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
   }, [])
 
   const onSubmit: SubmitHandler<PatientFormData> = async (formData) => {
+    console.log('Form submission started', { isEdit, patientId, formData })
     try {
       // Prepare form data, converting empty address to undefined
       const submitData = {
@@ -286,9 +304,21 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           return undefined
         })(),
         // Ensure lastVisit is a string (not undefined)
+        // Preserve existing medications when editing (UI for managing them isn't implemented yet)
+        // Clean up medications to convert null endDate to undefined
         medicalInfo: {
-          ...formData.medicalInfo,
+          allergies: formData.medicalInfo.allergies,
+          conditions: formData.medicalInfo.conditions,
+          bloodType: formData.medicalInfo.bloodType,
           lastVisit: formData.medicalInfo.lastVisit || '',
+          // Preserve existing medications from patient data if editing, otherwise empty array
+          // Convert null endDate values to undefined to match schema
+          currentMedications: isEdit && patientData?.medicalInfo?.currentMedications 
+            ? patientData.medicalInfo.currentMedications.map(med => ({
+                ...med,
+                endDate: med.endDate ?? undefined, // Convert null to undefined
+              }))
+            : [],
         },
         // Documents field is not used in the form, but required by API
         documents: [],
@@ -311,8 +341,10 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           }
         }
         
-        // Invalidate activities query cache to refresh the activities list
+        // Invalidate query caches to refresh the lists and patient detail
         queryClient.invalidateQueries({ queryKey: ['activities'] })
+        queryClient.invalidateQueries({ queryKey: ['patients'] })
+        queryClient.invalidateQueries({ queryKey: ['patient', patientId] })
         
         toast({
           title: 'Patient updated',
@@ -334,7 +366,9 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
         navigate({ to: `/patients/${newPatient.id}` })
       }
     } catch (err) {
+      console.error('Form submission error:', err)
       const errorMessage = getErrorMessage(err, 'Failed to save patient')
+      console.error('Error message:', errorMessage)
       
       toast({
         title: isEdit ? 'Failed to update patient' : 'Failed to create patient',
@@ -344,13 +378,25 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     }
   }
 
+
   const handleCancel = useCallback(() => {
+    if (hasUnsavedChanges) {
+      const confirmed = window.confirm(
+        'You have unsaved changes. Are you sure you want to leave?'
+      )
+      if (!confirmed) {
+        return
+      }
+      // Mark that user confirmed, so blocker won't trigger
+      markNavigationConfirmed()
+    }
+    
     if (isEdit && patientId) {
       navigate({ to: `/patients/${patientId}` })
     } else {
       navigate({ to: '/patients' })
     }
-  }, [isEdit, patientId, navigate])
+  }, [isEdit, patientId, navigate, hasUnsavedChanges, markNavigationConfirmed])
 
   if (isLoading) {
     return (
@@ -382,7 +428,14 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     <div className='p-6 max-w-4xl mx-auto'>
       <Heading level={1} className='mb-6'>{isEdit ? 'Edit Patient' : 'New Patient'}</Heading>
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+      <form 
+        onSubmit={(e) => {
+          console.log('Form onSubmit event triggered')
+          form.handleSubmit(onSubmit)(e)
+        }} 
+        className='space-y-8' 
+        noValidate
+      >
         {/* Basic Information */}
         <Fieldset>
           <Legend>Basic Information</Legend>
@@ -879,7 +932,24 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           <Button type='button' onClick={handleCancel} outline>
             Cancel
           </Button>
-          <Button type='submit' color='violet' disabled={isSubmitting}>
+          <Button 
+            type='submit' 
+            color='violet' 
+            disabled={
+              isSubmitting || 
+              (isEdit && !isDirty && !photoFile)
+            }
+            onClick={() => {
+              console.log('Submit button clicked', { 
+                isSubmitting, 
+                isDirty, 
+                isValid,
+                hasPhotoFile: !!photoFile,
+                hasErrors: Object.keys(errors).length > 0, 
+                errors 
+              })
+            }}
+          >
             {isSubmitting ? 'Saving...' : isEdit ? 'Update Patient' : 'Create Patient'}
           </Button>
         </div>

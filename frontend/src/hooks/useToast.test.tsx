@@ -3,7 +3,6 @@ import { renderHook, act, waitFor } from '@testing-library/react'
 
 import useToast from './useToast'
 import type { Toast } from '@/lib/toast'
-import * as toastLib from '@/lib/toast'
 
 // Mock the toast library
 const mockGetToastState = vi.fn()

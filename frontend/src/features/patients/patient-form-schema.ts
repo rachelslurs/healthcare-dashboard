@@ -1,15 +1,10 @@
 import { z } from 'zod'
 
-// Medication schema
+// Simplified medication schema
 const medicationSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  dosage: z.string(),
-  frequency: z.string(),
-  prescribedBy: z.string(),
-  startDate: z.string(),
-  endDate: z.string().nullable().optional(), // Can be null or undefined
-  isActive: z.boolean(),
+  name: z.string().min(1, 'Medication name is required'),
+  dosage: z.string().optional(),
+  frequency: z.string().optional(),
 })
 
 // Address schema - optional, but if provided, all fields are required

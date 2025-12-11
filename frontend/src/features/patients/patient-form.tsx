@@ -3,25 +3,25 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import useUnsavedChanges from '@/hooks/useUnsavedChanges'
-import { useForm, Controller, useWatch, type SubmitHandler } from 'react-hook-form'
+import { useForm, Controller, useWatch, useFieldArray, type SubmitHandler } from 'react-hook-form'
 
 import LoadingBrand from '@/components/feedback/loading-brand'
 import QueryErrorDisplay from '@/components/errors/query-error-display'
 import { Button } from '@/components/ui/button'
-import { Fieldset, Legend, FieldGroup, Field, Label, Description, ErrorMessage } from '@/components/ui/fieldset'
 import { Heading } from '@/components/ui/heading'
-import { Input } from '@/components/ui/input'
-import { Select } from '@/components/ui/select'
-import { API_BASE_URL } from '@/lib/constants'
 import { formatDateForInput } from '@/lib/date-utils'
 import { getErrorMessage } from '@/lib/error-utils'
 import { toast } from '@/lib/toast'
 
 import { getPatient, createPatient, updatePatient, uploadPatientPhoto } from './api'
 import { patientFormSchema, type PatientFormData } from './patient-form-schema'
-import PhotoPreview from './photo-preview'
-import Tags from './tags'
 import type { Patient } from './types'
+import BasicInformationSection from './basic-information-section'
+import PhotoUploadSection from './photo-upload-section'
+import AddressSection from './address-section'
+import EmergencyContactSection from './emergency-contact-section'
+import MedicalInformationSection from './medical-information-section'
+import InsuranceInformationSection from './insurance-information-section'
 
 
 interface PatientFormProps {
@@ -72,12 +72,15 @@ const defaultFormValues: PatientFormData = {
 export default function PatientForm({ patient, patientId, isEdit = false }: PatientFormProps) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const [allergyInput, setAllergyInput] = useState('')
-  const [conditionInput, setConditionInput] = useState('')
+  // Only keep state for things that can't be in React Hook Form (file objects, previews)
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string | undefined>(undefined)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  // Temporary input state for new items (cleared after adding)
+  const [newAllergyInput, setNewAllergyInput] = useState('')
+  const [newConditionInput, setNewConditionInput] = useState('')
+  const [editingMedicationIndex, setEditingMedicationIndex] = useState<number | null>(null)
 
   // Fetch patient data for edit mode using React Query
   const {
@@ -113,6 +116,35 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
     getValues,
   } = form
 
+  // Use useFieldArray for managing arrays
+  const {
+    fields: allergyFields,
+    append: appendAllergy,
+    remove: removeAllergy,
+  } = useFieldArray({
+    control,
+    name: 'medicalInfo.allergies',
+  })
+
+  const {
+    fields: conditionFields,
+    append: appendCondition,
+    remove: removeCondition,
+  } = useFieldArray({
+    control,
+    name: 'medicalInfo.conditions',
+  })
+
+  const {
+    fields: medicationFields,
+    append: appendMedication,
+    remove: removeMedication,
+    update: updateMedication,
+  } = useFieldArray({
+    control,
+    name: 'medicalInfo.currentMedications',
+  })
+
   // Watch emergency contact to show conditional required fields
   // Memoize the computed boolean to prevent unnecessary re-renders when value doesn't change
   const emergencyContact = useWatch({ control, name: 'emergencyContact' })
@@ -124,13 +156,10 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
               emergencyContact.email?.trim())
   }, [emergencyContact])
   
-  // Watch allergies and conditions to avoid multiple watch calls
-  const rawAllergies = useWatch({ control, name: 'medicalInfo.allergies' })
-  const rawConditions = useWatch({ control, name: 'medicalInfo.conditions' })
-  
-  // Memoize to prevent new array references on every render
-  const allergies = useMemo(() => rawAllergies || [], [rawAllergies])
-  const conditions = useMemo(() => rawConditions || [], [rawConditions])
+  // Get current values from field arrays
+  const allergies = useMemo(() => allergyFields.map((field) => field.value || ''), [allergyFields])
+  const conditions = useMemo(() => conditionFields.map((field) => field.value || ''), [conditionFields])
+  const medications = useMemo(() => medicationFields.map((field) => field.value), [medicationFields])
 
   // Use the patient from props or from the query
   const patientData = patient || fetchedPatient
@@ -174,7 +203,6 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           conditions: patientData.medicalInfo.conditions,
           bloodType: patientData.medicalInfo.bloodType ?? undefined,
           lastVisit: patientData.medicalInfo.lastVisit ? formatDateForInput(patientData.medicalInfo.lastVisit) : undefined,
-          // Schema now accepts null for endDate, so no conversion needed
           currentMedications: patientData.medicalInfo.currentMedications || [],
         },
         insurance: {
@@ -196,42 +224,65 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
   }, [isEdit, patientData, patientId, reset])
 
   const handleAddAllergy = useCallback(() => {
-    if (allergyInput.trim()) {
-      setValue('medicalInfo.allergies', [...allergies, allergyInput.trim()], {
-        shouldValidate: true,
-      })
-      setAllergyInput('')
+    if (newAllergyInput.trim()) {
+      appendAllergy(newAllergyInput.trim(), { shouldFocus: false })
+      setNewAllergyInput('')
     }
-  }, [allergyInput, allergies, setValue])
+  }, [newAllergyInput, appendAllergy])
 
-  const handleRemoveAllergy = useCallback((index: number) => {
-    setValue(
-      'medicalInfo.allergies',
-      allergies.filter((_, i) => i !== index),
-      { shouldValidate: true }
-    )
-  }, [allergies, setValue])
+  const handleRemoveAllergy = useCallback(
+    (index: number) => {
+      removeAllergy(index)
+    },
+    [removeAllergy]
+  )
 
   const handleAddCondition = useCallback(() => {
-    if (conditionInput.trim()) {
-      setValue('medicalInfo.conditions', [...conditions, conditionInput.trim()], {
-        shouldValidate: true,
-      })
-      setConditionInput('')
+    if (newConditionInput.trim()) {
+      appendCondition(newConditionInput.trim(), { shouldFocus: false })
+      setNewConditionInput('')
     }
-  }, [conditionInput, conditions, setValue])
+  }, [newConditionInput, appendCondition])
 
-  const handleRemoveCondition = useCallback((index: number) => {
-    setValue(
-      'medicalInfo.conditions',
-      conditions.filter((_, i) => i !== index),
-      { shouldValidate: true }
-    )
-  }, [conditions, setValue])
+  const handleRemoveCondition = useCallback(
+    (index: number) => {
+      removeCondition(index)
+    },
+    [removeCondition]
+  )
 
   // Memoize itemLabel functions to prevent Tags component re-renders
   const allergyItemLabel = useCallback((allergy: string) => `Remove ${allergy}`, [])
   const conditionItemLabel = useCallback((condition: string) => `Remove ${condition}`, [])
+
+  // Medication handlers using useFieldArray
+  const handleAppendMedication = useCallback(
+    (medication: PatientFormData['medicalInfo']['currentMedications'][0]) => {
+      appendMedication(medication, { shouldFocus: false })
+    },
+    [appendMedication]
+  )
+
+  const handleEditMedication = useCallback(
+    (index: number) => {
+      setEditingMedicationIndex(index)
+    },
+    []
+  )
+
+  const handleRemoveMedication = useCallback(
+    (index: number) => {
+      removeMedication(index)
+      if (editingMedicationIndex === index) {
+        setEditingMedicationIndex(null)
+      }
+    },
+    [removeMedication, editingMedicationIndex]
+  )
+
+  const handleCancelEditMedication = useCallback(() => {
+    setEditingMedicationIndex(null)
+  }, [])
 
   const handlePhotoChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -309,16 +360,14 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           }
           return undefined
         })(),
-        // Schema now matches backend - lastVisit is optional, endDate can be null
+        // Schema now matches backend - lastVisit is optional
         medicalInfo: {
           allergies: formData.medicalInfo.allergies,
           conditions: formData.medicalInfo.conditions,
           bloodType: formData.medicalInfo.bloodType,
           lastVisit: formData.medicalInfo.lastVisit || undefined, // Optional, send undefined if empty
-          // Preserve existing medications when editing (UI for managing them isn't implemented yet)
-          currentMedications: isEdit && patientData?.medicalInfo?.currentMedications 
-            ? patientData.medicalInfo.currentMedications // Schema accepts null for endDate
-            : [],
+          // Medications are now managed in the UI
+          currentMedications: formData.medicalInfo.currentMedications || [],
         },
         // Documents field is not used in the form, but required by API
         documents: [],
@@ -450,496 +499,55 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
         className='space-y-8' 
         noValidate
       >
-        {/* Basic Information */}
-        <Fieldset>
-          <Legend>Basic Information</Legend>
-          <FieldGroup>
-            <Field>
-              <Label>
-                First Name <span className='text-red-500'>*</span>
-              </Label>
-              <Input
-                type='text'
-                {...register('firstName')}
-                placeholder='John'
-              />
-              {errors.firstName && (
-                <ErrorMessage>{errors.firstName.message}</ErrorMessage>
-              )}
-            </Field>
+        <BasicInformationSection register={register} errors={errors} />
 
-            <Field>
-              <Label>
-                Last Name <span className='text-red-500'>*</span>
-              </Label>
-              <Input
-                type='text'
-                {...register('lastName')}
-                placeholder='Doe'
-              />
-              {errors.lastName && (
-                <ErrorMessage>{errors.lastName.message}</ErrorMessage>
-              )}
-            </Field>
-
-            <Field>
-              <Label>
-                Date of Birth <span className='text-red-500'>*</span>
-              </Label>
-              <Input
-                type='date'
-                {...register('dateOfBirth')}
-              />
-              {errors.dateOfBirth && (
-                <ErrorMessage>{errors.dateOfBirth.message}</ErrorMessage>
-              )}
-            </Field>
-
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
-              <Field>
-                <Label>
-                  Email <span className='text-red-500'>*</span>
-                </Label>
-                <Input
-                  type='email'
-                  {...register('email')}
-                  placeholder='john.doe@example.com'
-                />
-                {errors.email && (
-                  <ErrorMessage>{errors.email.message}</ErrorMessage>
-                )}
-              </Field>
-
-              <Field>
-                <Label>
-                  Phone <span className='text-red-500'>*</span>
-                </Label>
-                <Input
-                  type='tel'
-                  {...register('phone')}
-                  placeholder='(555) 123-4567'
-                />
-                {errors.phone && (
-                  <ErrorMessage>{errors.phone.message}</ErrorMessage>
-                )}
-              </Field>
-            </div>
-
-            <Field>
-              <Label>
-                Status <span className='text-red-500'>*</span>
-              </Label>
-              <Select {...register('status')}>
-                <option value='active'>Active</option>
-                <option value='inactive'>Inactive</option>
-                <option value='archived'>Archived</option>
-              </Select>
-              {errors.status && (
-                <ErrorMessage>{errors.status.message}</ErrorMessage>
-              )}
-            </Field>
-          </FieldGroup>
-        </Fieldset>
-
-        {/* Photo Upload - Edit Mode Only */}
         {isEdit && (
-          <Fieldset>
-            <Legend>Patient Photo</Legend>
-            <FieldGroup>
-              <Field>
-                <Label>Photo</Label>
-                <div className='space-y-4'>
-                  {/* Photo Preview */}
-                  {(photoPreview || currentPhotoUrl) && (
-                    <div className='flex items-center gap-4'>
-                      <div className='relative'>
-                        <PhotoPreview 
-                          photoPreview={photoPreview}
-                          currentPhotoUrl={currentPhotoUrl}
-                          apiBaseUrl={API_BASE_URL}
-                        />
-                      </div>
-                      {photoFile && (
-                        <Button
-                          type='button'
-                          onClick={handleRemovePhoto}
-                          outline
-                        >
-                          Remove New Photo
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                  
-                  {/* File Input */}
-                  <div className='flex items-center gap-4'>
-                    <input
-                      ref={fileInputRef}
-                      type='file'
-                      accept='image/jpeg,image/jpg,image/png'
-                      onChange={handlePhotoChange}
-                      className='block w-full text-sm text-neutral-600
-                        file:mr-4 file:py-2 file:px-4
-                        file:rounded-lg file:border-0
-                        file:text-sm file:font-semibold
-                        file:bg-neutral-100 file:text-neutral-700
-                        hover:file:bg-neutral-200
-                        file:cursor-pointer'
-                    />
-                  </div>
-                  <Description>
-                    Upload a patient photo (JPEG or PNG, max 5MB). This will replace any existing photo.
-                  </Description>
-                </div>
-              </Field>
-            </FieldGroup>
-          </Fieldset>
+          <PhotoUploadSection
+            photoFile={photoFile}
+            photoPreview={photoPreview}
+            currentPhotoUrl={currentPhotoUrl}
+            onPhotoChange={handlePhotoChange}
+            onRemovePhoto={handleRemovePhoto}
+            fileInputRef={fileInputRef}
+          />
         )}
 
-        {/* Address */}
-        <Fieldset>
-          <Legend>Address</Legend>
-          <FieldGroup>
-            <Field>
-              <Label>Street</Label>
-              <Input
-                type='text'
-                {...register('address.street')}
-                placeholder='123 Main St'
-              />
-              {errors.address?.street && (
-                <ErrorMessage>{errors.address.street.message}</ErrorMessage>
-              )}
-            </Field>
+        <AddressSection register={register} errors={errors} />
 
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
-              <Field>
-                <Label>City</Label>
-                <Input
-                  type='text'
-                  {...register('address.city')}
-                  placeholder='New York'
-                />
-                {errors.address?.city && (
-                  <ErrorMessage>{errors.address.city.message}</ErrorMessage>
-                )}
-              </Field>
+        <EmergencyContactSection
+          register={register}
+          errors={errors}
+          hasEmergencyContact={hasEmergencyContact}
+        />
 
-              <Field>
-                <Label>State</Label>
-                <Input
-                  type='text'
-                  {...register('address.state')}
-                  placeholder='NY'
-                />
-                {errors.address?.state && (
-                  <ErrorMessage>{errors.address.state.message}</ErrorMessage>
-                )}
-              </Field>
-            </div>
+        <MedicalInformationSection
+          register={register}
+          control={control}
+          newAllergyInput={newAllergyInput}
+          onNewAllergyInputChange={setNewAllergyInput}
+          onAddAllergy={handleAddAllergy}
+          onRemoveAllergy={handleRemoveAllergy}
+          allergyFields={allergyFields}
+          allergyItemLabel={allergyItemLabel}
+          newConditionInput={newConditionInput}
+          onNewConditionInputChange={setNewConditionInput}
+          onAddCondition={handleAddCondition}
+          onRemoveCondition={handleRemoveCondition}
+          conditionFields={conditionFields}
+          conditionItemLabel={conditionItemLabel}
+          medicationFields={medicationFields}
+          onAppendMedication={handleAppendMedication}
+          onRemoveMedication={handleRemoveMedication}
+          onEditMedication={handleEditMedication}
+          onCancelEditMedication={handleCancelEditMedication}
+          editingMedicationIndex={editingMedicationIndex}
+        />
 
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
-              <Field>
-                <Label>ZIP Code</Label>
-                <Input
-                  type='text'
-                  {...register('address.zipCode')}
-                  placeholder='10001'
-                />
-                {errors.address?.zipCode && (
-                  <ErrorMessage>{errors.address.zipCode.message}</ErrorMessage>
-                )}
-              </Field>
-
-              <Field>
-                <Label>Country</Label>
-                <Input
-                  type='text'
-                  {...register('address.country')}
-                  placeholder='USA'
-                />
-              </Field>
-            </div>
-            {errors.address && typeof errors.address.message === 'string' && (
-              <ErrorMessage>{errors.address.message}</ErrorMessage>
-            )}
-          </FieldGroup>
-        </Fieldset>
-
-        {/* Emergency Contact */}
-        <Fieldset>
-          <Legend>Emergency Contact</Legend>
-          <FieldGroup>
-            <Field>
-              <Label>
-                Name {hasEmergencyContact && <span className='text-red-500'>*</span>}
-              </Label>
-              <Input
-                type='text'
-                {...register('emergencyContact.name')}
-                placeholder='Jane Doe'
-              />
-              {errors.emergencyContact?.name && (
-                <ErrorMessage>{errors.emergencyContact.name.message}</ErrorMessage>
-              )}
-            </Field>
-
-            <Field>
-              <Label>
-                Relationship {hasEmergencyContact && <span className='text-red-500'>*</span>}
-              </Label>
-              <Input
-                type='text'
-                {...register('emergencyContact.relationship')}
-                placeholder='Spouse'
-              />
-              {errors.emergencyContact?.relationship && (
-                <ErrorMessage>{errors.emergencyContact.relationship.message}</ErrorMessage>
-              )}
-            </Field>
-
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
-              <Field>
-                <Label>
-                  Phone {hasEmergencyContact && <span className='text-red-500'>*</span>}
-                </Label>
-                <Input
-                  type='tel'
-                  {...register('emergencyContact.phone')}
-                  placeholder='(555) 123-4567'
-                />
-                {errors.emergencyContact?.phone && (
-                  <ErrorMessage>{errors.emergencyContact.phone.message}</ErrorMessage>
-                )}
-              </Field>
-
-              <Field>
-                <Label>Email</Label>
-                <Input
-                  type='email'
-                  {...register('emergencyContact.email')}
-                  placeholder='jane.doe@example.com'
-                />
-                {errors.emergencyContact?.email && (
-                  <ErrorMessage>{errors.emergencyContact.email.message}</ErrorMessage>
-                )}
-              </Field>
-            </div>
-            {errors.emergencyContact && typeof errors.emergencyContact.message === 'string' && (
-              <ErrorMessage>{errors.emergencyContact.message}</ErrorMessage>
-            )}
-          </FieldGroup>
-        </Fieldset>
-
-        {/* Medical Information */}
-        <Fieldset>
-          <Legend>Medical Information</Legend>
-          <FieldGroup>
-            <Field>
-              <Label>Allergies</Label>
-              <div data-slot='control' className='space-y-2'>
-                <div className='flex gap-2'>
-                  <Input
-                    type='text'
-                    value={allergyInput}
-                    onChange={(e) => setAllergyInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        handleAddAllergy()
-                      }
-                    }}
-                    placeholder='Enter allergy and press Enter or click Add'
-                  />
-                  <Button type='button' onClick={handleAddAllergy} outline>
-                    Add
-                  </Button>
-                </div>
-                <Tags
-                  items={allergies}
-                  onRemove={handleRemoveAllergy}
-                  color='blue'
-                  itemLabel={allergyItemLabel}
-                />
-              </div>
-            </Field>
-
-            <Field>
-              <Label>Medical Conditions</Label>
-              <div data-slot='control' className='space-y-2'>
-                <div className='flex gap-2'>
-                  <Input
-                    type='text'
-                    value={conditionInput}
-                    onChange={(e) => setConditionInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        handleAddCondition()
-                      }
-                    }}
-                    placeholder='Enter condition and press Enter or click Add'
-                  />
-                  <Button type='button' onClick={handleAddCondition} outline>
-                    Add
-                  </Button>
-                </div>
-                <Tags
-                  items={conditions}
-                  onRemove={handleRemoveCondition}
-                  color='blue'
-                  itemLabel={conditionItemLabel}
-                />
-              </div>
-            </Field>
-
-            <Field>
-              <Label>Blood Type</Label>
-              <Controller
-                name='medicalInfo.bloodType'
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    value={field.value || ''}
-                    onChange={(e) => field.onChange(e.target.value || undefined)}
-                  >
-                    <option value=''>Not specified</option>
-                    <option value='A+'>A+</option>
-                    <option value='A-'>A-</option>
-                    <option value='B+'>B+</option>
-                    <option value='B-'>B-</option>
-                    <option value='AB+'>AB+</option>
-                    <option value='AB-'>AB-</option>
-                    <option value='O+'>O+</option>
-                    <option value='O-'>O-</option>
-                  </Select>
-                )}
-              />
-            </Field>
-
-            <Field>
-              <Label>Last Visit</Label>
-              <Input
-                type='date'
-                {...register('medicalInfo.lastVisit')}
-              />
-            </Field>
-
-            <Field>
-              <Label>Current Medications</Label>
-              <Description>Medication management will be available in a future update</Description>
-            </Field>
-          </FieldGroup>
-        </Fieldset>
-
-        {/* Insurance Information */}
-        <Fieldset>
-          <Legend>Insurance Information</Legend>
-          <FieldGroup>
-            <Field>
-              <Label>
-                Provider <span className='text-red-500'>*</span>
-              </Label>
-              <Input
-                type='text'
-                {...register('insurance.provider')}
-                placeholder='Blue Cross Blue Shield'
-              />
-              {errors.insurance?.provider && (
-                <ErrorMessage>{errors.insurance.provider.message}</ErrorMessage>
-              )}
-            </Field>
-
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
-              <Field>
-                <Label>
-                  Policy Number <span className='text-red-500'>*</span>
-                </Label>
-                <Input
-                  type='text'
-                  {...register('insurance.policyNumber')}
-                  placeholder='POL123456'
-                />
-                {errors.insurance?.policyNumber && (
-                  <ErrorMessage>{errors.insurance.policyNumber.message}</ErrorMessage>
-                )}
-              </Field>
-
-              <Field>
-                <Label>Group Number</Label>
-                <Input
-                  type='text'
-                  {...register('insurance.groupNumber')}
-                  placeholder='GRP789'
-                />
-              </Field>
-            </div>
-
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
-              <Field>
-                <Label>Effective Date</Label>
-                <Input
-                  type='date'
-                  {...register('insurance.effectiveDate')}
-                />
-              </Field>
-
-              <Field>
-                <Label>Expiration Date</Label>
-                <Input
-                  type='date'
-                  {...register('insurance.expirationDate')}
-                />
-              </Field>
-            </div>
-
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
-              <Field>
-                <Label>
-                  Copay ($) <span className='text-red-500'>*</span>
-                </Label>
-                <Controller
-                  name='insurance.copay'
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      type='number'
-                      step='0.01'
-                      min='0'
-                      value={field.value}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                      placeholder='25.00'
-                    />
-                  )}
-                />
-                {errors.insurance?.copay && (
-                  <ErrorMessage>{errors.insurance.copay.message}</ErrorMessage>
-                )}
-              </Field>
-
-              <Field>
-                <Label>Deductible ($)</Label>
-                <Controller
-                  name='insurance.deductible'
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      type='number'
-                      step='0.01'
-                      min='0'
-                      value={field.value ?? ''}
-                      onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                      placeholder='1000.00'
-                    />
-                  )}
-                />
-                {errors.insurance?.deductible && (
-                  <ErrorMessage>{errors.insurance.deductible.message}</ErrorMessage>
-                )}
-              </Field>
-            </div>
-          </FieldGroup>
-        </Fieldset>
+        <InsuranceInformationSection
+          register={register}
+          control={control}
+          errors={errors}
+        />
 
         {/* Form Actions */}
         <div className='flex gap-4 justify-end pt-6'>

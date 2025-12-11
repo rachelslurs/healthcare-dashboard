@@ -16,14 +16,9 @@ export interface EmergencyContact {
 }
 
 export interface Medication {
-  id: string;
   name: string;
-  dosage: string;
-  frequency: string;
-  prescribedBy: string;
-  startDate: string;
-  endDate?: string | null; // Can be null to match backend schema
-  isActive: boolean;
+  dosage?: string;
+  frequency?: string;
 }
 
 export interface InsuranceInfo {

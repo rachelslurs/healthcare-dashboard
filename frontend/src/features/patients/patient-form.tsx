@@ -351,6 +351,8 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           description: 'Patient information has been successfully updated.',
         })
         
+        // Mark navigation as confirmed before navigating after successful submission
+        markNavigationConfirmed()
         navigate({ to: `/patients/${patientId}` })
       } else {
         const newPatient = await createPatient(submitData)
@@ -363,6 +365,8 @@ export default function PatientForm({ patient, patientId, isEdit = false }: Pati
           description: `${submitData.firstName} ${submitData.lastName} has been successfully added to the system.`,
         })
         
+        // Mark navigation as confirmed before navigating after successful submission
+        markNavigationConfirmed()
         navigate({ to: `/patients/${newPatient.id}` })
       }
     } catch (err) {

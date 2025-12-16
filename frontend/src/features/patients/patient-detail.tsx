@@ -155,7 +155,7 @@ export default function PatientDetail() {
     <div className="flex h-full min-h-0 flex-col -m-4 lg:-m-10">
       {/* Sticky Header */}
       <div className="sticky top-0 z-10 bg-white border-b border-zinc-200 px-4 lg:px-10 py-4 mb-6">
-        <div className="flex items-start justify-between">
+        <div className="flex items-center justify-between">
           <div className="flex items-start gap-4 min-w-0">
             {/* Patient Photo or Avatar */}
             <div className="shrink-0 relative">
@@ -234,7 +234,7 @@ export default function PatientDetail() {
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 lg:px-10">
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 lg:px-10 py-10">
         <div className="space-y-6 lg:grid lg:grid-cols-2 lg:gap-6 lg:space-y-0">
         {/* Basic Information */}
         <section>

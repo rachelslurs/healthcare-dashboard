@@ -23,3 +23,5 @@ export function getSearchParams(): URLSearchParams {
   }
   return new URLSearchParams(window.location.search)
 }
+
+

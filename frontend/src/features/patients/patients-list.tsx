@@ -1,4 +1,4 @@
-import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
+import { MagnifyingGlassIcon, UserPlusIcon } from '@heroicons/react/20/solid'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useMemo, useCallback, memo } from 'react'
@@ -185,9 +185,12 @@ export default function PatientsList() {
 
   return (
     <div className='p-2'>
-      <div className='flex items-center justify-between mb-4 self-center'>
-        <h1 className='text-2xl font-bold'>Patients</h1>
-        <Button href='/patients/new'>Add New Patient</Button>
+      <div className='flex items-center justify-between mb-6 py-4 min-h-16'>
+        <h1 className='text-2xl font-bold leading-tight'>Patients</h1>
+        <Button href='/patients/new' className="items-center">
+          <UserPlusIcon data-slot="icon" />
+          Add New Patient
+        </Button>
       </div>
 
       {/* Search Input and Status Filter */}

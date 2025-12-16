@@ -93,7 +93,10 @@ export default function ActivitiesList() {
 
   return (
     <div className='p-2'>
-      <h1 className='text-2xl font-bold mb-4'>Activities</h1>
+      <div className='flex items-center justify-between mb-6 py-4 min-h-16'>
+        <h1 className='text-2xl font-bold leading-tight'>Activities</h1>
+        <div></div>
+      </div>
       <DataTable
         columns={columns}
         data={data}

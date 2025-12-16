@@ -76,7 +76,7 @@ export default function DataTable<T extends object>({
       <LoadingOverlay isVisible={showOverlay} />
       
       {error ? (
-        <div className='p-6'>
+        <div className='p-2'>
           <QueryErrorDisplay
             error={error}
             reset={refetch}

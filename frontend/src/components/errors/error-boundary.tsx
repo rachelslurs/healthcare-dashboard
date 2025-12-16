@@ -83,8 +83,8 @@ function DefaultErrorFallback({ error, onReset }: DefaultErrorFallbackProps) {
   }
 
   return (
-    <div className='flex flex-col items-center justify-center min-h-screen p-6 bg-ascertain-background'>
-      <div className='w-full max-w-md rounded-lg bg-red-50 border border-red-200 p-6 text-center'>
+    <div className='flex flex-col items-center justify-center min-h-screen p-2 bg-ascertain-background'>
+      <div className='w-full max-w-md rounded-lg bg-red-50 border border-red-200 p-2 text-center'>
         <div className='mb-4'>
           <svg
             className='mx-auto h-12 w-12 text-red-600'

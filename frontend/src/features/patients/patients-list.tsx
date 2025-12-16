@@ -184,7 +184,7 @@ export default function PatientsList() {
   }, [columns])
 
   return (
-    <div className='p-6'>
+    <div className='p-2'>
       <div className='flex items-center justify-between mb-4 self-center'>
         <h1 className='text-2xl font-bold'>Patients</h1>
         <Button href='/patients/new'>Add New Patient</Button>

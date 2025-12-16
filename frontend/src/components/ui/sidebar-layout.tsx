@@ -78,9 +78,9 @@ export function SidebarLayout({
       </header>
 
       {/* Content */}
-      <main className='flex flex-1 flex-col pb-2 lg:min-w-0 lg:pt-2 lg:pr-2 lg:pl-64 lg:overflow-hidden'>
+      <main className='flex flex-1 flex-col lg:min-w-0 lg:py-0 lg:pr-0 lg:pl-64 lg:overflow-hidden'>
         <div className='grow lg:rounded-xl lg:bg-ascertain-white lg:shadow-xs lg:ring-1 lg:ring-zinc-950/5 lg:overflow-hidden lg:flex lg:flex-col lg:min-h-0'>
-          <div className='flex-1 overflow-y-auto p-4 lg:p-10 min-h-0'>
+          <div className='flex-1 overflow-y-auto px-4 lg:px-10 min-h-0'>
             <div className='mx-auto max-w-6xl'>{children}</div>
           </div>
         </div>

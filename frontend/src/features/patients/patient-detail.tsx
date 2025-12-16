@@ -1,11 +1,19 @@
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useParams, useNavigate } from "@tanstack/react-router";
+import { PencilIcon, UserMinusIcon, EllipsisVerticalIcon } from "@heroicons/react/20/solid";
 import { useState } from "react";
 
 import LoadingBrand from "@/components/feedback/loading-brand";
 import QueryErrorDisplay from "@/components/errors/query-error-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dropdown,
+  DropdownButton,
+  DropdownMenu,
+  DropdownItem,
+  DropdownLabel,
+} from "@/components/ui/dropdown";
 import {
   DescriptionList,
   DescriptionTerm,
@@ -82,7 +90,7 @@ export default function PatientDetail() {
 
   if (isLoading) {
     return (
-      <div className="p-6">
+      <div className="p-2">
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
             <LoadingBrand size="lg" className="text-violet-600" />
@@ -95,7 +103,7 @@ export default function PatientDetail() {
 
   if (error) {
     return (
-      <div className="p-6">
+      <div className="p-2">
         <QueryErrorDisplay
           error={error instanceof Error ? error : new Error('Failed to load patient')}
           reset={() => refetch()}
@@ -108,7 +116,7 @@ export default function PatientDetail() {
 
   if (!patient) {
     return (
-      <div className="p-6">
+      <div className="p-2">
         <h1 className="text-2xl font-bold mb-4">Patient Detail</h1>
         <p className="text-gray-600">Patient not found</p>
       </div>
@@ -144,9 +152,10 @@ export default function PatientDetail() {
     : null;
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <div className="flex items-start justify-between mb-2">
+    <div className="flex h-full min-h-0 flex-col -m-4 lg:-m-10">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-10 bg-white border-b border-zinc-200 px-4 lg:px-10 py-4 mb-6">
+        <div className="flex items-start justify-between">
           <div className="flex items-start gap-4 min-w-0">
             {/* Patient Photo or Avatar */}
             <div className="shrink-0 relative">
@@ -192,18 +201,41 @@ export default function PatientDetail() {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button outline onClick={handleDeleteClick}>
+          {/* Desktop: Show buttons, Mobile: Show overflow menu */}
+          <div className="hidden md:flex items-center gap-2">
+            <Button outline onClick={handleDeleteClick} className="items-center">
+              <UserMinusIcon data-slot="icon" />
               Delete
             </Button>
-            <Button color="violet" onClick={handleEdit}>
+            <Button color="violet" onClick={handleEdit} className="items-center">
+              <PencilIcon data-slot="icon" />
               Edit Patient
             </Button>
+          </div>
+          <div className="md:hidden">
+            <Dropdown>
+              <DropdownButton as={Button} outline className="items-center">
+                <EllipsisVerticalIcon data-slot="icon" />
+                <span className="sr-only">Actions</span>
+              </DropdownButton>
+              <DropdownMenu anchor="bottom end">
+                <DropdownItem onClick={handleEdit}>
+                  <PencilIcon data-slot="icon" />
+                  <DropdownLabel>Edit Patient</DropdownLabel>
+                </DropdownItem>
+                <DropdownItem onClick={handleDeleteClick}>
+                  <UserMinusIcon data-slot="icon" />
+                  <DropdownLabel>Delete</DropdownLabel>
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
           </div>
         </div>
       </div>
 
-      <div className="space-y-6 lg:grid lg:grid-cols-2 lg:gap-6 lg:space-y-0">
+      {/* Scrollable Content */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 lg:px-10">
+        <div className="space-y-6 lg:grid lg:grid-cols-2 lg:gap-6 lg:space-y-0">
         {/* Basic Information */}
         <section>
           <h2 className="text-lg font-semibold mb-4">Basic Information</h2>
@@ -363,6 +395,7 @@ export default function PatientDetail() {
             </DescriptionDetails>
           </DescriptionList>
         </section>
+        </div>
       </div>
 
       <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>

@@ -493,7 +493,7 @@ export default function PatientForm({
   return (
     <FormPageLayout
       header={
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between py-4">
           <Heading level={1}>{isEdit ? "Edit Patient" : "New Patient"}</Heading>
           <div className="flex items-center gap-3">
             <label
@@ -511,7 +511,7 @@ export default function PatientForm({
         </div>
       }
       footer={
-        <div className="flex gap-4 justify-end">
+        <div className="flex gap-4 justify-end py-4">
           <Button type="button" onClick={handleCancel} outline>
             Cancel
           </Button>

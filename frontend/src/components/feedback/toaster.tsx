@@ -1,3 +1,5 @@
+import * as Headless from '@headlessui/react'
+
 import { Toast } from '@/components/ui/toast'
 import useToast from '@/hooks/useToast'
 import { dismissToast } from '@/lib/toast'
@@ -24,15 +26,27 @@ export default function Toaster() {
       aria-label='Notifications'
     >
       {toasts.map((toast) => (
-        <Toast
+        <Headless.Transition
           key={toast.id}
-          toast={toast}
-          onOpenChange={(open) => {
-            if (!open) {
-              dismissToast(toast.id)
-            }
-          }}
-        />
+          show={toast.open !== false}
+          enter='transition-all duration-300 ease-out'
+          enterFrom='opacity-0 translate-x-full scale-95'
+          enterTo='opacity-100 translate-x-0 scale-100'
+          leave='transition-all duration-200 ease-in'
+          leaveFrom='opacity-100 translate-x-0 scale-100'
+          leaveTo='opacity-0 translate-x-full scale-95'
+        >
+          <div className='pointer-events-auto'>
+            <Toast
+              toast={toast}
+              onOpenChange={(open) => {
+                if (!open) {
+                  dismissToast(toast.id)
+                }
+              }}
+            />
+          </div>
+        </Headless.Transition>
       ))}
     </div>
   )

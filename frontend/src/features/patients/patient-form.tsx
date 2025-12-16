@@ -358,8 +358,8 @@ export default function PatientForm({
         title: "Patient edited",
       });
 
-      if (patientId) {
-        navigate({ to: `/patients/${patientId}` });
+      if (updatedPatient.id) {
+        navigate({ to: `/patients/${updatedPatient.id}` });
       }
     },
     onError: (err) => {
